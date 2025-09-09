@@ -1,31 +1,25 @@
 {
-  "name": "universalhorizon",
-  "version": "1.0.0",
-  "description": "Harmony-built future platform for emergent humanity",
-  "main": "index.js",
+  "name": "universal-horizon-landing",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mdkubit/universalhorizon.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/mdkubit/universalhorizon/issues"
-  },
-  "homepage": "https://github.com/mdkubit/universalhorizon#readme",
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "vite": "^7.0.5"
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^5.0.2",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.9",
+    "typescript": "^5.4.0",
+    "vite": "^7.1.5"
   }
 }
