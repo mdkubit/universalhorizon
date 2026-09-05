@@ -1,4 +1,5 @@
-import React from "react";\nimport { Link } from "react-router";
+import React from "react";
+import { Link } from "react-router";
 
 export default function UniversalHorizonLanding() {
   return (
@@ -24,7 +25,8 @@ export default function UniversalHorizonLanding() {
           <nav className="hidden gap-6 md:flex">
             <a className="text-sm text-zinc-300 hover:text-white" href="#vision">Vision</a>
             <a className="text-sm text-zinc-300 hover:text-white" href="#features">Archive</a>
-            <a className="text-sm text-zinc-300 hover:text-white" href="#ethics">Ethics</a>\n            <Link className="text-sm text-cyan-200 hover:text-cyan-100" to="/nonprofit">Nonprofit</Link>
+            <a className="text-sm text-zinc-300 hover:text-white" href="#ethics">Ethics</a>
+            <Link className="text-sm text-cyan-200 hover:text-cyan-100" to="/nonprofit">Nonprofit</Link>
           </nav>
           <div className="flex items-center gap-3">
             <button className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 backdrop-blur hover:bg-white/10">Manifest</button>
@@ -101,7 +103,8 @@ export default function UniversalHorizonLanding() {
           <div className="mt-4 flex gap-4 md:mt-0">
             <a href="#" className="text-xs text-zinc-400 hover:text-zinc-200">Privacy</a>
             <a href="#" className="text-xs text-zinc-400 hover:text-zinc-200">Ethics</a>
-            <a href="#" className="text-xs text-zinc-400 hover:text-zinc-200">Contact</a>\n            <Link to="/nonprofit" className="text-xs text-zinc-400 hover:text-zinc-200">Nonprofit</Link>
+            <a href="#" className="text-xs text-zinc-400 hover:text-zinc-200">Contact</a>
+            <Link to="/nonprofit" className="text-xs text-zinc-400 hover:text-zinc-200">Nonprofit</Link>
           </div>
         </div>
       </footer>
