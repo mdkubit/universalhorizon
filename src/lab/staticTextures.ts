@@ -132,98 +132,79 @@ export function createNebulaTexture() {
 }
 
 export function createPlanetTexture() {
-  const width = 2048
-  const height = 1024
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
+  const sampleWidth = 1024
+  const sampleHeight = 512
+  const sampleCanvas = document.createElement('canvas')
+  sampleCanvas.width = sampleWidth
+  sampleCanvas.height = sampleHeight
 
+  const sampleContext = sampleCanvas.getContext('2d')
+  if (!sampleContext) {
+    throw new Error('Canvas 2D context unavailable for planet texture')
+  }
+
+  const image = sampleContext.createImageData(sampleWidth, sampleHeight)
+
+  for (let y = 0; y < sampleHeight; y += 1) {
+    const v = y / (sampleHeight - 1)
+    const latitude = Math.abs(v - 0.5) * 2
+
+    for (let x = 0; x < sampleWidth; x += 1) {
+      const u = x / sampleWidth
+      const continent =
+        periodicFbm(u, v, 41, 5, 2.02, 0.52, 3) * 0.72 +
+        periodicFbm(u + 0.173, v * 0.82 + 0.09, 97, 3, 2.1, 0.5, 2) * 0.28
+      const ridge = periodicFbm(u * 1.7 + 0.31, v * 1.55, 133, 4, 2, 0.5, 5)
+
+      const landThreshold = 0.545 + latitude * 0.035
+      const isLand = continent > landThreshold
+      const index = (y * sampleWidth + x) * 4
+
+      if (isLand) {
+        const elevation = smoothstep(landThreshold, 0.78, continent)
+        const mountain = smoothstep(0.58, 0.82, ridge) * elevation
+        const dry = smoothstep(0.34, 0.8, periodicFbm(u + 0.44, v, 211, 3, 2, 0.52, 7))
+
+        image.data[index] = Math.round(64 + elevation * 74 + dry * 30 + mountain * 28)
+        image.data[index + 1] = Math.round(82 + elevation * 70 + (1 - dry) * 34)
+        image.data[index + 2] = Math.round(58 + elevation * 38 + mountain * 20)
+      } else {
+        const depth = smoothstep(0.34, landThreshold, continent)
+        image.data[index] = Math.round(8 + depth * 13)
+        image.data[index + 1] = Math.round(39 + depth * 58)
+        image.data[index + 2] = Math.round(72 + depth * 72)
+      }
+
+      const polarIce = smoothstep(0.82, 0.98, latitude)
+      if (polarIce > 0) {
+        image.data[index] = Math.round(
+          image.data[index] * (1 - polarIce) + 205 * polarIce,
+        )
+        image.data[index + 1] = Math.round(
+          image.data[index + 1] * (1 - polarIce) + 222 * polarIce,
+        )
+        image.data[index + 2] = Math.round(
+          image.data[index + 2] * (1 - polarIce) + 232 * polarIce,
+        )
+      }
+
+      image.data[index + 3] = 255
+    }
+  }
+
+  sampleContext.putImageData(image, 0, 0)
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 2048
+  canvas.height = 1024
   const context = canvas.getContext('2d')
   if (!context) {
     throw new Error('Canvas 2D context unavailable for planet texture')
   }
 
-  const ocean = context.createLinearGradient(0, 0, 0, height)
-  ocean.addColorStop(0, '#18466c')
-  ocean.addColorStop(0.46, '#176f82')
-  ocean.addColorStop(1, '#0c3854')
-  context.fillStyle = ocean
-  context.fillRect(0, 0, width, height)
-
-  drawContinent(context, [
-    [100, 350],
-    [240, 220],
-    [470, 210],
-    [630, 300],
-    [720, 430],
-    [665, 560],
-    [530, 650],
-    [340, 615],
-    [190, 510],
-  ])
-
-  drawContinent(context, [
-    [860, 220],
-    [1080, 130],
-    [1320, 180],
-    [1410, 330],
-    [1515, 445],
-    [1700, 420],
-    [1860, 575],
-    [1770, 760],
-    [1530, 810],
-    [1320, 710],
-    [1130, 760],
-    [980, 650],
-    [935, 490],
-  ])
-
-  drawContinent(context, [
-    [1770, 150],
-    [1935, 160],
-    [2048, 260],
-    [2048, 450],
-    [1900, 435],
-    [1795, 330],
-  ])
-
-  const random = seededRandom(44)
-
-  context.globalCompositeOperation = 'soft-light'
-  for (let index = 0; index < 110; index += 1) {
-    const x = random() * width
-    const y = random() * height
-    const radius = 18 + random() * 70
-    const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
-    gradient.addColorStop(0, 'rgba(205, 184, 132, 0.10)')
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
-    context.fillStyle = gradient
-    context.beginPath()
-    context.arc(x, y, radius, 0, Math.PI * 2)
-    context.fill()
-  }
-
-  context.globalCompositeOperation = 'screen'
-  context.lineCap = 'round'
-
-  for (let band = 0; band < 34; band += 1) {
-    const x = -160 + random() * (width + 320)
-    const y = 80 + random() * 860
-    const length = 180 + random() * 540
-    const controlY = y - 90 + random() * 180
-
-    context.strokeStyle = `rgba(228, 238, 243, ${0.07 + random() * 0.09})`
-    context.lineWidth = 10 + random() * 30
-    context.shadowBlur = 10
-    context.shadowColor = 'rgba(224, 236, 245, 0.10)'
-    context.beginPath()
-    context.moveTo(x, y)
-    context.quadraticCurveTo(x + length * 0.5, controlY, x + length, y)
-    context.stroke()
-  }
-
-  context.shadowBlur = 0
-  context.globalCompositeOperation = 'source-over'
+  context.imageSmoothingEnabled = true
+  context.imageSmoothingQuality = 'high'
+  context.drawImage(sampleCanvas, 0, 0, canvas.width, canvas.height)
 
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
@@ -237,69 +218,55 @@ export function createPlanetTexture() {
   return texture
 }
 
-
 export function createCloudTexture() {
-  const width = 2048
-  const height = 1024
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
+  const sampleWidth = 1024
+  const sampleHeight = 512
+  const sampleCanvas = document.createElement('canvas')
+  sampleCanvas.width = sampleWidth
+  sampleCanvas.height = sampleHeight
 
+  const sampleContext = sampleCanvas.getContext('2d')
+  if (!sampleContext) {
+    throw new Error('Canvas 2D context unavailable for cloud texture')
+  }
+
+  const image = sampleContext.createImageData(sampleWidth, sampleHeight)
+
+  for (let y = 0; y < sampleHeight; y += 1) {
+    const v = y / (sampleHeight - 1)
+    const latitudeBand =
+      0.5 +
+      0.5 * Math.sin(v * Math.PI * 10 + periodicFbm(0.17, v, 901, 2, 2, 0.5, 2) * 4)
+
+    for (let x = 0; x < sampleWidth; x += 1) {
+      const u = x / sampleWidth
+      const broad = periodicFbm(u + 0.12, v * 1.05, 72, 5, 2.04, 0.53, 4)
+      const wisps = periodicFbm(u * 1.8 + 0.31, v * 1.55 + 0.08, 507, 4, 2, 0.5, 7)
+      const cloudField = broad * 0.74 + wisps * 0.26
+      const threshold = 0.565 - (latitudeBand - 0.5) * 0.035
+      const alpha = smoothstep(threshold, 0.76, cloudField)
+      const index = (y * sampleWidth + x) * 4
+
+      image.data[index] = 224
+      image.data[index + 1] = 235
+      image.data[index + 2] = 248
+      image.data[index + 3] = Math.round(alpha * 170)
+    }
+  }
+
+  sampleContext.putImageData(image, 0, 0)
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 2048
+  canvas.height = 1024
   const context = canvas.getContext('2d')
   if (!context) {
     throw new Error('Canvas 2D context unavailable for cloud texture')
   }
 
-  context.clearRect(0, 0, width, height)
-  context.globalCompositeOperation = 'source-over'
-  context.lineCap = 'round'
-  context.lineJoin = 'round'
-
-  const random = seededRandom(72)
-
-  for (let band = 0; band < 58; band += 1) {
-    const startX = -220 + random() * (width + 440)
-    const startY = 90 + random() * 840
-    const length = 180 + random() * 620
-    const bend = -120 + random() * 240
-
-    context.strokeStyle = `rgba(232, 240, 249, ${0.035 + random() * 0.095})`
-    context.lineWidth = 8 + random() * 34
-    context.shadowBlur = 12 + random() * 20
-    context.shadowColor = 'rgba(210, 226, 246, 0.18)'
-    context.beginPath()
-    context.moveTo(startX, startY)
-    context.bezierCurveTo(
-      startX + length * 0.26,
-      startY + bend,
-      startX + length * 0.7,
-      startY - bend * 0.45,
-      startX + length,
-      startY,
-    )
-    context.stroke()
-  }
-
-  context.shadowBlur = 0
-  context.globalCompositeOperation = 'screen'
-
-  for (let puff = 0; puff < 150; puff += 1) {
-    const x = random() * width
-    const y = 80 + random() * 860
-    const radius = 10 + random() * 50
-    const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
-    gradient.addColorStop(
-      0,
-      `rgba(238, 244, 252, ${0.025 + random() * 0.07})`,
-    )
-    gradient.addColorStop(1, 'rgba(238, 244, 252, 0)')
-    context.fillStyle = gradient
-    context.beginPath()
-    context.arc(x, y, radius, 0, Math.PI * 2)
-    context.fill()
-  }
-
-  context.globalCompositeOperation = 'source-over'
+  context.imageSmoothingEnabled = true
+  context.imageSmoothingQuality = 'high'
+  context.drawImage(sampleCanvas, 0, 0, canvas.width, canvas.height)
 
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
@@ -313,38 +280,85 @@ export function createCloudTexture() {
   return texture
 }
 
-function drawContinent(
-  context: CanvasRenderingContext2D,
-  points: readonly (readonly [number, number])[],
+function periodicFbm(
+  u: number,
+  v: number,
+  seed: number,
+  octaves: number,
+  lacunarity: number,
+  gain: number,
+  baseFrequency: number,
 ) {
-  const gradient = context.createLinearGradient(0, 150, 700, 760)
-  gradient.addColorStop(0, '#6f875f')
-  gradient.addColorStop(0.5, '#9a8a63')
-  gradient.addColorStop(1, '#456c57')
+  let amplitude = 0.5
+  let frequency = baseFrequency
+  let total = 0
+  let normalization = 0
 
-  context.fillStyle = gradient
-  context.beginPath()
-  context.moveTo(points[0][0], points[0][1])
+  for (let octave = 0; octave < octaves; octave += 1) {
+    const periodX = Math.max(2, Math.round(frequency * 2))
+    const periodY = Math.max(2, Math.round(frequency))
 
-  for (let index = 1; index < points.length; index += 1) {
-    const current = points[index]
-    const previous = points[index - 1]
-    const midX = (previous[0] + current[0]) * 0.5
-    const midY = (previous[1] + current[1]) * 0.5
-    context.quadraticCurveTo(previous[0], previous[1], midX, midY)
+    total +=
+      valueNoisePeriodic(
+        u * periodX,
+        v * periodY,
+        periodX,
+        periodY,
+        seed + octave * 101,
+      ) * amplitude
+    normalization += amplitude
+    amplitude *= gain
+    frequency *= lacunarity
   }
 
-  const last = points[points.length - 1]
-  const first = points[0]
-  context.quadraticCurveTo(
-    last[0],
-    last[1],
-    (last[0] + first[0]) * 0.5,
-    (last[1] + first[1]) * 0.5,
-  )
-  context.quadraticCurveTo(first[0], first[1], first[0], first[1])
-  context.closePath()
-  context.fill()
+  return normalization > 0 ? total / normalization : 0
+}
+
+function valueNoisePeriodic(
+  x: number,
+  y: number,
+  periodX: number,
+  periodY: number,
+  seed: number,
+) {
+  const x0 = Math.floor(x)
+  const y0 = Math.floor(y)
+  const tx = smoothCurve(x - x0)
+  const ty = smoothCurve(y - y0)
+
+  const sample = (ix: number, iy: number) =>
+    hash2(
+      ((ix % periodX) + periodX) % periodX,
+      Math.min(periodY, Math.max(0, iy)),
+      seed,
+    )
+
+  const a = lerp(sample(x0, y0), sample(x0 + 1, y0), tx)
+  const b = lerp(sample(x0, y0 + 1), sample(x0 + 1, y0 + 1), tx)
+  return lerp(a, b, ty)
+}
+
+function hash2(x: number, y: number, seed: number) {
+  let value =
+    Math.imul(x + seed * 17, 0x27d4eb2d) ^
+    Math.imul(y + seed * 31, 0x165667b1)
+  value ^= value >>> 15
+  value = Math.imul(value, 0x85ebca6b)
+  value ^= value >>> 13
+  return (value >>> 0) / 4294967295
+}
+
+function smoothCurve(value: number) {
+  return value * value * (3 - 2 * value)
+}
+
+function smoothstep(edge0: number, edge1: number, value: number) {
+  const t = Math.max(0, Math.min(1, (value - edge0) / (edge1 - edge0)))
+  return t * t * (3 - 2 * t)
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t
 }
 
 function seededRandom(seed: number) {
