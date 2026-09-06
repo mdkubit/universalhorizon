@@ -4,7 +4,10 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "prepare:earth-assets": "node scripts/copy-earth-assets.mjs",
+    "predev": "npm run prepare:earth-assets",
     "dev": "vite",
+    "prebuild": "npm run prepare:earth-assets",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
