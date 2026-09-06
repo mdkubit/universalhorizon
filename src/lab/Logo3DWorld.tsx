@@ -10,11 +10,15 @@ import { cleanLetterGeometry } from './cleanLetterGeometry'
 
 type Logo3DWorldProps = {
   scrollProgress: MutableRefObject<number>
+  homeChoreography?: boolean
 }
 
 const EXTRUDE_DEPTH = 0.28
 
-export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
+export default function Logo3DWorld({
+  scrollProgress,
+  homeChoreography = false,
+}: Logo3DWorldProps) {
   const emblemRef = useRef<THREE.Group>(null)
   const introStartedAt = useRef<number | null>(null)
   const introTime = useRef(0)
@@ -96,6 +100,15 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
 
     if (emblemRef.current) {
       const floatWeight = introPhase(elapsed, 4.15, 5.35)
+      const targetX =
+        arrivalDone && homeChoreography ? homeLogoOffset(p) : 0
+
+      emblemRef.current.position.x = THREE.MathUtils.damp(
+        emblemRef.current.position.x,
+        targetX,
+        3.1,
+        delta,
+      )
       emblemRef.current.position.y =
         0.52 +
         Math.sin(state.clock.elapsedTime * 0.32) * 0.025 * floatWeight
@@ -931,6 +944,39 @@ function TipLight({
 function introPhase(time: number, start: number, end: number) {
   const raw = THREE.MathUtils.clamp((time - start) / (end - start), 0, 1)
   return raw * raw * (3 - 2 * raw)
+}
+
+function homeLogoOffset(progress: number) {
+  const keyframes = [
+    [0, 0],
+    [0.08, 0.92],
+    [0.18, 0.92],
+    [0.27, -0.9],
+    [0.37, -0.9],
+    [0.46, 0.88],
+    [0.56, 0.88],
+    [0.65, -0.82],
+    [0.75, -0.82],
+    [0.84, 0],
+    [1, 0],
+  ] as const
+
+  for (let index = 0; index < keyframes.length - 1; index += 1) {
+    const [startProgress, startValue] = keyframes[index]
+    const [endProgress, endValue] = keyframes[index + 1]
+
+    if (progress <= endProgress) {
+      const raw = THREE.MathUtils.clamp(
+        (progress - startProgress) / Math.max(0.0001, endProgress - startProgress),
+        0,
+        1,
+      )
+      const eased = raw * raw * (3 - 2 * raw)
+      return THREE.MathUtils.lerp(startValue, endValue, eased)
+    }
+  }
+
+  return 0
 }
 
 function smooth01(value: number) {
