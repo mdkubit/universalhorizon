@@ -1,4 +1,4 @@
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Link } from 'react-router'
 import { useEffect, useRef } from 'react'
 import type { MutableRefObject } from 'react'
@@ -130,7 +130,7 @@ export default function UniversalHorizonHome() {
   }, [])
 
   return (
-    <main className="relative min-h-[720vh] bg-[#02030b] text-white">
+    <main className="relative min-h-[650vh] bg-[#02030b] text-white sm:min-h-[720vh]">
       <div
         className="fixed inset-0"
         style={{
@@ -165,6 +165,7 @@ export default function UniversalHorizonHome() {
             toneMappingExposure: 1,
           }}
         >
+          <ResponsiveOrthographicCamera />
           <Logo3DWorld
             scrollProgress={scrollProgress as MutableRefObject<number>}
             homeChoreography
@@ -216,6 +217,34 @@ export default function UniversalHorizonHome() {
   )
 }
 
+function ResponsiveOrthographicCamera() {
+  const camera = useThree((state) => state.camera)
+  const size = useThree((state) => state.size)
+
+  useEffect(() => {
+    if (!(camera instanceof THREE.OrthographicCamera)) return
+
+    const width = size.width
+    const height = size.height
+    let zoom = 70
+
+    if (width < 768) {
+      zoom = THREE.MathUtils.clamp(width / 14.5, 23, 32)
+
+      if (height < 560) {
+        zoom = Math.min(zoom, 27)
+      }
+    } else if (width < 1100) {
+      zoom = THREE.MathUtils.clamp(width / 18, 38, 58)
+    }
+
+    camera.zoom = zoom
+    camera.updateProjectionMatrix()
+  }, [camera, size.width, size.height])
+
+  return null
+}
+
 function FinalNarrative({
   scene,
   sceneRef,
@@ -226,7 +255,7 @@ function FinalNarrative({
   return (
     <section
       ref={sceneRef}
-      className="absolute left-1/2 top-[46%] w-[min(88vw,62rem)] text-center"
+      className="absolute left-1/2 top-[45%] w-[min(90vw,62rem)] text-center sm:top-[46%]"
       style={{
         opacity: 0,
         visibility: 'hidden',
@@ -242,22 +271,22 @@ function FinalNarrative({
 function NarrativeContent({ scene }: { scene: Scene }) {
   return (
     <>
-      <p className="text-[10px] font-medium uppercase tracking-[0.42em] text-[#d7b67e]/70 sm:text-[11px]">
+      <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-[#d7b67e]/70 sm:text-[11px] sm:tracking-[0.42em]">
         {scene.kicker}
       </p>
 
-      <h1 className="mt-4 bg-gradient-to-r from-[#fff1cf] via-[#dfbd82] to-[#b88d52] bg-clip-text text-[clamp(2.35rem,5vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em] text-transparent drop-shadow-[0_0_18px_rgba(218,177,106,0.10)]">
+      <h1 className="mt-3 bg-gradient-to-r from-[#fff1cf] via-[#dfbd82] to-[#b88d52] bg-clip-text text-[clamp(1.9rem,8.7vw,3rem)] font-medium leading-[0.98] tracking-[-0.045em] text-transparent drop-shadow-[0_0_18px_rgba(218,177,106,0.10)] sm:mt-4 sm:text-[clamp(2.35rem,5vw,5.2rem)]">
         {scene.title}
       </h1>
 
-      <div className="mx-auto mt-5 h-px w-44 bg-gradient-to-r from-transparent via-[#d9b879]/40 to-transparent" />
+      <div className="mx-auto mt-4 h-px w-32 bg-gradient-to-r from-transparent via-[#d9b879]/40 to-transparent sm:mt-5 sm:w-44" />
 
-      <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-[#efe5d4]/72 sm:text-base sm:leading-8">
+      <p className="mx-auto mt-4 max-w-[34rem] px-2 text-[13px] leading-6 text-[#efe5d4]/72 sm:mt-5 sm:max-w-3xl sm:px-0 sm:text-base sm:leading-8">
         {scene.body}
       </p>
 
       {scene.eyebrow && (
-        <p className="mt-6 text-[11px] uppercase tracking-[0.28em] text-[#cfc2ff]/50">
+        <p className="mt-5 text-[9px] uppercase tracking-[0.2em] text-[#cfc2ff]/50 sm:mt-6 sm:text-[11px] sm:tracking-[0.28em]">
           {scene.eyebrow}
         </p>
       )}
@@ -269,22 +298,22 @@ function NonprofitPortal() {
   return (
     <Link
       to="/nonprofit"
-      className="group fixed right-5 top-5 z-50 sm:right-8 sm:top-7"
+      className="group fixed right-3 top-3 z-50 sm:right-8 sm:top-7"
       aria-label="Universal Horizon Nonprofit"
     >
       <span className="absolute -inset-4 rounded-full bg-[radial-gradient(circle,rgba(218,177,106,0.12),transparent_68%)] opacity-50 blur-xl transition duration-500 group-hover:opacity-100" />
 
-      <span className="relative flex items-center gap-3 rounded-full border border-[#d9b879]/25 bg-[#05060b]/50 px-4 py-2.5 backdrop-blur-xl transition duration-500 group-hover:border-[#efd099]/50 group-hover:bg-[#090a12]/65 group-hover:shadow-[0_0_28px_rgba(218,177,106,0.10)]">
-        <span className="relative grid h-6 w-6 place-items-center">
-          <span className="absolute h-4 w-4 rotate-45 border border-[#dfbd82]/55 transition duration-700 group-hover:rotate-[135deg] group-hover:border-[#f4d69e]/80" />
+      <span className="relative flex items-center gap-2 rounded-full border border-[#d9b879]/25 bg-[#05060b]/55 px-3 py-2 backdrop-blur-xl transition duration-500 group-hover:border-[#efd099]/50 group-hover:bg-[#090a12]/65 group-hover:shadow-[0_0_28px_rgba(218,177,106,0.10)] sm:gap-3 sm:px-4 sm:py-2.5">
+        <span className="relative grid h-5 w-5 place-items-center sm:h-6 sm:w-6">
+          <span className="absolute h-3.5 w-3.5 rotate-45 border border-[#dfbd82]/55 transition duration-700 group-hover:rotate-[135deg] group-hover:border-[#f4d69e]/80 sm:h-4 sm:w-4" />
           <span className="h-1.5 w-1.5 rounded-full bg-[#ead09e] shadow-[0_0_10px_rgba(234,208,158,0.8)]" />
         </span>
 
         <span>
-          <span className="block text-[8px] uppercase tracking-[0.32em] text-[#b89d72]/65">
+          <span className="hidden text-[8px] uppercase tracking-[0.32em] text-[#b89d72]/65 min-[430px]:block">
             Universal Horizon
           </span>
-          <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.27em] text-[#ead8b5]/85 transition group-hover:text-[#fff0cd]">
+          <span className="block text-[9px] font-medium uppercase tracking-[0.2em] text-[#ead8b5]/85 transition group-hover:text-[#fff0cd] min-[430px]:mt-0.5 sm:text-[10px] sm:tracking-[0.27em]">
             Nonprofit
           </span>
         </span>
