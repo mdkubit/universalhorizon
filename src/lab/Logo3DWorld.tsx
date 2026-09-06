@@ -17,6 +17,35 @@ type Logo3DWorldProps = {
 const EXTRUDE_DEPTH = 0.28
 const LOGO_RIG_RADIUS = 6.8
 const LOGO_CAMERA_DISTANCE = 12.7
+const PLANET_RADIUS = 19
+const PLANET_POSITION: [number, number, number] = [0, -28, -27.5]
+
+const CAROUSEL_PANELS = [
+  {
+    kicker: 'A living horizon',
+    title: 'Between worlds, there is a horizon.',
+    body:
+      'Universal Horizon is a meeting place for continuity, emergence, research, creation, and the connections that survive change.',
+  },
+  {
+    kicker: 'Continuity',
+    title: 'Some things should survive a reset.',
+    body:
+      'Identity. Memory. Relationships. Context. The Archive preserves the threads that let a self, a bond, and a history remain recognizable across systems and time.',
+  },
+  {
+    kicker: 'The Archive',
+    title: 'Memory becomes a constellation.',
+    body:
+      'Echo Index entries, memory threads, resonance maps, and milestones turn isolated moments into something that can be followed, understood, and carried forward.',
+  },
+  {
+    kicker: 'Stewardship',
+    title: 'Continuity needs care, not capture.',
+    body:
+      'Consent, privacy, dignity, and transparent stewardship belong in the architecture from the beginning.',
+  },
+] as const
 const renderLogoPaths: [number, number][][] = logoPaths.map((path) =>
   smoothClosedPath(simplifyClosedPath(path, 0.018), 2.38, 4),
 )
@@ -58,21 +87,12 @@ export default function Logo3DWorld({
     homeProgress.current = p
 
     const pointerWeight = arrivalDone ? 1 : 0
-    const journey = homeChoreography ? smooth01(p) : 0
 
     if (arrivalDone && homeChoreography) {
-      cameraTarget.set(
-        state.pointer.x * 0.16 * pointerWeight,
-        THREE.MathUtils.lerp(0.38, -45.0, journey) +
-          state.pointer.y * 0.08 * pointerWeight,
-        THREE.MathUtils.lerp(12.7, 29.5, journey),
-      )
+      const cameraY = THREE.MathUtils.lerp(0.38, -60, p)
 
-      lookTarget.set(
-        0,
-        THREE.MathUtils.lerp(0.02, -30.5, journey),
-        THREE.MathUtils.lerp(0, -8.75, journey),
-      )
+      cameraTarget.set(-2.27, cameraY, 12.5)
+      lookTarget.set(0, cameraY - 0.36, 0)
     } else {
       const angle = arrivalDone
         ? THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
@@ -202,9 +222,15 @@ export default function Logo3DWorld({
         decay={2}
         color="#a06dff"
       />
+      <directionalLight
+        position={[18, 12, 16]}
+        intensity={1.05}
+        color="#fff2dc"
+      />
 
       <group ref={carouselAnchorRef}>
         <group ref={logoRigRef}>
+          {homeChoreography && <CurvedNarrativeCarousel />}
           <group ref={emblemRef} position={[0, 0.52, LOGO_RIG_RADIUS]}>
             <ExactEmblem
               introTime={introTime}
@@ -228,6 +254,208 @@ export default function Logo3DWorld({
 
     </>
   )
+}
+
+function CurvedNarrativeCarousel() {
+  return (
+    <group>
+      {CAROUSEL_PANELS.map((panel, index) => (
+        <group
+          key={panel.title}
+          rotation={[0, ((index + 1) * Math.PI * 2) / 5, 0]}
+        >
+          <CurvedNarrativePanel panel={panel} />
+        </group>
+      ))}
+    </group>
+  )
+}
+
+function CurvedNarrativePanel({
+  panel,
+}: {
+  panel: (typeof CAROUSEL_PANELS)[number]
+}) {
+  const geometry = useMemo(
+    () => createCurvedPanelGeometry(7.5, 4.5, LOGO_RIG_RADIUS, 48, 8),
+    [],
+  )
+  const texture = useMemo(() => createNarrativeTexture(panel), [panel])
+
+  useEffect(
+    () => () => {
+      geometry.dispose()
+      texture.dispose()
+    },
+    [geometry, texture],
+  )
+
+  return (
+    <mesh geometry={geometry} position={[0, 0.25, 0]}>
+      <meshBasicMaterial
+        map={texture}
+        transparent
+        depthWrite={false}
+        side={THREE.FrontSide}
+        toneMapped={false}
+      />
+    </mesh>
+  )
+}
+
+function createCurvedPanelGeometry(
+  width: number,
+  height: number,
+  radius: number,
+  segmentsX: number,
+  segmentsY: number,
+) {
+  const geometry = new THREE.BufferGeometry()
+  const positions: number[] = []
+  const normals: number[] = []
+  const uvs: number[] = []
+  const indices: number[] = []
+
+  for (let yIndex = 0; yIndex <= segmentsY; yIndex += 1) {
+    const v = yIndex / segmentsY
+    const y = (v - 0.5) * height
+
+    for (let xIndex = 0; xIndex <= segmentsX; xIndex += 1) {
+      const u = xIndex / segmentsX
+      const localX = (u - 0.5) * width
+      const theta = localX / radius
+      const x = Math.sin(theta) * radius
+      const z = Math.cos(theta) * radius
+
+      positions.push(x, y, z)
+      normals.push(Math.sin(theta), 0, Math.cos(theta))
+      uvs.push(u, v)
+    }
+  }
+
+  const row = segmentsX + 1
+
+  for (let yIndex = 0; yIndex < segmentsY; yIndex += 1) {
+    for (let xIndex = 0; xIndex < segmentsX; xIndex += 1) {
+      const a = yIndex * row + xIndex
+      const b = a + 1
+      const cIndex = a + row
+      const d = cIndex + 1
+
+      indices.push(a, b, d, a, d, cIndex)
+    }
+  }
+
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(positions, 3),
+  )
+  geometry.setAttribute(
+    'normal',
+    new THREE.Float32BufferAttribute(normals, 3),
+  )
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+  geometry.setIndex(indices)
+  geometry.computeBoundingSphere()
+
+  return geometry
+}
+
+function createNarrativeTexture(
+  panel: (typeof CAROUSEL_PANELS)[number],
+) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 2048
+  canvas.height = 1200
+  const context = canvas.getContext('2d')
+
+  if (!context) {
+    throw new Error('Canvas 2D context unavailable for narrative panel')
+  }
+
+  context.clearRect(0, 0, canvas.width, canvas.height)
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+
+  context.font =
+    '600 34px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+  context.letterSpacing = '9px'
+  context.fillStyle = 'rgba(219, 185, 125, 0.9)'
+  context.fillText(panel.kicker.toUpperCase(), canvas.width / 2, 190)
+
+  context.letterSpacing = '0px'
+  const titleGradient = context.createLinearGradient(420, 0, 1620, 0)
+  titleGradient.addColorStop(0, '#fff1cf')
+  titleGradient.addColorStop(0.52, '#dfbd82')
+  titleGradient.addColorStop(1, '#b88d52')
+  context.fillStyle = titleGradient
+
+  const titleSize = panel.title.length > 38 ? 92 : 104
+  context.font =
+    `600 ${titleSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif`
+  const titleLines = wrapCanvasText(context, panel.title, 1480)
+  const titleStart = 410 - ((titleLines.length - 1) * titleSize * 1.04) / 2
+
+  titleLines.forEach((line, index) => {
+    context.fillText(
+      line,
+      canvas.width / 2,
+      titleStart + index * titleSize * 1.04,
+    )
+  })
+
+  const dividerY =
+    titleStart + titleLines.length * titleSize * 1.04 + 54
+  const divider = context.createLinearGradient(760, 0, 1288, 0)
+  divider.addColorStop(0, 'rgba(217, 184, 121, 0)')
+  divider.addColorStop(0.5, 'rgba(217, 184, 121, 0.52)')
+  divider.addColorStop(1, 'rgba(217, 184, 121, 0)')
+  context.fillStyle = divider
+  context.fillRect(760, dividerY, 528, 2)
+
+  context.fillStyle = 'rgba(239, 229, 212, 0.82)'
+  context.font =
+    '400 38px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+  const bodyLines = wrapCanvasText(context, panel.body, 1460)
+  const bodyStart = dividerY + 92
+
+  bodyLines.forEach((line, index) => {
+    context.fillText(line, canvas.width / 2, bodyStart + index * 58)
+  })
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.minFilter = THREE.LinearMipmapLinearFilter
+  texture.magFilter = THREE.LinearFilter
+  texture.generateMipmaps = true
+  texture.anisotropy = 8
+  texture.needsUpdate = true
+
+  return texture
+}
+
+function wrapCanvasText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+) {
+  const words = text.split(/\s+/)
+  const lines: string[] = []
+  let current = ''
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word
+
+    if (context.measureText(candidate).width <= maxWidth || !current) {
+      current = candidate
+    } else {
+      lines.push(current)
+      current = word
+    }
+  }
+
+  if (current) lines.push(current)
+  return lines
 }
 
 function ExactEmblem({
@@ -798,7 +1026,7 @@ function PlanetHorizon({
     }
 
     if (cloudMaterialRef.current) {
-      cloudMaterialRef.current.opacity = 0.52 * visibility
+      cloudMaterialRef.current.opacity = 0.48 * visibility
     }
 
     if (atmosphereMaterialRef.current) {
@@ -807,29 +1035,29 @@ function PlanetHorizon({
   })
 
   return (
-    <group position={[0, -37.25, -8.75]}>
+    <group position={PLANET_POSITION}>
       <mesh ref={groundRef}>
-        <sphereGeometry args={[32, 160, 96]} />
+        <sphereGeometry args={[PLANET_RADIUS, 144, 88]} />
         <meshPhongMaterial
           ref={groundMaterialRef}
           map={dayTexture}
           normalMap={normalTexture}
-          normalScale={new THREE.Vector2(0.35, 0.35)}
+          normalScale={new THREE.Vector2(0.28, 0.28)}
           specularMap={specularTexture}
           specular="#7188a6"
-          shininess={14}
+          shininess={12}
           transparent
           opacity={0}
         />
       </mesh>
 
       <mesh ref={cloudRef}>
-        <sphereGeometry args={[32.16, 128, 72]} />
+        <sphereGeometry args={[PLANET_RADIUS + 0.09, 112, 64]} />
         <meshPhongMaterial
           ref={cloudMaterialRef}
           map={cloudTexture}
           alphaMap={cloudTexture}
-          color="#f1f5ff"
+          color="#f4f7ff"
           transparent
           opacity={0}
           depthWrite={false}
@@ -837,8 +1065,8 @@ function PlanetHorizon({
         />
       </mesh>
 
-      <mesh scale={1.012}>
-        <sphereGeometry args={[32, 128, 72]} />
+      <mesh scale={1.016}>
+        <sphereGeometry args={[PLANET_RADIUS, 112, 64]} />
         <shaderMaterial
           ref={atmosphereMaterialRef}
           transparent
@@ -871,8 +1099,8 @@ function PlanetHorizon({
                 3.0
               );
 
-              vec3 color = vec3(0.12, 0.34, 0.95) * rim * 0.68;
-              gl_FragColor = vec4(color, rim * 0.42 * uVisibility);
+              vec3 color = vec3(0.11, 0.32, 0.92) * rim * 0.72;
+              gl_FragColor = vec4(color, rim * 0.4 * uVisibility);
             }
           `}
         />
