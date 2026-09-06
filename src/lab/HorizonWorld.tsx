@@ -5,7 +5,7 @@ import type { MutableRefObject } from 'react'
 import * as THREE from 'three'
 
 const BEHAVIOR_POINTS = 86
-const RENDER_POINTS = 228
+const RENDER_POINTS = 340
 const THREAD_SEGMENT_LENGTH = 0.074
 const SPARKLE_COUNT = 96
 
@@ -179,7 +179,8 @@ function LivingThread({
     const time = state.clock.getElapsedTime()
     const current = interaction.current
     const energy = current.pointerEnergy
-    const activelyPointing = current.idleTime < 0.2 || energy > 0.08
+    const activelyPointing = current.idleTime < 0.28 || energy > 0.055
+    let chasingSparkle = false
 
     if (activelyPointing) {
       sparkleTarget.current = -1
@@ -199,13 +200,14 @@ function LivingThread({
 
       if (targetIndex !== sparkleTarget.current) {
         sparkleTarget.current = targetIndex
-        sparkleTargetUntil.current = time + 0.72
+        sparkleTargetUntil.current = time + 1.15
       }
 
       const particle =
         sparkleTarget.current >= 0 ? sparkles.current[sparkleTarget.current] : undefined
 
       if (particle?.active) {
+        chasingSparkle = true
         desired.copy(particle.position)
         desired.x += Math.sin(time * 4.6 + particle.phase) * 0.018
         desired.y += Math.cos(time * 4.1 + particle.phase) * 0.018
@@ -224,7 +226,11 @@ function LivingThread({
       }
     }
 
-    const headResponse = activelyPointing ? 17 : 4.8
+    const headResponse = activelyPointing
+      ? THREE.MathUtils.lerp(5.2, 2.15, energy)
+      : chasingSparkle
+        ? 3.35
+        : 1.18
     const headEase = 1 - Math.exp(-delta * headResponse)
     behaviorPoints[0].lerp(desired, headEase)
 
@@ -375,7 +381,7 @@ function SparkleField({
 
       const progress = particle.age / particle.life
       const fadeIn = Math.min(1, particle.age / 0.07)
-      const fadeOut = Math.pow(Math.max(0, 1 - progress), 1.15)
+      const fadeOut = Math.pow(Math.max(0, 1 - progress), 0.72)
 
       positionValues[base] = particle.position.x
       positionValues[base + 1] = particle.position.y
@@ -580,7 +586,7 @@ function resolveSparkleTarget(
     if (
       current?.active &&
       current.age > 0.14 &&
-      current.life - current.age > 0.28
+      current.life - current.age > 0.5
     ) {
       return currentIndex
     }
@@ -592,7 +598,7 @@ function resolveSparkleTarget(
   for (let index = 0; index < particles.length; index += 1) {
     const particle = particles[index]
     if (!particle.active) continue
-    if (particle.age < 0.14 || particle.life - particle.age < 0.34) continue
+    if (particle.age < 0.16 || particle.life - particle.age < 0.55) continue
 
     const distance = head.distanceToSquared(particle.position)
     const freshnessPenalty = (particle.age / particle.life) * 0.24
@@ -647,7 +653,7 @@ function emitSparkle(
 
   particle.active = true
   particle.age = 0
-  particle.life = 1.9 + random() * 1.65
+  particle.life = 3.6 + random() * 2.4
   particle.size = 4.5 + random() * 5.5
   particle.phase = random() * Math.PI * 2
 
@@ -656,7 +662,7 @@ function emitSparkle(
   particle.position.y += (random() - 0.5) * 0.035
   particle.position.z -= 0.01 + random() * 0.035
 
-  particle.velocity.copy(pointerVelocity).multiplyScalar(-0.012)
+  particle.velocity.copy(pointerVelocity).multiplyScalar(-0.007)
   particle.velocity.x += (random() - 0.5) * 0.11
   particle.velocity.y += (random() - 0.5) * 0.11
   particle.velocity.z += (random() - 0.5) * 0.045
