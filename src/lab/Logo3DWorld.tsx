@@ -1180,11 +1180,11 @@ function homeCarouselProgress(progress: number) {
 }
 
 function homeLogoVisibility(progress: number) {
-  if (progress <= 0.755) return 1
-  if (progress >= 0.91) return 0.06
+  if (progress <= 0.805) return 1
+  if (progress >= 0.92) return 0.06
 
   const raw = THREE.MathUtils.clamp(
-    (progress - 0.755) / (0.91 - 0.755),
+    (progress - 0.805) / (0.92 - 0.805),
     0,
     1,
   )
