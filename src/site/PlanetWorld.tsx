@@ -23,6 +23,9 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
 
   const groundRef = useRef<THREE.Mesh>(null)
   const cloudRef = useRef<THREE.Mesh>(null)
+  const groundMaterialRef = useRef<THREE.MeshPhongMaterial>(null)
+  const cloudMaterialRef = useRef<THREE.MeshPhongMaterial>(null)
+  const atmosphereMaterialRef = useRef<THREE.ShaderMaterial>(null)
   const smoothProgress = useRef(0)
 
   useEffect(() => {
@@ -43,6 +46,8 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
   }, [dayTexture, normalTexture, specularTexture, cloudTexture])
 
   useFrame((state, delta) => {
+    const arrival = smoothRange(state.clock.elapsedTime, 4.3, 5.22)
+
     smoothProgress.current = THREE.MathUtils.damp(
       smoothProgress.current,
       THREE.MathUtils.clamp(scrollProgress.current, 0, 1),
@@ -67,6 +72,18 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
       cloudRef.current.rotation.y =
         1.12 + state.clock.elapsedTime * 0.0094
     }
+
+    if (groundMaterialRef.current) {
+      groundMaterialRef.current.opacity = arrival
+    }
+
+    if (cloudMaterialRef.current) {
+      cloudMaterialRef.current.opacity = 0.43 * arrival
+    }
+
+    if (atmosphereMaterialRef.current) {
+      atmosphereMaterialRef.current.uniforms.uVisibility.value = arrival
+    }
   })
 
   return (
@@ -85,23 +102,27 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
         <mesh ref={groundRef}>
           <sphereGeometry args={[PLANET_RADIUS, 160, 96]} />
           <meshPhongMaterial
+            ref={groundMaterialRef}
             map={dayTexture}
             normalMap={normalTexture}
             normalScale={new THREE.Vector2(0.22, 0.22)}
             specularMap={specularTexture}
             specular="#6b86a8"
             shininess={10}
+            transparent
+            opacity={0}
           />
         </mesh>
 
         <mesh ref={cloudRef}>
           <sphereGeometry args={[PLANET_RADIUS + 0.055, 128, 72]} />
           <meshPhongMaterial
+            ref={cloudMaterialRef}
             map={cloudTexture}
             alphaMap={cloudTexture}
             color="#f7f9ff"
             transparent
-            opacity={0.43}
+            opacity={0}
             depthWrite={false}
             shininess={1}
           />
@@ -110,13 +131,18 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
         <mesh scale={1.012}>
           <sphereGeometry args={[PLANET_RADIUS, 128, 72]} />
           <shaderMaterial
+            ref={atmosphereMaterialRef}
             transparent
             depthWrite={false}
             blending={THREE.AdditiveBlending}
             side={THREE.BackSide}
+            uniforms={{
+              uVisibility: { value: 0 },
+            }}
             vertexShader={`
               varying vec3 vNormalView;
               varying vec3 vPositionView;
+              uniform float uVisibility;
 
               void main() {
                 vNormalView = normalize(normalMatrix * normal);
@@ -137,7 +163,7 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
                 );
 
                 vec3 color = vec3(0.12, 0.34, 0.95) * rim * 0.66;
-                gl_FragColor = vec4(color, rim * 0.36);
+                gl_FragColor = vec4(color, rim * 0.36 * uVisibility);
               }
             `}
           />
@@ -145,4 +171,10 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
       </group>
     </>
   )
+}
+
+
+function smoothRange(value: number, start: number, end: number) {
+  const raw = THREE.MathUtils.clamp((value - start) / (end - start), 0, 1)
+  return raw * raw * (3 - 2 * raw)
 }
