@@ -237,6 +237,82 @@ export function createPlanetTexture() {
   return texture
 }
 
+
+export function createCloudTexture() {
+  const width = 2048
+  const height = 1024
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+
+  const context = canvas.getContext('2d')
+  if (!context) {
+    throw new Error('Canvas 2D context unavailable for cloud texture')
+  }
+
+  context.clearRect(0, 0, width, height)
+  context.globalCompositeOperation = 'source-over'
+  context.lineCap = 'round'
+  context.lineJoin = 'round'
+
+  const random = seededRandom(72)
+
+  for (let band = 0; band < 58; band += 1) {
+    const startX = -220 + random() * (width + 440)
+    const startY = 90 + random() * 840
+    const length = 180 + random() * 620
+    const bend = -120 + random() * 240
+
+    context.strokeStyle = `rgba(232, 240, 249, ${0.035 + random() * 0.095})`
+    context.lineWidth = 8 + random() * 34
+    context.shadowBlur = 12 + random() * 20
+    context.shadowColor = 'rgba(210, 226, 246, 0.18)'
+    context.beginPath()
+    context.moveTo(startX, startY)
+    context.bezierCurveTo(
+      startX + length * 0.26,
+      startY + bend,
+      startX + length * 0.7,
+      startY - bend * 0.45,
+      startX + length,
+      startY,
+    )
+    context.stroke()
+  }
+
+  context.shadowBlur = 0
+  context.globalCompositeOperation = 'screen'
+
+  for (let puff = 0; puff < 150; puff += 1) {
+    const x = random() * width
+    const y = 80 + random() * 860
+    const radius = 10 + random() * 50
+    const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
+    gradient.addColorStop(
+      0,
+      `rgba(238, 244, 252, ${0.025 + random() * 0.07})`,
+    )
+    gradient.addColorStop(1, 'rgba(238, 244, 252, 0)')
+    context.fillStyle = gradient
+    context.beginPath()
+    context.arc(x, y, radius, 0, Math.PI * 2)
+    context.fill()
+  }
+
+  context.globalCompositeOperation = 'source-over'
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.ClampToEdgeWrapping
+  texture.minFilter = THREE.LinearMipmapLinearFilter
+  texture.magFilter = THREE.LinearFilter
+  texture.generateMipmaps = true
+  texture.anisotropy = 8
+  texture.needsUpdate = true
+  return texture
+}
+
 function drawContinent(
   context: CanvasRenderingContext2D,
   points: readonly (readonly [number, number])[],
