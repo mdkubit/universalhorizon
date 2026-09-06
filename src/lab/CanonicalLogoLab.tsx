@@ -38,6 +38,10 @@ export default function CanonicalLogoLab() {
     stage.style.setProperty('--logo-shift-y', `${(-y * 3.2).toFixed(2)}px`)
     stage.style.setProperty('--logo-reflection-x', `${(x * 8.0).toFixed(2)}px`)
     stage.style.setProperty('--logo-reflection-y', `${(y * 5.5).toFixed(2)}px`)
+    stage.style.setProperty('--logo-reflection-x-warm', `${(-x * 4.4).toFixed(2)}px`)
+    stage.style.setProperty('--logo-reflection-y-warm', `${(-y * 3.0).toFixed(2)}px`)
+    stage.style.setProperty('--logo-rotate-x', `${(-y * 0.25).toFixed(3)}deg`)
+    stage.style.setProperty('--logo-rotate-y', `${(x * 0.34).toFixed(3)}deg`)
   }
 
   const resetPointer = () => {
@@ -49,6 +53,10 @@ export default function CanonicalLogoLab() {
     stage.style.setProperty('--logo-shift-y', '0px')
     stage.style.setProperty('--logo-reflection-x', '0px')
     stage.style.setProperty('--logo-reflection-y', '0px')
+    stage.style.setProperty('--logo-reflection-x-warm', '0px')
+    stage.style.setProperty('--logo-reflection-y-warm', '0px')
+    stage.style.setProperty('--logo-rotate-x', '0deg')
+    stage.style.setProperty('--logo-rotate-y', '0deg')
   }
 
   return (
