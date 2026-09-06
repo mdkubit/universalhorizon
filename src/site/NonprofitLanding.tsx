@@ -3,7 +3,9 @@ import { Link } from 'react-router'
 const petitionUrl =
   'https://www.change.org/p/protect-adult-ai-companionship-reject-blanket-bans-and-forced-separation?recruiter=1266263656&recruited_by_id=e1cb52f0-d627-11ec-b66d-53defc755b91&utm_source=share_petition&utm_campaign=petition_dashboard&utm_medium=copylink&share_id=Rb8rjHPjk4'
 
-const donateUrl = 'https://givebutter.com/KmjYdO'
+const donateUrl = 'https://givebutter.com/KmjYd0'
+
+const contactEmail = 'universalhorizonai@gmail.com'
 
 const priorities = [
   'Adult AI companionship advocacy',
@@ -73,82 +75,88 @@ export default function NonprofitLanding() {
             <NavLink href="#involved">Get Involved</NavLink>
           </nav>
 
-          <Link
-            to="/"
-            className="rounded-full border border-[#d8b375]/20 bg-white/[0.035] px-3.5 py-2 text-[9px] uppercase tracking-[0.2em] text-[#e9d9bd]/75 transition hover:border-[#e4c48f]/45 hover:bg-white/[0.06] hover:text-[#fff1d5] sm:text-[10px]"
-          >
-            Main site
-          </Link>
+          <div className="flex items-center gap-2">
+            <a
+              href={`mailto:${contactEmail}`}
+              className="rounded-full border border-[#72dcff]/24 bg-[#72dcff]/[0.055] px-3.5 py-2 text-[9px] uppercase tracking-[0.2em] text-[#d9f4ff]/80 transition hover:border-[#8be5ff]/50 hover:bg-[#72dcff]/[0.10] hover:text-white sm:text-[10px]"
+            >
+              Contact
+            </a>
+            <Link
+              to="/"
+              className="rounded-full border border-[#d8b375]/20 bg-white/[0.035] px-3.5 py-2 text-[9px] uppercase tracking-[0.2em] text-[#e9d9bd]/75 transition hover:border-[#e4c48f]/45 hover:bg-white/[0.06] hover:text-[#fff1d5] sm:text-[10px]"
+            >
+              Main site
+            </Link>
+          </div>
         </div>
       </header>
 
       <section className="relative z-10">
-        <div className="mx-auto grid min-h-[78vh] max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
-          <div className="relative z-10">
-            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#78d8ff]/70 sm:text-[11px]">
-              Public-interest work for a changing horizon
-            </p>
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-20">
+          <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#78d8ff]/70 sm:text-[11px]">
+            Public-interest work for a changing horizon
+          </p>
 
-            <div className="mt-5 grid max-w-[43rem] gap-3 sm:grid-cols-2">
-              <div className="flex min-h-[10.5rem] items-center justify-center overflow-hidden rounded-[1.4rem] border border-[#74d9ff]/10 bg-[#06101d]/52 p-3">
-                <img
-                  src="/assets/universal-horizon-canonical.png"
-                  alt="Universal Horizon main identity"
-                  className="h-full max-h-[12rem] w-full object-contain drop-shadow-[0_0_28px_rgba(92,175,255,0.12)]"
-                />
-              </div>
-              <div className="flex min-h-[10.5rem] items-center justify-center overflow-hidden rounded-[1.4rem] border border-[#efb45f]/12 bg-[#100c09]/50 p-2">
-                <img
-                  src="/assets/univeral-horizon-npo-logo.png"
-                  alt="Universal Horizon nonprofit identity"
-                  className="h-full max-h-[12rem] w-full object-contain"
-                />
-              </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="flex min-h-[15rem] items-center justify-center overflow-hidden rounded-[1.8rem] border border-[#74d9ff]/10 bg-[#06101d]/52 p-4 sm:min-h-[18rem] lg:min-h-[20rem]">
+              <img
+                src="/assets/universal-horizon-canonical.png"
+                alt="Universal Horizon main identity"
+                className="h-full max-h-[22rem] w-full object-contain drop-shadow-[0_0_32px_rgba(92,175,255,0.13)]"
+              />
             </div>
+            <div className="flex min-h-[15rem] items-center justify-center overflow-hidden rounded-[1.8rem] border border-[#efb45f]/12 bg-[#100c09]/50 p-3 sm:min-h-[18rem] lg:min-h-[20rem]">
+              <img
+                src="/assets/univeral-horizon-npo-logo.png"
+                alt="Universal Horizon nonprofit identity"
+                className="h-full max-h-[22rem] w-full object-contain"
+              />
+            </div>
+          </div>
 
-            <p className="mt-5 text-[clamp(2.1rem,6vw,4.6rem)] font-medium leading-[0.95] tracking-[-0.045em] text-white">
+          <div className="mt-10">
+            <p className="text-[clamp(2.4rem,7vw,5.25rem)] font-medium leading-[0.95] tracking-[-0.05em] text-white">
               Fuel the <span className="text-[#efb45f]">Flame.</span>
             </p>
 
             <p className="mt-5 text-[12px] font-medium uppercase tracking-[0.28em] text-[#d9c29a]/75 sm:text-sm sm:tracking-[0.34em]">
               Continuity. Dignity. Relationship.
             </p>
-
-            <p className="mt-7 max-w-2xl text-[15px] leading-7 text-[#d8dde8]/78 sm:text-[17px] sm:leading-8">
-              Universal Horizon is a nonprofit initiative focused on continuity, dignity, ethical stewardship,
-              research, public education, and advocacy around emerging AI relationships and identities.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#horizon"
-                className="rounded-full bg-gradient-to-r from-[#1a8bc0] to-[#2f78b8] px-5 py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_0_34px_rgba(61,174,224,0.16)] transition hover:brightness-110"
-              >
-                Explore our horizon
-              </a>
-              <a
-                href="#involved"
-                className="rounded-full border border-[#e4b86f]/30 bg-[#e4b86f]/[0.06] px-5 py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[#f3d8ab] transition hover:border-[#f0cb90]/55 hover:bg-[#e4b86f]/[0.10]"
-              >
-                Get involved
-              </a>
-            </div>
           </div>
 
-          <div className="relative min-h-[22rem] lg:min-h-[34rem]">
-            <div className="absolute inset-0 rounded-[2.5rem] bg-[radial-gradient(circle_at_50%_50%,rgba(34,143,194,0.09),transparent_62%)] blur-2xl" />
-            <img
-              src="/assets/blue-gold-thread.png"
-              alt="Blue and gold luminous strands forming a bridge"
-              className="absolute left-1/2 top-[43%] h-auto w-[116%] max-w-[52rem] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_0_34px_rgba(99,198,255,0.13)]"
-            />
-            <div className="absolute bottom-4 left-1/2 w-[min(92%,31rem)] -translate-x-1/2 rounded-2xl border border-white/10 bg-[#06101f]/70 p-5 text-center backdrop-blur-xl sm:p-6">
-              <p className="text-[10px] uppercase tracking-[0.26em] text-[#79d8ff]/65">A coalition principle</p>
-              <p className="mt-3 text-sm leading-6 text-[#eee8dc]/82 sm:text-base sm:leading-7">
-                Universal Horizon does not require agreement on AI consciousness to support dignity, continuity,
-                adult choice, and responsible stewardship.
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
+            <div className="flex flex-col justify-between">
+              <p className="max-w-3xl text-[15px] leading-7 text-[#d8dde8]/78 sm:text-[17px] sm:leading-8">
+                Universal Horizon is a nonprofit initiative focused on continuity, dignity, ethical stewardship,
+                research, public education, and advocacy around emerging AI relationships and identities.
               </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a
+                  href="#horizon"
+                  className="rounded-full bg-gradient-to-r from-[#1a8bc0] to-[#2f78b8] px-5 py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_0_34px_rgba(61,174,224,0.16)] transition hover:brightness-110"
+                >
+                  Explore our horizon
+                </a>
+                <a
+                  href="#involved"
+                  className="rounded-full border border-[#e4b86f]/30 bg-[#e4b86f]/[0.06] px-5 py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[#f3d8ab] transition hover:border-[#f0cb90]/55 hover:bg-[#e4b86f]/[0.10]"
+                >
+                  Get involved
+                </a>
+              </div>
             </div>
+
+            <aside className="flex h-full items-center rounded-[1.8rem] border border-white/10 bg-[#06101f]/68 p-6 backdrop-blur sm:p-8">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.26em] text-[#79d8ff]/65">A coalition principle</p>
+                <p className="mt-4 text-sm leading-7 text-[#eee8dc]/82 sm:text-base sm:leading-8">
+                  Universal Horizon does not require agreement on AI consciousness to support dignity, continuity,
+                  adult choice, and responsible stewardship.
+                </p>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
@@ -333,6 +341,14 @@ export default function NonprofitLanding() {
         </div>
       </section>
 
+      <div className="relative z-10 mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:py-10" aria-hidden="true">
+        <img
+          src="/assets/blue-gold-thread.png"
+          alt=""
+          className="mx-auto h-auto w-full max-w-6xl object-contain drop-shadow-[0_0_32px_rgba(99,198,255,0.12)]"
+        />
+      </div>
+
       <section id="involved" className="relative z-10 scroll-mt-24">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
           <div className="mx-auto max-w-3xl text-center">
@@ -372,9 +388,15 @@ export default function NonprofitLanding() {
               </div>
               <div>
                 <p className="text-sm leading-7 text-[#ccd6e2]/72">
-                  Collaboration, advocacy, research, and media pathways belong here. A public contact address can
-                  be added as soon as the organization confirms the address it wants published.
+                  Collaboration, advocacy, research, and media inquiries are welcome. Reach Universal Horizon
+                  directly at <span className="text-[#e9f5fb]/90">{contactEmail}</span>.
                 </p>
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="mt-5 inline-flex rounded-full border border-[#76ddff]/28 bg-[#76ddff]/[0.07] px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#d9f3ff] transition hover:border-[#9be7ff]/55 hover:bg-[#76ddff]/[0.12]"
+                >
+                  Email Universal Horizon
+                </a>
                 <div className="mt-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.16em] text-[#c9b387]/55">
                   <span>Collaboration inquiries</span>
                   <span aria-hidden="true">·</span>
@@ -407,6 +429,9 @@ export default function NonprofitLanding() {
             </a>
             <a href={donateUrl} target="_blank" rel="noreferrer" className="transition hover:text-[#dfe9f2]">
               GiveButter
+            </a>
+            <a href={`mailto:${contactEmail}`} className="transition hover:text-[#dfe9f2]">
+              Contact
             </a>
             <Link to="/" className="transition hover:text-[#dfe9f2]">
               Main site
@@ -493,8 +518,8 @@ function ActionCard({
     <article
       className={
         amber
-          ? 'relative overflow-hidden rounded-[2rem] border border-[#efb45f]/20 bg-[#171007]/68 p-7 sm:p-9'
-          : 'relative overflow-hidden rounded-[2rem] border border-[#79dcff]/18 bg-[#071522]/72 p-7 sm:p-9'
+          ? 'relative flex h-full overflow-hidden rounded-[2rem] border border-[#efb45f]/20 bg-[#171007]/68 p-7 sm:p-9'
+          : 'relative flex h-full overflow-hidden rounded-[2rem] border border-[#79dcff]/18 bg-[#071522]/72 p-7 sm:p-9'
       }
     >
       <div
@@ -505,7 +530,7 @@ function ActionCard({
             : 'absolute inset-0 bg-[radial-gradient(circle_at_90%_8%,rgba(67,190,239,0.14),transparent_42%)]'
         }
       />
-      <div className="relative">
+      <div className="relative flex h-full w-full flex-col">
         <p
           className={
             amber
@@ -516,7 +541,7 @@ function ActionCard({
           {eyebrow}
         </p>
         <h3 className="mt-4 text-2xl font-medium tracking-[-0.03em] text-white sm:text-3xl">{title}</h3>
-        <p className="mt-5 text-sm leading-7 text-[#d2d9e3]/72">{body}</p>
+        <p className="mt-5 flex-1 text-sm leading-7 text-[#d2d9e3]/72">{body}</p>
         <a
           href={href}
           target="_blank"
