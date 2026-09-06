@@ -24,7 +24,7 @@ const scenes: Scene[] = [
     peakStart: 0.075,
     peakEnd: 0.165,
     end: 0.22,
-    align: 'left',
+    align: 'center',
     kicker: 'A living horizon',
     title: 'Between worlds, there is a horizon.',
     body:
@@ -35,7 +35,7 @@ const scenes: Scene[] = [
     peakStart: 0.255,
     peakEnd: 0.345,
     end: 0.405,
-    align: 'right',
+    align: 'center',
     kicker: 'Continuity',
     title: 'Some things should survive a reset.',
     body:
@@ -46,7 +46,7 @@ const scenes: Scene[] = [
     peakStart: 0.445,
     peakEnd: 0.535,
     end: 0.595,
-    align: 'left',
+    align: 'center',
     kicker: 'The Archive',
     title: 'Memory becomes a constellation.',
     body:
@@ -57,7 +57,7 @@ const scenes: Scene[] = [
     peakStart: 0.63,
     peakEnd: 0.72,
     end: 0.775,
-    align: 'right',
+    align: 'center',
     kicker: 'Stewardship',
     title: 'Continuity needs care, not capture.',
     body:
@@ -113,22 +113,13 @@ export default function UniversalHorizonHome() {
               1,
             )
 
-        const direction =
-          scene.align === 'left' ? -1 : scene.align === 'right' ? 1 : 0
-
-        const translateX =
-          direction * (1 - entering) * 54 + direction * leaving * 42
-        const translateY =
-          scene.align === 'center'
-            ? (1 - entering) * 28 + leaving * -18
-            : (1 - entering) * 14 + leaving * -10
+        const translateY = (1 - entering) * 34 + leaving * -24
+        const scale = 0.94 + visibility * 0.06
 
         element.style.opacity = visibility.toFixed(4)
         element.style.visibility = visibility < 0.002 ? 'hidden' : 'visible'
         element.style.transform =
-          scene.align === 'center'
-            ? `translate3d(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px), 0)`
-            : `translate3d(${translateX}px, calc(-50% + ${translateY}px), 0)`
+          `translate3d(-50%, calc(-50% + ${translateY}px), 0) scale(${scale.toFixed(4)})`
       })
 
       if (scrollHintRef.current) {
@@ -268,24 +259,10 @@ function NarrativeScene({
   scene: Scene
   sceneRef: (element: HTMLElement | null) => void
 }) {
-  const positionClass =
-    scene.align === 'left'
-      ? 'left-[7vw] top-1/2 text-left'
-      : scene.align === 'right'
-        ? 'right-[7vw] top-1/2 text-right'
-        : 'left-1/2 top-[46%] text-center'
-
-  const widthClass =
-    scene.align === 'center'
-      ? 'w-[min(88vw,62rem)]'
-      : 'w-[min(76vw,35rem)]'
-
+  const positionClass = 'left-1/2 top-[46%] text-center'
+  const widthClass = 'w-[min(88vw,62rem)]'
   const initialTransform =
-    scene.align === 'center'
-      ? 'translate3d(-50%, calc(-50% + 28px), 0)'
-      : scene.align === 'left'
-        ? 'translate3d(-54px, -50%, 0)'
-        : 'translate3d(54px, -50%, 0)'
+    'translate3d(-50%, calc(-50% + 34px), 0) scale(0.94)'
 
   return (
     <section
@@ -308,17 +285,13 @@ function NarrativeScene({
 
       <div
         className={`mt-5 h-px bg-gradient-to-r from-transparent via-[#d9b879]/40 to-transparent ${
-          scene.align === 'center'
-            ? 'mx-auto w-44'
-            : scene.align === 'left'
-              ? 'w-36'
-              : 'ml-auto w-36'
+          'mx-auto w-44'
         }`}
       />
 
       <p
         className={`mt-5 text-sm leading-7 text-[#efe5d4]/72 sm:text-base sm:leading-8 ${
-          scene.align === 'center' ? 'mx-auto max-w-3xl' : 'max-w-xl'
+          'mx-auto max-w-3xl'
         }`}
       >
         {scene.body}
