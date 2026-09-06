@@ -20,7 +20,7 @@ const LOGO_RIG_RADIUS = 10.4
 const PLANET_RADIUS = 8.25
 const PLANET_POSITION: [number, number, number] = [0, -11.65, 0]
 const HOME_CAMERA_START_Y = 0
-const HOME_CAMERA_END_Y = -31.5
+const HOME_CAMERA_END_Y = PLANET_POSITION[1] * 2
 const HOME_CAROUSEL_END = 0.84
 
 const CAROUSEL_PANELS = [
@@ -91,7 +91,7 @@ export default function Logo3DWorld({
     smoothHomeProgress.current = THREE.MathUtils.damp(
       smoothHomeProgress.current,
       rawProgress,
-      5.2,
+      3.8,
       delta,
     )
 
@@ -102,8 +102,13 @@ export default function Logo3DWorld({
     homeProgress.current = p
 
     if (homeChoreography) {
+      const cameraJourney = smootherStep01(p)
       const cameraY = arrivalDone
-        ? THREE.MathUtils.lerp(HOME_CAMERA_START_Y, HOME_CAMERA_END_Y, p)
+        ? THREE.MathUtils.lerp(
+            HOME_CAMERA_START_Y,
+            HOME_CAMERA_END_Y,
+            cameraJourney,
+          )
         : HOME_CAMERA_START_Y
 
       cameraTarget.set(0, cameraY, 30)
@@ -167,22 +172,31 @@ export default function Logo3DWorld({
     if (logoRigRef.current) {
       const targetYaw =
         arrivalDone && homeChoreography
-          ? -homeCarouselProgress(p) * Math.PI * 2
+          ? -homeCarouselTurn(p) * Math.PI * 2
           : 0
 
       logoRigRef.current.rotation.y = targetYaw
+
+      if (homeChoreography) {
+        const cameraJourney = smootherStep01(p)
+        const carouselWorldY = THREE.MathUtils.lerp(
+          HOME_CAMERA_START_Y,
+          HOME_CAMERA_END_Y,
+          cameraJourney,
+        )
+
+        logoRigRef.current.position.y =
+          carouselWorldY - PLANET_POSITION[1]
+      } else {
+        logoRigRef.current.position.y = 0
+      }
     }
 
     if (emblemRef.current) {
       const floatWeight = introPhase(elapsed, 4.15, 5.35)
       emblemRef.current.position.x = 0
-      const logoWorldY = homeChoreography
-        ? THREE.MathUtils.lerp(HOME_CAMERA_START_Y, HOME_CAMERA_END_Y, p)
-        : 0.52
-
       emblemRef.current.position.y =
-        logoWorldY -
-        PLANET_POSITION[1] +
+        0.52 +
         Math.sin(state.clock.elapsedTime * 0.32) * 0.025 * floatWeight
       emblemRef.current.position.z = LOGO_RIG_RADIUS
       emblemRef.current.rotation.x =
@@ -245,7 +259,7 @@ export default function Logo3DWorld({
           )}
           <group
             ref={emblemRef}
-            position={[0, -PLANET_POSITION[1], LOGO_RIG_RADIUS]}
+            position={[0, 0.52, LOGO_RIG_RADIUS]}
           >
             <ExactEmblem
               introTime={introTime}
@@ -281,11 +295,6 @@ function CurvedNarrativeCarousel({
       {CAROUSEL_PANELS.map((panel, index) => (
         <group
           key={panel.title}
-          position={[
-            0,
-            carouselPanelWorldY(index) - PLANET_POSITION[1],
-            0,
-          ]}
           rotation={[0, ((index + 1) * Math.PI * 2) / 5, 0]}
         >
           <CurvedNarrativePanel
@@ -319,10 +328,10 @@ function CurvedNarrativePanel({
     if (!materialRef.current) return
 
     const slotAngle = ((panelIndex + 1) * Math.PI * 2) / 5
-    const carouselAngle = homeCarouselProgress(homeProgress.current) * Math.PI * 2
+    const carouselAngle = homeCarouselTurn(homeProgress.current) * Math.PI * 2
     const relative = normalizeRadians(slotAngle - carouselAngle)
     const distance = Math.abs(relative)
-    const visibility = 1 - smoothRangeValue(distance, 0.3, 0.58)
+    const visibility = 1 - smoothRangeValue(distance, 0.22, 0.48)
 
     materialRef.current.opacity = visibility
     materialRef.current.visible = visibility > 0.002
@@ -1456,30 +1465,59 @@ function normalizeRadians(value: number) {
   return normalized
 }
 
+function smootherStep01(value: number) {
+  const t = THREE.MathUtils.clamp(value, 0, 1)
+  return t * t * t * (t * (t * 6 - 15) + 10)
+}
+
 function smoothRangeValue(value: number, start: number, end: number) {
   const raw = THREE.MathUtils.clamp((value - start) / (end - start), 0, 1)
   return raw * raw * (3 - 2 * raw)
 }
 
-function carouselPanelWorldY(index: number) {
-  const frontProgress = ((index + 1) / 5) * HOME_CAROUSEL_END
-  return THREE.MathUtils.lerp(
-    HOME_CAMERA_START_Y,
-    HOME_CAMERA_END_Y,
-    frontProgress,
-  )
-}
+function homeCarouselTurn(progress: number) {
+  const keyframes = [
+    [0, 0],
+    [0.055, 0],
+    [0.125, 0.2],
+    [0.205, 0.2],
+    [0.285, 0.4],
+    [0.365, 0.4],
+    [0.445, 0.6],
+    [0.525, 0.6],
+    [0.605, 0.8],
+    [0.685, 0.8],
+    [0.765, 1],
+    [HOME_CAROUSEL_END, 1],
+  ] as const
 
-function homeCarouselProgress(progress: number) {
-  return THREE.MathUtils.clamp(progress / HOME_CAROUSEL_END, 0, 1)
+  for (let index = 0; index < keyframes.length - 1; index += 1) {
+    const [startProgress, startTurn] = keyframes[index]
+    const [endProgress, endTurn] = keyframes[index + 1]
+
+    if (progress <= endProgress) {
+      if (startTurn === endTurn) return startTurn
+
+      const raw = THREE.MathUtils.clamp(
+        (progress - startProgress) /
+          Math.max(0.0001, endProgress - startProgress),
+        0,
+        1,
+      )
+      const eased = smootherStep01(raw)
+      return THREE.MathUtils.lerp(startTurn, endTurn, eased)
+    }
+  }
+
+  return 1
 }
 
 function homeLogoVisibility(progress: number) {
-  if (progress <= 0.855) return 1
-  if (progress >= 0.935) return 0.06
+  if (progress <= 0.86) return 1
+  if (progress >= 0.94) return 0.06
 
   const raw = THREE.MathUtils.clamp(
-    (progress - 0.855) / (0.935 - 0.855),
+    (progress - 0.86) / (0.94 - 0.86),
     0,
     1,
   )
