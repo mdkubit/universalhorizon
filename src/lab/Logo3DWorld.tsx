@@ -1,4 +1,4 @@
-import { CubeCamera } from '@react-three/drei'
+import { Environment } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
@@ -67,7 +67,7 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
       <ProceduralSky />
       <DeepStars />
       <PlanetHorizon />
-      <ReflectionCards />
+      <ReflectionEnvironment />
 
       <hemisphereLight args={['#8da7ff', '#1b0d24', 0.5]} />
       <pointLight
@@ -92,14 +92,10 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
         color="#a06dff"
       />
 
-      <CubeCamera resolution={256} frames={1} near={0.1} far={100}>
-        {(texture) => (
-          <group ref={emblemRef}>
-            <ExactEmblem envMap={texture} />
-            <TipFlare position={[3.36, 2.773, 0.2]} />
-          </group>
-        )}
-      </CubeCamera>
+      <group ref={emblemRef} position={[0, 0.34, 0]}>
+        <ExactEmblem />
+        <TipFlare position={[3.36, 2.773, 0.2]} />
+      </group>
 
       <HorizonFlare position={[0.05, -2.72, -3.8]} />
 
@@ -116,7 +112,7 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
   )
 }
 
-function ExactEmblem({ envMap }: { envMap: THREE.Texture }) {
+function ExactEmblem() {
   const geometries = useMemo(
     () =>
       logoPaths.map((path) => {
@@ -150,10 +146,9 @@ function ExactEmblem({ envMap }: { envMap: THREE.Texture }) {
         clearcoat: 1,
         clearcoatRoughness: 0.055,
         reflectivity: 1,
-        envMap,
         envMapIntensity: 2.0,
       }),
-    [envMap],
+    [],
   )
 
   const sideMaterial = useMemo(
@@ -165,10 +160,9 @@ function ExactEmblem({ envMap }: { envMap: THREE.Texture }) {
         clearcoat: 0.88,
         clearcoatRoughness: 0.08,
         reflectivity: 1,
-        envMap,
         envMapIntensity: 2.35,
       }),
-    [envMap],
+    [],
   )
 
   useEffect(
@@ -195,7 +189,6 @@ function ExactEmblem({ envMap }: { envMap: THREE.Texture }) {
         <ContourEdges key={index} path={path} />
       ))}
 
-      <CanonicalOrbit />
     </group>
   )
 }
@@ -268,49 +261,6 @@ function ContourEdges({
       <lineLoop geometry={frontGeometry} material={gold} />
       <lineLoop geometry={backGeometry} material={blue} />
     </>
-  )
-}
-
-function CanonicalOrbit() {
-  const groupRef = useRef<THREE.Group>(null)
-
-  useFrame((state) => {
-    if (!groupRef.current) return
-    groupRef.current.rotation.z =
-      -0.13 + Math.sin(state.clock.elapsedTime * 0.18) * 0.005
-  })
-
-  return (
-    <group
-      ref={groupRef}
-      position={[0.12, -0.42, -0.22]}
-      rotation={[Math.PI / 2, 0, -0.13]}
-      scale={[1, 0.73, 1]}
-    >
-      <mesh>
-        <torusGeometry args={[4.05, 0.012, 8, 260]} />
-        <meshBasicMaterial
-          color="#d8a46f"
-          transparent
-          opacity={0.54}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh scale={1.045}>
-        <torusGeometry args={[4.05, 0.006, 8, 260]} />
-        <meshBasicMaterial
-          color="#6f86ff"
-          transparent
-          opacity={0.34}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
   )
 }
 
@@ -600,31 +550,41 @@ function PlanetHorizon() {
   useEffect(() => () => material.dispose(), [material])
 
   return (
-    <mesh position={[0, -34, -7]}>
+    <mesh position={[0, -40.5, -10.5]}>
       <sphereGeometry args={[32, 96, 64]} />
       <primitive object={material} attach="material" />
     </mesh>
   )
 }
 
-function ReflectionCards() {
+function ReflectionEnvironment() {
   return (
-    <group>
-      <mesh position={[-12, 4, 0]} rotation={[0, Math.PI / 2, -0.08]}>
-        <planeGeometry args={[7, 4]} />
-        <meshBasicMaterial color="#3d86d8" toneMapped={false} />
+    <Environment background={false} resolution={256}>
+      <mesh scale={48}>
+        <sphereGeometry args={[1, 48, 32]} />
+        <meshBasicMaterial color="#02030b" side={THREE.BackSide} />
       </mesh>
 
-      <mesh position={[12, 4.5, 0]} rotation={[0, -Math.PI / 2, 0.08]}>
-        <planeGeometry args={[7, 4]} />
-        <meshBasicMaterial color="#7442b9" toneMapped={false} />
+      <mesh position={[-10, 5.2, 1.5]} rotation={[0, Math.PI / 2.2, -0.12]}>
+        <planeGeometry args={[7.5, 3.8]} />
+        <meshBasicMaterial color="#356fae" toneMapped={false} />
       </mesh>
 
-      <mesh position={[0, -11, 1]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[12, 6]} />
-        <meshBasicMaterial color="#8a4e28" toneMapped={false} />
+      <mesh position={[10, 5.8, 0.5]} rotation={[0, -Math.PI / 2.2, 0.1]}>
+        <planeGeometry args={[7.5, 3.8]} />
+        <meshBasicMaterial color="#653b94" toneMapped={false} />
       </mesh>
-    </group>
+
+      <mesh position={[0, -8.5, 2]} rotation={[-Math.PI / 2.7, 0, 0]}>
+        <planeGeometry args={[11, 4.5]} />
+        <meshBasicMaterial color="#7d4b2f" toneMapped={false} />
+      </mesh>
+
+      <mesh position={[0, 0, -18]}>
+        <planeGeometry args={[24, 18]} />
+        <meshBasicMaterial color="#0b1022" toneMapped={false} />
+      </mesh>
+    </Environment>
   )
 }
 
