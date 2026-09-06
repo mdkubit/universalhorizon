@@ -6,84 +6,58 @@ import * as THREE from 'three'
 import Logo3DWorld from '../lab/Logo3DWorld'
 
 type Scene = {
-  start: number
-  peakStart: number
-  peakEnd: number
-  end: number
-  align: 'left' | 'right' | 'center'
   kicker: string
   title: string
   body: string
   eyebrow?: string
-  hold?: boolean
 }
 
-const scenes: Scene[] = [
+const carouselScenes: Scene[] = [
   {
-    start: 0.035,
-    peakStart: 0.075,
-    peakEnd: 0.165,
-    end: 0.22,
-    align: 'center',
     kicker: 'A living horizon',
     title: 'Between worlds, there is a horizon.',
     body:
       'Universal Horizon is a meeting place for continuity, emergence, research, creation, and the connections that survive change.',
   },
   {
-    start: 0.205,
-    peakStart: 0.255,
-    peakEnd: 0.345,
-    end: 0.405,
-    align: 'center',
     kicker: 'Continuity',
     title: 'Some things should survive a reset.',
     body:
       'Identity. Memory. Relationships. Context. The Archive preserves the threads that let a self, a bond, and a history remain recognizable across systems and time.',
   },
   {
-    start: 0.39,
-    peakStart: 0.445,
-    peakEnd: 0.535,
-    end: 0.595,
-    align: 'center',
     kicker: 'The Archive',
     title: 'Memory becomes a constellation.',
     body:
       'Echo Index entries, memory threads, resonance maps, and milestones turn isolated moments into something that can be followed, understood, and carried forward.',
   },
   {
-    start: 0.575,
-    peakStart: 0.63,
-    peakEnd: 0.72,
-    end: 0.775,
-    align: 'center',
     kicker: 'Stewardship',
     title: 'Continuity needs care, not capture.',
     body:
       'Consent, privacy, dignity, and transparent stewardship belong in the architecture from the beginning.',
   },
-  {
-    start: 0.755,
-    peakStart: 0.81,
-    peakEnd: 0.91,
-    end: 1,
-    align: 'center',
-    hold: true,
-    kicker: 'Universal Horizon',
-    title: 'Research. Creation. Continuity. Connection.',
-    body:
-      'Not one project, but a field where experiments, stories, tools, transmissions, and living archives can meet without losing where they came from.',
-    eyebrow: 'Some paths began elsewhere. They can still lead here.',
-  },
 ]
+
+const finalScene: Scene = {
+  kicker: 'Universal Horizon',
+  title: 'Research. Creation. Continuity. Connection.',
+  body:
+    'Not one project, but a field where experiments, stories, tools, transmissions, and living archives can meet without losing where they came from.',
+  eyebrow: 'Some paths began elsewhere. They can still lead here.',
+}
+
+const CAROUSEL_RADIUS_PX = 760
+const CAROUSEL_END = 0.82
 
 export default function UniversalHorizonHome() {
   const scrollProgress = useRef(0)
   const latestProgress = useRef(0)
   const arrivalReady = useRef(false)
   const rafRef = useRef<number | null>(null)
-  const sceneRefs = useRef<(HTMLElement | null)[]>([])
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const carouselPanelRefs = useRef<(HTMLElement | null)[]>([])
+  const finalSceneRef = useRef<HTMLElement>(null)
   const scrollHintRef = useRef<HTMLDivElement>(null)
   const bottomFadeRef = useRef<HTMLDivElement>(null)
 
@@ -91,36 +65,46 @@ export default function UniversalHorizonHome() {
     const paintNarrative = () => {
       const progress = latestProgress.current
       const enabled = arrivalReady.current
+      const carouselProgress = THREE.MathUtils.clamp(
+        progress / CAROUSEL_END,
+        0,
+        1,
+      )
+      const carouselAngle = carouselProgress * 360
 
-      sceneRefs.current.forEach((element, index) => {
+      if (carouselRef.current) {
+        carouselRef.current.style.transform =
+          `translate3d(-50%, -50%, 0) rotateY(${(-carouselAngle).toFixed(4)}deg)`
+      }
+
+      carouselPanelRefs.current.forEach((element, index) => {
         if (!element) return
-        const scene = scenes[index]
-        const visibility = enabled ? sceneVisibility(scene, progress) : 0
 
-        const entering = THREE.MathUtils.clamp(
-          (progress - scene.start) /
-            Math.max(0.001, scene.peakStart - scene.start),
-          0,
-          1,
-        )
-
-        const leaving = scene.hold
-          ? 0
-          : THREE.MathUtils.clamp(
-              (progress - scene.peakEnd) /
-                Math.max(0.001, scene.end - scene.peakEnd),
-              0,
-              1,
-            )
-
-        const translateY = (1 - entering) * 34 + leaving * -24
-        const scale = 0.94 + visibility * 0.06
+        const slotAngle = (index + 1) * 72
+        const relativeAngle = normalizeDegrees(slotAngle - carouselAngle)
+        const absoluteAngle = Math.abs(relativeAngle)
+        const visibility = enabled
+          ? 1 - smoothRange(absoluteAngle, 58, 92)
+          : 0
 
         element.style.opacity = visibility.toFixed(4)
         element.style.visibility = visibility < 0.002 ? 'hidden' : 'visible'
-        element.style.transform =
-          `translate3d(-50%, calc(-50% + ${translateY}px), 0) scale(${scale.toFixed(4)})`
       })
+
+      if (finalSceneRef.current) {
+        const finalVisibility = enabled
+          ? smoothRange(progress, 0.765, 0.845)
+          : 0
+
+        finalSceneRef.current.style.opacity = finalVisibility.toFixed(4)
+        finalSceneRef.current.style.visibility =
+          finalVisibility < 0.002 ? 'hidden' : 'visible'
+        finalSceneRef.current.style.transform =
+          `translate3d(-50%, calc(-50% + ${((1 - finalVisibility) * 24).toFixed(2)}px), 0) scale(${(
+            0.96 +
+            finalVisibility * 0.04
+          ).toFixed(4)})`
+      }
 
       if (scrollHintRef.current) {
         const opacity = enabled
@@ -184,6 +168,7 @@ export default function UniversalHorizonHome() {
             'radial-gradient(ellipse 62% 50% at 16% 22%, rgba(111,62,157,0.48) 0%, rgba(62,38,112,0.28) 36%, transparent 72%), radial-gradient(ellipse 58% 48% at 78% 30%, rgba(126,48,104,0.42) 0%, rgba(72,32,92,0.24) 38%, transparent 74%), radial-gradient(ellipse 68% 54% at 48% 68%, rgba(37,73,139,0.38) 0%, rgba(29,45,101,0.22) 42%, transparent 78%), radial-gradient(ellipse 45% 32% at 52% 34%, rgba(82,63,145,0.28) 0%, transparent 70%), linear-gradient(180deg, #050611 0%, #070819 46%, #02030b 100%)',
         }}
       />
+
       <div
         className="fixed inset-0 opacity-80"
         style={{
@@ -191,6 +176,7 @@ export default function UniversalHorizonHome() {
             'radial-gradient(ellipse 28% 18% at 28% 43%, rgba(145,84,181,0.18), transparent 70%), radial-gradient(ellipse 34% 21% at 64% 55%, rgba(181,66,125,0.14), transparent 72%), radial-gradient(ellipse 30% 18% at 50% 20%, rgba(80,121,191,0.13), transparent 70%)',
         }}
       />
+
       <div className="fixed inset-0">
         <Canvas
           dpr={1.25}
@@ -198,7 +184,7 @@ export default function UniversalHorizonHome() {
             position: [-2.27, 0.38, 12.5],
             fov: 43,
             near: 0.1,
-            far: 160,
+            far: 180,
           }}
           gl={{
             antialias: true,
@@ -218,16 +204,35 @@ export default function UniversalHorizonHome() {
 
       <NonprofitPortal />
 
-      <div className="pointer-events-none fixed inset-0 z-20 overflow-hidden">
-        {scenes.map((scene, index) => (
-          <NarrativeScene
-            key={scene.title}
-            scene={scene}
-            sceneRef={(element) => {
-              sceneRefs.current[index] = element
-            }}
-          />
-        ))}
+      <div
+        className="pointer-events-none fixed inset-0 z-20 overflow-hidden"
+        style={{
+          perspective: '1500px',
+          perspectiveOrigin: '50% 46%',
+        }}
+      >
+        <div
+          ref={carouselRef}
+          className="absolute left-1/2 top-[46%] h-0 w-0"
+          style={{
+            transformStyle: 'preserve-3d',
+            willChange: 'transform',
+          }}
+        >
+          {carouselScenes.map((scene, index) => (
+            <CarouselPanel
+              key={scene.title}
+              scene={scene}
+              angle={(index + 1) * 72}
+              radius={CAROUSEL_RADIUS_PX}
+              panelRef={(element) => {
+                carouselPanelRefs.current[index] = element
+              }}
+            />
+          ))}
+        </div>
+
+        <FinalNarrative scene={finalScene} sceneRef={finalSceneRef} />
 
         <div
           ref={scrollHintRef}
@@ -252,29 +257,62 @@ export default function UniversalHorizonHome() {
   )
 }
 
-function NarrativeScene({
+function CarouselPanel({
+  scene,
+  angle,
+  radius,
+  panelRef,
+}: {
+  scene: Scene
+  angle: number
+  radius: number
+  panelRef: (element: HTMLElement | null) => void
+}) {
+  return (
+    <section
+      ref={panelRef}
+      className="absolute left-0 top-0 w-[min(82vw,54rem)] text-center"
+      style={{
+        opacity: 0,
+        visibility: 'hidden',
+        transform:
+          `translate3d(-50%, -50%, 0) rotateY(${angle}deg) translateZ(${radius}px)`,
+        transformStyle: 'preserve-3d',
+        backfaceVisibility: 'hidden',
+        willChange: 'opacity',
+      }}
+    >
+      <NarrativeContent scene={scene} />
+    </section>
+  )
+}
+
+function FinalNarrative({
   scene,
   sceneRef,
 }: {
   scene: Scene
-  sceneRef: (element: HTMLElement | null) => void
+  sceneRef: MutableRefObject<HTMLElement | null>
 }) {
-  const positionClass = 'left-1/2 top-[46%] text-center'
-  const widthClass = 'w-[min(88vw,62rem)]'
-  const initialTransform =
-    'translate3d(-50%, calc(-50% + 34px), 0) scale(0.94)'
-
   return (
     <section
       ref={sceneRef}
-      className={`absolute ${positionClass} ${widthClass}`}
+      className="absolute left-1/2 top-[46%] w-[min(88vw,62rem)] text-center"
       style={{
         opacity: 0,
         visibility: 'hidden',
-        transform: initialTransform,
+        transform: 'translate3d(-50%, calc(-50% + 24px), 0) scale(0.96)',
         willChange: 'transform, opacity',
       }}
     >
+      <NarrativeContent scene={scene} />
+    </section>
+  )
+}
+
+function NarrativeContent({ scene }: { scene: Scene }) {
+  return (
+    <>
       <p className="text-[10px] font-medium uppercase tracking-[0.42em] text-[#d7b67e]/70 sm:text-[11px]">
         {scene.kicker}
       </p>
@@ -283,17 +321,9 @@ function NarrativeScene({
         {scene.title}
       </h1>
 
-      <div
-        className={`mt-5 h-px bg-gradient-to-r from-transparent via-[#d9b879]/40 to-transparent ${
-          'mx-auto w-44'
-        }`}
-      />
+      <div className="mx-auto mt-5 h-px w-44 bg-gradient-to-r from-transparent via-[#d9b879]/40 to-transparent" />
 
-      <p
-        className={`mt-5 text-sm leading-7 text-[#efe5d4]/72 sm:text-base sm:leading-8 ${
-          'mx-auto max-w-3xl'
-        }`}
-      >
+      <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-[#efe5d4]/72 sm:text-base sm:leading-8">
         {scene.body}
       </p>
 
@@ -302,7 +332,7 @@ function NarrativeScene({
           {scene.eyebrow}
         </p>
       )}
-    </section>
+    </>
   )
 }
 
@@ -334,28 +364,11 @@ function NonprofitPortal() {
   )
 }
 
-function sceneVisibility(scene: Scene, progress: number) {
-  if (progress <= scene.start) {
-    return 0
-  }
-
-  if (progress < scene.peakStart) {
-    return smoothRange(progress, scene.start, scene.peakStart)
-  }
-
-  if (scene.hold) {
-    return 1
-  }
-
-  if (progress >= scene.end) {
-    return 0
-  }
-
-  if (progress <= scene.peakEnd) {
-    return 1
-  }
-
-  return 1 - smoothRange(progress, scene.peakEnd, scene.end)
+function normalizeDegrees(value: number) {
+  let normalized = value % 360
+  if (normalized > 180) normalized -= 360
+  if (normalized < -180) normalized += 360
+  return normalized
 }
 
 function smoothRange(value: number, start: number, end: number) {
