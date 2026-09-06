@@ -1,5 +1,5 @@
 import { Environment, useTexture } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
 import * as THREE from 'three'
@@ -59,6 +59,9 @@ export default function Logo3DWorld({
   transparentBackground = false,
   showPlanet = true,
 }: Logo3DWorldProps) {
+  const size = useThree((state) => state.size)
+  const mobileLayout = homeChoreography && size.width < 768
+
   const logoRigRef = useRef<THREE.Group>(null)
   const emblemRef = useRef<THREE.Group>(null)
   const introStartedAt = useRef<number | null>(null)
@@ -259,7 +262,10 @@ export default function Logo3DWorld({
       <group position={PLANET_POSITION}>
         <group ref={logoRigRef}>
           {homeChoreography && (
-            <CurvedNarrativeCarousel homeProgress={homeProgress} />
+            <CurvedNarrativeCarousel
+              homeProgress={homeProgress}
+              mobileLayout={mobileLayout}
+            />
           )}
           <group
             ref={emblemRef}
@@ -291,8 +297,10 @@ export default function Logo3DWorld({
 
 function CurvedNarrativeCarousel({
   homeProgress,
+  mobileLayout,
 }: {
   homeProgress: MutableRefObject<number>
+  mobileLayout: boolean
 }) {
   return (
     <group>
@@ -302,6 +310,7 @@ function CurvedNarrativeCarousel({
           panel={panel}
           panelIndex={index}
           homeProgress={homeProgress}
+          mobileLayout={mobileLayout}
         />
       ))}
     </group>
@@ -312,16 +321,28 @@ function CurvedNarrativePanel({
   panel,
   panelIndex,
   homeProgress,
+  mobileLayout,
 }: {
   panel: (typeof CAROUSEL_PANELS)[number]
   panelIndex: number
   homeProgress: MutableRefObject<number>
+  mobileLayout: boolean
 }) {
   const panelGeometry = useMemo(
-    () => createCurvedPanelGeometry(11.6, 5.8, LOGO_RIG_RADIUS, 64, 10),
-    [],
+    () =>
+      createCurvedPanelGeometry(
+        mobileLayout ? 10.8 : 11.6,
+        mobileLayout ? 6.8 : 5.8,
+        LOGO_RIG_RADIUS,
+        64,
+        10,
+      ),
+    [mobileLayout],
   )
-  const texture = useMemo(() => createNarrativeTexture(panel), [panel])
+  const texture = useMemo(
+    () => createNarrativeTexture(panel, mobileLayout),
+    [panel, mobileLayout],
+  )
   const slotRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.MeshBasicMaterial>(null)
@@ -483,6 +504,7 @@ function createCurvedPanelGeometry(
 
 function createNarrativeTexture(
   panel: (typeof CAROUSEL_PANELS)[number],
+  mobileLayout: boolean,
 ) {
   const canvas = document.createElement('canvas')
   canvas.width = 2048
@@ -498,9 +520,15 @@ function createNarrativeTexture(
   context.textBaseline = 'middle'
 
   context.font =
-    '600 42px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+    mobileLayout
+      ? '600 56px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+      : '600 42px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
   context.fillStyle = 'rgba(219, 185, 125, 0.9)'
-  context.fillText(panel.kicker.toUpperCase(), canvas.width / 2, 190)
+  context.fillText(
+    panel.kicker.toUpperCase(),
+    canvas.width / 2,
+    mobileLayout ? 150 : 190,
+  )
 
   const titleGradient = context.createLinearGradient(420, 0, 1620, 0)
   titleGradient.addColorStop(0, '#fff1cf')
@@ -508,22 +536,40 @@ function createNarrativeTexture(
   titleGradient.addColorStop(1, '#b88d52')
   context.fillStyle = titleGradient
 
-  const titleSize = panel.title.length > 38 ? 136 : 150
+  const titleSize = mobileLayout
+    ? panel.title.length > 38
+      ? 188
+      : 206
+    : panel.title.length > 38
+      ? 136
+      : 150
+
   context.font =
     `600 ${titleSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif`
-  const titleLines = wrapCanvasText(context, panel.title, 1640)
-  const titleStart = 410 - ((titleLines.length - 1) * titleSize * 1.04) / 2
+
+  const titleLines = wrapCanvasText(
+    context,
+    panel.title,
+    mobileLayout ? 1680 : 1640,
+  )
+  const titleCenterY = mobileLayout ? 390 : 410
+  const titleLeading = mobileLayout ? 1.02 : 1.04
+  const titleStart =
+    titleCenterY -
+    ((titleLines.length - 1) * titleSize * titleLeading) / 2
 
   titleLines.forEach((line, index) => {
     context.fillText(
       line,
       canvas.width / 2,
-      titleStart + index * titleSize * 1.04,
+      titleStart + index * titleSize * titleLeading,
     )
   })
 
   const dividerY =
-    titleStart + titleLines.length * titleSize * 1.04 + 54
+    titleStart +
+    titleLines.length * titleSize * titleLeading +
+    (mobileLayout ? 42 : 54)
   const divider = context.createLinearGradient(760, 0, 1288, 0)
   divider.addColorStop(0, 'rgba(217, 184, 121, 0)')
   divider.addColorStop(0.5, 'rgba(217, 184, 121, 0.52)')
@@ -532,13 +578,24 @@ function createNarrativeTexture(
   context.fillRect(760, dividerY, 528, 2)
 
   context.fillStyle = 'rgba(239, 229, 212, 0.82)'
-  context.font =
-    '400 48px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
-  const bodyLines = wrapCanvasText(context, panel.body, 1660)
-  const bodyStart = dividerY + 92
+  context.font = mobileLayout
+    ? '400 82px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+    : '400 48px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+
+  const bodyLines = wrapCanvasText(
+    context,
+    panel.body,
+    mobileLayout ? 1720 : 1660,
+  )
+  const bodyStart = dividerY + (mobileLayout ? 76 : 92)
+  const bodyLeading = mobileLayout ? 102 : 66
 
   bodyLines.forEach((line, index) => {
-    context.fillText(line, canvas.width / 2, bodyStart + index * 66)
+    context.fillText(
+      line,
+      canvas.width / 2,
+      bodyStart + index * bodyLeading,
+    )
   })
 
   const texture = new THREE.CanvasTexture(canvas)
