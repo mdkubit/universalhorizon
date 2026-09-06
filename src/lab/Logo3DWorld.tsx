@@ -12,6 +12,7 @@ type Logo3DWorldProps = {
   scrollProgress: MutableRefObject<number>
   homeChoreography?: boolean
   transparentBackground?: boolean
+  showPlanet?: boolean
 }
 
 const EXTRUDE_DEPTH = 0.28
@@ -54,13 +55,14 @@ export default function Logo3DWorld({
   scrollProgress,
   homeChoreography = false,
   transparentBackground = false,
+  showPlanet = true,
 }: Logo3DWorldProps) {
-  const carouselAnchorRef = useRef<THREE.Group>(null)
   const logoRigRef = useRef<THREE.Group>(null)
   const emblemRef = useRef<THREE.Group>(null)
   const introStartedAt = useRef<number | null>(null)
   const introTime = useRef(0)
   const homeProgress = useRef(0)
+  const smoothHomeProgress = useRef(0)
 
   const hemisphereRef = useRef<THREE.HemisphereLight>(null)
   const warmLightRef = useRef<THREE.PointLight>(null)
@@ -69,7 +71,6 @@ export default function Logo3DWorld({
 
   const lookTarget = useMemo(() => new THREE.Vector3(0, 0.02, 0), [])
   const cameraTarget = useMemo(() => new THREE.Vector3(), [])
-  const cameraForward = useMemo(() => new THREE.Vector3(), [])
 
   useFrame((state, delta) => {
     if (introStartedAt.current === null) {
@@ -81,19 +82,28 @@ export default function Logo3DWorld({
 
     const arrival = introPhase(elapsed, 0, 5.35)
     const arrivalDone = arrival >= 1
-    const p = arrivalDone
+    const rawProgress = arrivalDone
       ? THREE.MathUtils.clamp(scrollProgress.current, 0, 1)
       : 0
+
+    smoothHomeProgress.current = THREE.MathUtils.damp(
+      smoothHomeProgress.current,
+      rawProgress,
+      5.2,
+      delta,
+    )
+
+    const p = homeChoreography
+      ? smoothHomeProgress.current
+      : rawProgress
+
     homeProgress.current = p
 
-    const pointerWeight = arrivalDone ? 1 : 0
-
     if (arrivalDone && homeChoreography) {
-      const cameraY = THREE.MathUtils.lerp(0.38, -60, p)
-
-      cameraTarget.set(-2.27, cameraY, 12.5)
-      lookTarget.set(0, cameraY - 0.36, 0)
+      cameraTarget.set(-2.27, 0.38, 12.5)
+      lookTarget.set(0, 0.02, 0)
     } else {
+      const pointerWeight = arrivalDone ? 1 : 0
       const angle = arrivalDone
         ? THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
         : THREE.MathUtils.lerp(-0.04, -0.18, smooth01(arrival))
@@ -148,17 +158,6 @@ export default function Logo3DWorld({
       violetLightRef.current.intensity = 9 * worldLight
     }
 
-    if (carouselAnchorRef.current) {
-      state.camera.getWorldDirection(cameraForward)
-      carouselAnchorRef.current.position
-        .copy(state.camera.position)
-        .addScaledVector(
-          cameraForward,
-          LOGO_CAMERA_DISTANCE + LOGO_RIG_RADIUS,
-        )
-      carouselAnchorRef.current.quaternion.copy(state.camera.quaternion)
-    }
-
     if (logoRigRef.current) {
       const targetYaw =
         arrivalDone && homeChoreography
@@ -191,7 +190,7 @@ export default function Logo3DWorld({
 
       {!transparentBackground && <ProceduralSky introTime={introTime} />}
       <DeepStars introTime={introTime} />
-      <PlanetHorizon introTime={introTime} />
+      {showPlanet && <PlanetHorizon introTime={introTime} />}
       <ReflectionEnvironment />
 
       <hemisphereLight
@@ -228,9 +227,11 @@ export default function Logo3DWorld({
         color="#fff2dc"
       />
 
-      <group ref={carouselAnchorRef}>
+      <group position={[0, 0, -LOGO_RIG_RADIUS]}>
         <group ref={logoRigRef}>
-          {homeChoreography && <CurvedNarrativeCarousel />}
+          {homeChoreography && (
+            <CurvedNarrativeCarousel homeProgress={homeProgress} />
+          )}
           <group ref={emblemRef} position={[0, 0.52, LOGO_RIG_RADIUS]}>
             <ExactEmblem
               introTime={introTime}
@@ -256,7 +257,11 @@ export default function Logo3DWorld({
   )
 }
 
-function CurvedNarrativeCarousel() {
+function CurvedNarrativeCarousel({
+  homeProgress,
+}: {
+  homeProgress: MutableRefObject<number>
+}) {
   return (
     <group>
       {CAROUSEL_PANELS.map((panel, index) => (
@@ -264,7 +269,11 @@ function CurvedNarrativeCarousel() {
           key={panel.title}
           rotation={[0, ((index + 1) * Math.PI * 2) / 5, 0]}
         >
-          <CurvedNarrativePanel panel={panel} />
+          <CurvedNarrativePanel
+            panel={panel}
+            panelIndex={index}
+            homeProgress={homeProgress}
+          />
         </group>
       ))}
     </group>
@@ -273,14 +282,32 @@ function CurvedNarrativeCarousel() {
 
 function CurvedNarrativePanel({
   panel,
+  panelIndex,
+  homeProgress,
 }: {
   panel: (typeof CAROUSEL_PANELS)[number]
+  panelIndex: number
+  homeProgress: MutableRefObject<number>
 }) {
   const geometry = useMemo(
     () => createCurvedPanelGeometry(7.5, 4.5, LOGO_RIG_RADIUS, 48, 8),
     [],
   )
   const texture = useMemo(() => createNarrativeTexture(panel), [panel])
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
+
+  useFrame(() => {
+    if (!materialRef.current) return
+
+    const slotAngle = ((panelIndex + 1) * Math.PI * 2) / 5
+    const carouselAngle = homeCarouselProgress(homeProgress.current) * Math.PI * 2
+    const relative = normalizeRadians(slotAngle - carouselAngle)
+    const distance = Math.abs(relative)
+    const visibility = 1 - smoothRangeValue(distance, 0.42, 0.78)
+
+    materialRef.current.opacity = visibility
+    materialRef.current.visible = visibility > 0.002
+  })
 
   useEffect(
     () => () => {
@@ -293,8 +320,10 @@ function CurvedNarrativePanel({
   return (
     <mesh geometry={geometry} position={[0, 0.25, 0]}>
       <meshBasicMaterial
+        ref={materialRef}
         map={texture}
         transparent
+        opacity={0}
         depthWrite={false}
         side={THREE.FrontSide}
         toneMapped={false}
@@ -1401,16 +1430,28 @@ function introPhase(time: number, start: number, end: number) {
   return raw * raw * (3 - 2 * raw)
 }
 
+function normalizeRadians(value: number) {
+  let normalized = value % (Math.PI * 2)
+  if (normalized > Math.PI) normalized -= Math.PI * 2
+  if (normalized < -Math.PI) normalized += Math.PI * 2
+  return normalized
+}
+
+function smoothRangeValue(value: number, start: number, end: number) {
+  const raw = THREE.MathUtils.clamp((value - start) / (end - start), 0, 1)
+  return raw * raw * (3 - 2 * raw)
+}
+
 function homeCarouselProgress(progress: number) {
-  return THREE.MathUtils.clamp(progress / 0.82, 0, 1)
+  return THREE.MathUtils.clamp(progress / 0.84, 0, 1)
 }
 
 function homeLogoVisibility(progress: number) {
-  if (progress <= 0.805) return 1
-  if (progress >= 0.92) return 0.06
+  if (progress <= 0.855) return 1
+  if (progress >= 0.935) return 0.06
 
   const raw = THREE.MathUtils.clamp(
-    (progress - 0.805) / (0.92 - 0.805),
+    (progress - 0.855) / (0.935 - 0.855),
     0,
     1,
   )
