@@ -22,6 +22,7 @@ export default function Logo3DWorld({
   const emblemRef = useRef<THREE.Group>(null)
   const introStartedAt = useRef<number | null>(null)
   const introTime = useRef(0)
+  const homeProgress = useRef(0)
 
   const hemisphereRef = useRef<THREE.HemisphereLight>(null)
   const warmLightRef = useRef<THREE.PointLight>(null)
@@ -44,6 +45,7 @@ export default function Logo3DWorld({
     const p = arrivalDone
       ? THREE.MathUtils.clamp(scrollProgress.current, 0, 1)
       : 0
+    homeProgress.current = p
 
     const angle = arrivalDone
       ? THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
@@ -159,10 +161,16 @@ export default function Logo3DWorld({
       />
 
       <group ref={emblemRef} position={[0, 0.52, 0]}>
-        <ExactEmblem introTime={introTime} />
+        <ExactEmblem
+          introTime={introTime}
+          homeProgress={homeProgress}
+          homeChoreography={homeChoreography}
+        />
         <TipLight
           position={[3.36, 2.773, 0.16]}
           introTime={introTime}
+          homeProgress={homeProgress}
+          homeChoreography={homeChoreography}
         />
       </group>
 
@@ -186,8 +194,12 @@ export default function Logo3DWorld({
 
 function ExactEmblem({
   introTime,
+  homeProgress,
+  homeChoreography,
 }: {
   introTime: MutableRefObject<number>
+  homeProgress: MutableRefObject<number>
+  homeChoreography: boolean
 }) {
   const geometries = useMemo(
     () =>
@@ -255,9 +267,12 @@ function ExactEmblem({
           : introPhase(elapsed, 1.15, 3.0)
 
       const reflected = introPhase(elapsed, 0.95, 4.1)
+      const homeVisibility = homeChoreography
+        ? homeLogoVisibility(homeProgress.current)
+        : 1
 
-      face.opacity = visibility
-      side.opacity = visibility
+      face.opacity = visibility * homeVisibility
+      side.opacity = visibility * homeVisibility
       face.envMapIntensity = THREE.MathUtils.lerp(0.15, 2.0, reflected)
       side.envMapIntensity = THREE.MathUtils.lerp(0.18, 2.35, reflected)
     })
@@ -291,18 +306,28 @@ function ExactEmblem({
           path={path}
           index={index}
           introTime={introTime}
+          homeProgress={homeProgress}
+          homeChoreography={homeChoreography}
         />
       ))}
 
-      <CanonicalLettering introTime={introTime} />
+      <CanonicalLettering
+        introTime={introTime}
+        homeProgress={homeProgress}
+        homeChoreography={homeChoreography}
+      />
     </group>
   )
 }
 
 function CanonicalLettering({
   introTime,
+  homeProgress,
+  homeChoreography,
 }: {
   introTime: MutableRefObject<number>
+  homeProgress: MutableRefObject<number>
+  homeChoreography: boolean
 }) {
   const geometries = useMemo(() => {
     const built: {
@@ -395,8 +420,12 @@ function CanonicalLettering({
         2.85 + letterIndex * 0.11,
       )
 
-      face.opacity = visibility
-      side.opacity = visibility
+      const homeVisibility = homeChoreography
+        ? homeLogoVisibility(homeProgress.current)
+        : 1
+
+      face.opacity = visibility * homeVisibility
+      side.opacity = visibility * homeVisibility
       face.emissiveIntensity = 0.3 * visibility
       side.emissiveIntensity = 0.12 * visibility
       face.envMapIntensity = THREE.MathUtils.lerp(0.3, 1.15, visibility)
@@ -449,10 +478,14 @@ function ContourEdges({
   path,
   index,
   introTime,
+  homeProgress,
+  homeChoreography,
 }: {
   path: readonly (readonly [number, number])[]
   index: number
   introTime: MutableRefObject<number>
+  homeProgress: MutableRefObject<number>
+  homeChoreography: boolean
 }) {
   const frontGeometry = useMemo(
     () =>
@@ -486,12 +519,16 @@ function ContourEdges({
         ? introPhase(elapsed, 0.9, 3.45)
         : introPhase(elapsed, 1.55, 3.75)
 
+    const homeVisibility = homeChoreography
+      ? homeLogoVisibility(homeProgress.current)
+      : 1
+
     if (goldRef.current) {
-      goldRef.current.opacity = 0.58 * visibility
+      goldRef.current.opacity = 0.58 * visibility * homeVisibility
     }
 
     if (blueRef.current) {
-      blueRef.current.opacity = 0.46 * visibility
+      blueRef.current.opacity = 0.46 * visibility * homeVisibility
     }
   })
 
@@ -917,16 +954,24 @@ function HorizonLight({
 function TipLight({
   position,
   introTime,
+  homeProgress,
+  homeChoreography,
 }: {
   position: [number, number, number]
   introTime: MutableRefObject<number>
+  homeProgress: MutableRefObject<number>
+  homeChoreography: boolean
 }) {
   const ref = useRef<THREE.PointLight>(null)
 
   useFrame(() => {
     if (!ref.current) return
+    const homeVisibility = homeChoreography
+      ? homeLogoVisibility(homeProgress.current)
+      : 1
+
     ref.current.intensity =
-      3.2 * introPhase(introTime.current, 1.65, 3.15)
+      3.2 * introPhase(introTime.current, 1.65, 3.15) * homeVisibility
   })
 
   return (
@@ -949,14 +994,14 @@ function introPhase(time: number, start: number, end: number) {
 function homeLogoOffset(progress: number) {
   const keyframes = [
     [0, 0],
-    [0.08, 0.92],
-    [0.18, 0.92],
-    [0.27, -0.9],
-    [0.37, -0.9],
-    [0.46, 0.88],
-    [0.56, 0.88],
-    [0.65, -0.82],
-    [0.75, -0.82],
+    [0.08, 1.72],
+    [0.18, 1.72],
+    [0.27, -1.68],
+    [0.37, -1.68],
+    [0.46, 1.64],
+    [0.56, 1.64],
+    [0.65, -1.6],
+    [0.75, -1.6],
     [0.84, 0],
     [1, 0],
   ] as const
@@ -977,6 +1022,19 @@ function homeLogoOffset(progress: number) {
   }
 
   return 0
+}
+
+function homeLogoVisibility(progress: number) {
+  if (progress <= 0.755) return 1
+  if (progress >= 0.91) return 0.06
+
+  const raw = THREE.MathUtils.clamp(
+    (progress - 0.755) / (0.91 - 0.755),
+    0,
+    1,
+  )
+  const eased = raw * raw * (3 - 2 * raw)
+  return THREE.MathUtils.lerp(1, 0.06, eased)
 }
 
 function smooth01(value: number) {
