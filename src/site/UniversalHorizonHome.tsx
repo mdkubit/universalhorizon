@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import type { MutableRefObject } from 'react'
 import * as THREE from 'three'
 import Logo3DWorld from '../lab/Logo3DWorld'
+import PlanetWorld from './PlanetWorld'
 
 type Scene = {
   kicker: string
@@ -63,7 +64,7 @@ export default function UniversalHorizonHome() {
 
       if (finalSceneRef.current) {
         const finalVisibility = enabled
-          ? smoothRange(progress, 0.805, 0.875)
+          ? smoothRange(progress, 0.885, 0.945)
           : 0
 
         finalSceneRef.current.style.opacity = finalVisibility.toFixed(4)
@@ -149,6 +150,30 @@ export default function UniversalHorizonHome() {
 
       <div className="fixed inset-0">
         <Canvas
+          orthographic
+          dpr={1.25}
+          camera={{
+            position: [0, 0, 10],
+            zoom: 70,
+            near: 0.1,
+            far: 100,
+          }}
+          gl={{
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance',
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1,
+          }}
+        >
+          <PlanetWorld
+            scrollProgress={scrollProgress as MutableRefObject<number>}
+          />
+        </Canvas>
+      </div>
+
+      <div className="fixed inset-0">
+        <Canvas
           dpr={1.25}
           camera={{
             position: [-2.27, 0.38, 12.5],
@@ -168,6 +193,7 @@ export default function UniversalHorizonHome() {
             scrollProgress={scrollProgress as MutableRefObject<number>}
             homeChoreography
             transparentBackground
+            showPlanet={false}
           />
         </Canvas>
       </div>
