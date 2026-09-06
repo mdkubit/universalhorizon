@@ -62,7 +62,7 @@ export default function Logo3DWorld({
 
     const distance = arrivalDone
       ? homeChoreography
-        ? THREE.MathUtils.lerp(12.7, 11.9, horizonCrossing(p))
+        ? homeCameraDistance(p)
         : 12.7
       : THREE.MathUtils.lerp(14.2, 12.7, smooth01(arrival))
 
@@ -798,12 +798,13 @@ function PlanetHorizon({
     material.uniforms.uVisibility.value = visibility
 
     if (groundRef.current) {
-      groundRef.current.rotation.y = state.clock.elapsedTime * 0.0072
+      groundRef.current.rotation.y =
+        1.35 + state.clock.elapsedTime * 0.0072
     }
 
     if (cloudRef.current) {
       cloudRef.current.rotation.y =
-        0.24 + state.clock.elapsedTime * 0.0105
+        1.82 + state.clock.elapsedTime * 0.0105
       cloudRef.current.rotation.z = 0.035
     }
 
@@ -1129,18 +1130,36 @@ function introPhase(time: number, start: number, end: number) {
 }
 
 function homeLogoYaw(progress: number) {
+  const turn = Math.PI * 2
+  const slot = turn / 5
+
   const keyframes = [
     [0, 0],
-    [0.08, 0.29],
-    [0.18, 0.29],
-    [0.27, -0.285],
-    [0.37, -0.285],
-    [0.46, 0.278],
-    [0.56, 0.278],
-    [0.65, -0.27],
-    [0.75, -0.27],
-    [0.84, 0],
-    [1, 0],
+    [0.045, 0],
+    [0.095, slot],
+    [0.18, slot],
+    [0.235, slot * 2],
+    [0.37, slot * 2],
+    [0.425, slot * 3],
+    [0.56, slot * 3],
+    [0.615, slot * 4],
+    [0.745, slot * 4],
+    [0.805, turn],
+    [1, turn],
+  ] as const
+
+  return sampleKeyframes(progress, keyframes)
+}
+
+function homeCameraDistance(progress: number) {
+  const keyframes = [
+    [0, 12.7],
+    [0.18, 13.3],
+    [0.36, 14.6],
+    [0.54, 16.5],
+    [0.7, 19],
+    [0.84, 22],
+    [1, 25.5],
   ] as const
 
   return sampleKeyframes(progress, keyframes)
@@ -1149,12 +1168,14 @@ function homeLogoYaw(progress: number) {
 function homeCameraDescent(progress: number) {
   const keyframes = [
     [0, 0],
-    [0.52, 0],
-    [0.64, -0.55],
-    [0.74, -1.55],
-    [0.82, -2.8],
-    [0.9, -4.55],
-    [1, -7.2],
+    [0.12, -0.8],
+    [0.28, -2.45],
+    [0.44, -4.4],
+    [0.6, -6.8],
+    [0.74, -9.4],
+    [0.86, -12.2],
+    [0.94, -14.5],
+    [1, -16.6],
   ] as const
 
   return sampleKeyframes(progress, keyframes)
@@ -1163,46 +1184,16 @@ function homeCameraDescent(progress: number) {
 function homeLookTargetY(progress: number) {
   const keyframes = [
     [0, 0.02],
-    [0.56, 0.02],
-    [0.7, -0.65],
-    [0.82, -2.05],
-    [0.92, -3.9],
-    [1, -5.8],
+    [0.2, -0.2],
+    [0.4, -1.2],
+    [0.58, -2.9],
+    [0.72, -5.1],
+    [0.84, -7.7],
+    [0.94, -10.1],
+    [1, -11.8],
   ] as const
 
   return sampleKeyframes(progress, keyframes)
-}
-
-function horizonCrossing(progress: number) {
-  return smoothRangeValue(progress, 0.58, 1)
-}
-
-function sampleKeyframes(
-  progress: number,
-  keyframes: readonly (readonly [number, number])[],
-) {
-  for (let index = 0; index < keyframes.length - 1; index += 1) {
-    const [startProgress, startValue] = keyframes[index]
-    const [endProgress, endValue] = keyframes[index + 1]
-
-    if (progress <= endProgress) {
-      const raw = THREE.MathUtils.clamp(
-        (progress - startProgress) /
-          Math.max(0.0001, endProgress - startProgress),
-        0,
-        1,
-      )
-      const eased = raw * raw * (3 - 2 * raw)
-      return THREE.MathUtils.lerp(startValue, endValue, eased)
-    }
-  }
-
-  return keyframes[keyframes.length - 1][1]
-}
-
-function smoothRangeValue(value: number, start: number, end: number) {
-  const raw = THREE.MathUtils.clamp((value - start) / (end - start), 0, 1)
-  return raw * raw * (3 - 2 * raw)
 }
 
 function homeLogoVisibility(progress: number) {
