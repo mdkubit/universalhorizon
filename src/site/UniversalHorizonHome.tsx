@@ -57,7 +57,7 @@ export default function UniversalHorizonHome() {
   const rafRef = useRef<number | null>(null)
   const carouselRef = useRef<HTMLDivElement>(null)
   const carouselPanelRefs = useRef<(HTMLElement | null)[]>([])
-  const finalSceneRef = useRef<HTMLElement>(null)
+  const finalSceneRef = useRef<HTMLElement | null>(null)
   const scrollHintRef = useRef<HTMLDivElement>(null)
   const bottomFadeRef = useRef<HTMLDivElement>(null)
 
@@ -84,7 +84,7 @@ export default function UniversalHorizonHome() {
         const relativeAngle = normalizeDegrees(slotAngle - carouselAngle)
         const absoluteAngle = Math.abs(relativeAngle)
         const visibility = enabled
-          ? 1 - smoothRange(absoluteAngle, 58, 92)
+          ? 1 - smoothRange(absoluteAngle, 48, 72)
           : 0
 
         element.style.opacity = visibility.toFixed(4)
@@ -93,7 +93,7 @@ export default function UniversalHorizonHome() {
 
       if (finalSceneRef.current) {
         const finalVisibility = enabled
-          ? smoothRange(progress, 0.765, 0.845)
+          ? smoothRange(progress, 0.805, 0.875)
           : 0
 
         finalSceneRef.current.style.opacity = finalVisibility.toFixed(4)
@@ -232,7 +232,12 @@ export default function UniversalHorizonHome() {
           ))}
         </div>
 
-        <FinalNarrative scene={finalScene} sceneRef={finalSceneRef} />
+        <FinalNarrative
+          scene={finalScene}
+          sceneRef={(element) => {
+            finalSceneRef.current = element
+          }}
+        />
 
         <div
           ref={scrollHintRef}
@@ -292,7 +297,7 @@ function FinalNarrative({
   sceneRef,
 }: {
   scene: Scene
-  sceneRef: MutableRefObject<HTMLElement | null>
+  sceneRef: (element: HTMLElement | null) => void
 }) {
   return (
     <section
