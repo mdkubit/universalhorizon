@@ -1154,10 +1154,10 @@ function PlanetHorizon({
   introTime: MutableRefObject<number>
 }) {
   const [dayTexture, normalTexture, specularTexture, cloudTexture] = useTexture([
-    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_day_4096.jpg',
-    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_normal_2048.jpg',
-    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_specular_2048.jpg',
-    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_clouds_1024.png',
+    '/assets/earth/earth_day_4096.jpg',
+    '/assets/earth/earth_normal_2048.jpg',
+    '/assets/earth/earth_specular_2048.jpg',
+    '/assets/earth/earth_clouds_1024.png',
   ])
 
   const groundRef = useRef<THREE.Mesh>(null)
