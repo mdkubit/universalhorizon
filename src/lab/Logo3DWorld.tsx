@@ -116,7 +116,7 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
   )
 }
 
-function ExactEmblem({ envMap }: { envMap: THREE.CubeTexture }) {
+function ExactEmblem({ envMap }: { envMap: THREE.Texture }) {
   const geometries = useMemo(
     () =>
       logoPaths.map((path) => {
