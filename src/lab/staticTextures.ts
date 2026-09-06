@@ -156,7 +156,7 @@ export function createPlanetTexture() {
         periodicFbm(u + 0.173, v * 0.82 + 0.09, 97, 3, 2.1, 0.5, 2) * 0.28
       const ridge = periodicFbm(u * 1.7 + 0.31, v * 1.55, 133, 4, 2, 0.5, 5)
 
-      const landThreshold = 0.545 + latitude * 0.035
+      const landThreshold = 0.525 + latitude * 0.03
       const isLand = continent > landThreshold
       const index = (y * sampleWidth + x) * 4
 
