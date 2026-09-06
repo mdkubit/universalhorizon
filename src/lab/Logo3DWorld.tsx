@@ -1,4 +1,4 @@
-import { Environment } from '@react-three/drei'
+import { Environment, useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
@@ -6,7 +6,7 @@ import * as THREE from 'three'
 import { logoPaths } from './logoPaths'
 import { canonicalLettering } from './canonicalLettering'
 import { cleanLetterGeometry } from './cleanLetterGeometry'
-import { createCloudTexture, createNebulaTexture, createPlanetTexture } from './staticTextures'
+import { createNebulaTexture } from './staticTextures'
 
 type Logo3DWorldProps = {
   scrollProgress: MutableRefObject<number>
@@ -16,6 +16,7 @@ type Logo3DWorldProps = {
 
 const EXTRUDE_DEPTH = 0.28
 const LOGO_RIG_RADIUS = 6.8
+const LOGO_CAMERA_DISTANCE = 12.7
 const renderLogoPaths: [number, number][][] = logoPaths.map((path) =>
   smoothClosedPath(simplifyClosedPath(path, 0.018), 2.38, 4),
 )
@@ -25,6 +26,7 @@ export default function Logo3DWorld({
   homeChoreography = false,
   transparentBackground = false,
 }: Logo3DWorldProps) {
+  const carouselAnchorRef = useRef<THREE.Group>(null)
   const logoRigRef = useRef<THREE.Group>(null)
   const emblemRef = useRef<THREE.Group>(null)
   const introStartedAt = useRef<number | null>(null)
@@ -38,6 +40,7 @@ export default function Logo3DWorld({
 
   const lookTarget = useMemo(() => new THREE.Vector3(0, 0.02, 0), [])
   const cameraTarget = useMemo(() => new THREE.Vector3(), [])
+  const cameraForward = useMemo(() => new THREE.Vector3(), [])
 
   useFrame((state, delta) => {
     if (introStartedAt.current === null) {
@@ -54,30 +57,41 @@ export default function Logo3DWorld({
       : 0
     homeProgress.current = p
 
-    const angle = arrivalDone
-      ? homeChoreography
-        ? THREE.MathUtils.lerp(-0.055, 0.055, smooth01(p))
-        : THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
-      : THREE.MathUtils.lerp(-0.04, -0.18, smooth01(arrival))
-
-    const distance = arrivalDone
-      ? homeChoreography
-        ? homeCameraDistance(p)
-        : 12.7
-      : THREE.MathUtils.lerp(14.2, 12.7, smooth01(arrival))
-
     const pointerWeight = arrivalDone ? 1 : 0
-    const descent = homeChoreography ? homeCameraDescent(p) : 0
-    const lookY = homeChoreography ? homeLookTargetY(p) : 0.02
-    lookTarget.y = lookY
+    const journey = homeChoreography ? smooth01(p) : 0
 
-    cameraTarget.set(
-      Math.sin(angle) * distance + state.pointer.x * 0.2 * pointerWeight,
-      THREE.MathUtils.lerp(0.78, 0.38, arrival) +
-        descent +
-        state.pointer.y * 0.12 * pointerWeight,
-      Math.cos(angle) * distance,
-    )
+    if (arrivalDone && homeChoreography) {
+      cameraTarget.set(
+        state.pointer.x * 0.16 * pointerWeight,
+        THREE.MathUtils.lerp(0.38, -45.0, journey) +
+          state.pointer.y * 0.08 * pointerWeight,
+        THREE.MathUtils.lerp(12.7, 29.5, journey),
+      )
+
+      lookTarget.set(
+        0,
+        THREE.MathUtils.lerp(0.02, -30.5, journey),
+        THREE.MathUtils.lerp(0, -8.75, journey),
+      )
+    } else {
+      const angle = arrivalDone
+        ? THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
+        : THREE.MathUtils.lerp(-0.04, -0.18, smooth01(arrival))
+
+      const distance = arrivalDone
+        ? 12.7
+        : THREE.MathUtils.lerp(14.2, 12.7, smooth01(arrival))
+
+      cameraTarget.set(
+        Math.sin(angle) * distance + state.pointer.x * 0.2 * pointerWeight,
+        THREE.MathUtils.lerp(0.78, 0.38, arrival) +
+          Math.sin(p * Math.PI) * 0.24 +
+          state.pointer.y * 0.12 * pointerWeight,
+        Math.cos(angle) * distance,
+      )
+
+      lookTarget.set(0, 0.02, 0)
+    }
 
     state.camera.position.x = THREE.MathUtils.damp(
       state.camera.position.x,
@@ -114,16 +128,24 @@ export default function Logo3DWorld({
       violetLightRef.current.intensity = 9 * worldLight
     }
 
+    if (carouselAnchorRef.current) {
+      state.camera.getWorldDirection(cameraForward)
+      carouselAnchorRef.current.position
+        .copy(state.camera.position)
+        .addScaledVector(
+          cameraForward,
+          LOGO_CAMERA_DISTANCE + LOGO_RIG_RADIUS,
+        )
+      carouselAnchorRef.current.quaternion.copy(state.camera.quaternion)
+    }
+
     if (logoRigRef.current) {
       const targetYaw =
-        arrivalDone && homeChoreography ? homeLogoYaw(p) : 0
+        arrivalDone && homeChoreography
+          ? -homeCarouselProgress(p) * Math.PI * 2
+          : 0
 
-      logoRigRef.current.rotation.y = THREE.MathUtils.damp(
-        logoRigRef.current.rotation.y,
-        targetYaw,
-        3.1,
-        delta,
-      )
+      logoRigRef.current.rotation.y = targetYaw
     }
 
     if (emblemRef.current) {
@@ -181,19 +203,21 @@ export default function Logo3DWorld({
         color="#a06dff"
       />
 
-      <group ref={logoRigRef} position={[0, 0, -LOGO_RIG_RADIUS]}>
-        <group ref={emblemRef} position={[0, 0.52, LOGO_RIG_RADIUS]}>
-          <ExactEmblem
-          introTime={introTime}
-          homeProgress={homeProgress}
-          homeChoreography={homeChoreography}
-        />
-          <TipLight
-            position={[3.36, 2.773, 0.16]}
-            introTime={introTime}
-            homeProgress={homeProgress}
-            homeChoreography={homeChoreography}
-          />
+      <group ref={carouselAnchorRef}>
+        <group ref={logoRigRef}>
+          <group ref={emblemRef} position={[0, 0.52, LOGO_RIG_RADIUS]}>
+            <ExactEmblem
+              introTime={introTime}
+              homeProgress={homeProgress}
+              homeChoreography={homeChoreography}
+            />
+            <TipLight
+              position={[3.36, 2.773, 0.16]}
+              introTime={introTime}
+              homeProgress={homeProgress}
+              homeChoreography={homeChoreography}
+            />
+          </group>
         </group>
       </group>
 
@@ -726,109 +750,131 @@ function PlanetHorizon({
 }: {
   introTime: MutableRefObject<number>
 }) {
-  const texture = useMemo(() => createPlanetTexture(), [])
-  const cloudTexture = useMemo(() => createCloudTexture(), [])
+  const [dayTexture, normalTexture, specularTexture, cloudTexture] = useTexture([
+    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_day_4096.jpg',
+    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_normal_2048.jpg',
+    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_specular_2048.jpg',
+    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r185/examples/textures/planets/earth_clouds_1024.png',
+  ])
+
   const groundRef = useRef<THREE.Mesh>(null)
   const cloudRef = useRef<THREE.Mesh>(null)
-  const cloudMaterialRef = useRef<THREE.MeshBasicMaterial>(null)
+  const groundMaterialRef = useRef<THREE.MeshPhongMaterial>(null)
+  const cloudMaterialRef = useRef<THREE.MeshPhongMaterial>(null)
+  const atmosphereMaterialRef = useRef<THREE.ShaderMaterial>(null)
 
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        transparent: true,
-        depthWrite: true,
-        uniforms: {
-          uMap: { value: texture },
-          uVisibility: { value: 0 },
-        },
-        vertexShader: `
-          varying vec2 vUv;
-          varying vec3 vNormalView;
-          varying vec3 vPositionView;
+  useEffect(() => {
+    dayTexture.colorSpace = THREE.SRGBColorSpace
+    cloudTexture.colorSpace = THREE.SRGBColorSpace
 
-          void main() {
-            vUv = uv;
-            vNormalView = normalize(normalMatrix * normal);
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-            vPositionView = mvPosition.xyz;
-            gl_Position = projectionMatrix * mvPosition;
-          }
-        `,
-        fragmentShader: `
-          uniform sampler2D uMap;
-          uniform float uVisibility;
-
-          varying vec2 vUv;
-          varying vec3 vNormalView;
-          varying vec3 vPositionView;
-
-          void main() {
-            vec3 normalView = normalize(vNormalView);
-            vec3 viewDirection = normalize(-vPositionView);
-            float facing = max(dot(normalView, viewDirection), 0.0);
-            float rim = pow(1.0 - facing, 3.45);
-
-            vec3 base = texture2D(uMap, vUv).rgb;
-            float softLight = 0.66 + 0.34 * max(
-              dot(normalView, normalize(vec3(-0.32, 0.72, 0.55))),
-              0.0
-            );
-
-            vec3 color = base * softLight;
-            color += vec3(0.12, 0.26, 0.70) * rim * 0.95;
-
-            gl_FragColor = vec4(color, uVisibility);
-          }
-        `,
-      }),
-    [texture],
-  )
-
-  useEffect(
-    () => () => {
-      material.dispose()
-      texture.dispose()
-      cloudTexture.dispose()
-    },
-    [material, texture, cloudTexture],
-  )
+    for (const texture of [
+      dayTexture,
+      normalTexture,
+      specularTexture,
+      cloudTexture,
+    ]) {
+      texture.wrapS = THREE.RepeatWrapping
+      texture.wrapT = THREE.ClampToEdgeWrapping
+      texture.anisotropy = 8
+      texture.needsUpdate = true
+    }
+  }, [dayTexture, normalTexture, specularTexture, cloudTexture])
 
   useFrame((state) => {
     const visibility = introPhase(introTime.current, 4.3, 5.22)
-    material.uniforms.uVisibility.value = visibility
 
     if (groundRef.current) {
       groundRef.current.rotation.y =
-        1.35 + state.clock.elapsedTime * 0.0072
+        0.85 + state.clock.elapsedTime * 0.0068
     }
 
     if (cloudRef.current) {
       cloudRef.current.rotation.y =
-        1.82 + state.clock.elapsedTime * 0.0105
-      cloudRef.current.rotation.z = 0.035
+        1.12 + state.clock.elapsedTime * 0.0094
+    }
+
+    if (groundMaterialRef.current) {
+      groundMaterialRef.current.opacity = visibility
     }
 
     if (cloudMaterialRef.current) {
-      cloudMaterialRef.current.opacity = 0.72 * visibility
+      cloudMaterialRef.current.opacity = 0.52 * visibility
+    }
+
+    if (atmosphereMaterialRef.current) {
+      atmosphereMaterialRef.current.uniforms.uVisibility.value = visibility
     }
   })
 
   return (
     <group position={[0, -37.25, -8.75]}>
       <mesh ref={groundRef}>
-        <sphereGeometry args={[32, 192, 96]} />
-        <primitive object={material} attach="material" />
+        <sphereGeometry args={[32, 160, 96]} />
+        <meshPhongMaterial
+          ref={groundMaterialRef}
+          map={dayTexture}
+          normalMap={normalTexture}
+          normalScale={new THREE.Vector2(0.35, 0.35)}
+          specularMap={specularTexture}
+          specular="#7188a6"
+          shininess={14}
+          transparent
+          opacity={0}
+        />
       </mesh>
 
       <mesh ref={cloudRef}>
-        <sphereGeometry args={[32.12, 144, 72]} />
-        <meshBasicMaterial
+        <sphereGeometry args={[32.16, 128, 72]} />
+        <meshPhongMaterial
           ref={cloudMaterialRef}
           map={cloudTexture}
+          alphaMap={cloudTexture}
+          color="#f1f5ff"
           transparent
           opacity={0}
           depthWrite={false}
-          toneMapped={false}
+          shininess={2}
+        />
+      </mesh>
+
+      <mesh scale={1.012}>
+        <sphereGeometry args={[32, 128, 72]} />
+        <shaderMaterial
+          ref={atmosphereMaterialRef}
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          side={THREE.BackSide}
+          uniforms={{
+            uVisibility: { value: 0 },
+          }}
+          vertexShader={`
+            varying vec3 vNormalView;
+            varying vec3 vPositionView;
+
+            void main() {
+              vNormalView = normalize(normalMatrix * normal);
+              vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+              vPositionView = mvPosition.xyz;
+              gl_Position = projectionMatrix * mvPosition;
+            }
+          `}
+          fragmentShader={`
+            uniform float uVisibility;
+            varying vec3 vNormalView;
+            varying vec3 vPositionView;
+
+            void main() {
+              vec3 viewDirection = normalize(-vPositionView);
+              float rim = pow(
+                1.0 - max(dot(normalize(vNormalView), viewDirection), 0.0),
+                3.0
+              );
+
+              vec3 color = vec3(0.12, 0.34, 0.95) * rim * 0.68;
+              gl_FragColor = vec4(color, rim * 0.42 * uVisibility);
+            }
+          `}
         />
       </mesh>
     </group>
@@ -1129,71 +1175,8 @@ function introPhase(time: number, start: number, end: number) {
   return raw * raw * (3 - 2 * raw)
 }
 
-function homeLogoYaw(progress: number) {
-  const turn = Math.PI * 2
-  const slot = turn / 5
-
-  const keyframes = [
-    [0, 0],
-    [0.045, 0],
-    [0.095, slot],
-    [0.18, slot],
-    [0.235, slot * 2],
-    [0.37, slot * 2],
-    [0.425, slot * 3],
-    [0.56, slot * 3],
-    [0.615, slot * 4],
-    [0.745, slot * 4],
-    [0.805, turn],
-    [1, turn],
-  ] as const
-
-  return sampleKeyframes(progress, keyframes)
-}
-
-function homeCameraDistance(progress: number) {
-  const keyframes = [
-    [0, 12.7],
-    [0.18, 13.3],
-    [0.36, 14.6],
-    [0.54, 16.5],
-    [0.7, 19],
-    [0.84, 22],
-    [1, 25.5],
-  ] as const
-
-  return sampleKeyframes(progress, keyframes)
-}
-
-function homeCameraDescent(progress: number) {
-  const keyframes = [
-    [0, 0],
-    [0.12, -0.8],
-    [0.28, -2.45],
-    [0.44, -4.4],
-    [0.6, -6.8],
-    [0.74, -9.4],
-    [0.86, -12.2],
-    [0.94, -14.5],
-    [1, -16.6],
-  ] as const
-
-  return sampleKeyframes(progress, keyframes)
-}
-
-function homeLookTargetY(progress: number) {
-  const keyframes = [
-    [0, 0.02],
-    [0.2, -0.2],
-    [0.4, -1.2],
-    [0.58, -2.9],
-    [0.72, -5.1],
-    [0.84, -7.7],
-    [0.94, -10.1],
-    [1, -11.8],
-  ] as const
-
-  return sampleKeyframes(progress, keyframes)
+function homeCarouselProgress(progress: number) {
+  return THREE.MathUtils.clamp(progress / 0.82, 0, 1)
 }
 
 function homeLogoVisibility(progress: number) {
