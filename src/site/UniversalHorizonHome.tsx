@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { Link } from 'react-router'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, MutableRefObject } from 'react'
 import * as THREE from 'three'
 import Logo3DWorld from '../lab/Logo3DWorld'
