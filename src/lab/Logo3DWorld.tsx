@@ -1,4 +1,4 @@
-import { Environment, useTexture } from '@react-three/drei'
+import { Environment } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
@@ -6,6 +6,7 @@ import * as THREE from 'three'
 import { logoPaths } from './logoPaths'
 import { canonicalLettering } from './canonicalLettering'
 import { cleanLetterGeometry } from './cleanLetterGeometry'
+import { createNebulaTexture, createPlanetTexture } from './staticTextures'
 
 type Logo3DWorldProps = {
   scrollProgress: MutableRefObject<number>
@@ -573,20 +574,15 @@ function ProceduralSky({
 }: {
   introTime: MutableRefObject<number>
 }) {
-  const texture = useTexture('/assets/nebula-space.svg')
+  const texture = useMemo(() => createNebulaTexture(), [])
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.MeshBasicMaterial>(null)
 
-  useEffect(() => {
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.ClampToEdgeWrapping
-    texture.needsUpdate = true
-  }, [texture])
+  useEffect(() => () => texture.dispose(), [texture])
 
   useFrame((state) => {
     const visibility =
-      0.03 + 0.97 * introPhase(introTime.current, 0.35, 3.65)
+      0.045 + 0.955 * introPhase(introTime.current, 0.35, 3.65)
 
     if (materialRef.current) {
       materialRef.current.opacity = visibility
@@ -599,13 +595,13 @@ function ProceduralSky({
 
   return (
     <mesh ref={meshRef} scale={92}>
-      <sphereGeometry args={[1, 48, 24]} />
+      <sphereGeometry args={[1, 64, 32]} />
       <meshBasicMaterial
         ref={materialRef}
         map={texture}
         side={THREE.BackSide}
         transparent
-        opacity={0.03}
+        opacity={0.045}
         depthWrite={false}
         toneMapped={false}
       />
@@ -699,15 +695,8 @@ function PlanetHorizon({
 }: {
   introTime: MutableRefObject<number>
 }) {
-  const texture = useTexture('/assets/planet-surface.svg')
+  const texture = useMemo(() => createPlanetTexture(), [])
   const meshRef = useRef<THREE.Mesh>(null)
-
-  useEffect(() => {
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.ClampToEdgeWrapping
-    texture.needsUpdate = true
-  }, [texture])
 
   const material = useMemo(
     () =>
@@ -743,16 +732,16 @@ function PlanetHorizon({
             vec3 normalView = normalize(vNormalView);
             vec3 viewDirection = normalize(-vPositionView);
             float facing = max(dot(normalView, viewDirection), 0.0);
-            float rim = pow(1.0 - facing, 3.6);
+            float rim = pow(1.0 - facing, 3.45);
 
             vec3 base = texture2D(uMap, vUv).rgb;
-            float softLight = 0.48 + 0.52 * max(
+            float softLight = 0.62 + 0.38 * max(
               dot(normalView, normalize(vec3(-0.32, 0.72, 0.55))),
               0.0
             );
 
             vec3 color = base * softLight;
-            color += vec3(0.10, 0.22, 0.58) * rim * 0.82;
+            color += vec3(0.12, 0.26, 0.70) * rim * 0.95;
 
             gl_FragColor = vec4(color, uVisibility);
           }
@@ -761,7 +750,13 @@ function PlanetHorizon({
     [texture],
   )
 
-  useEffect(() => () => material.dispose(), [material])
+  useEffect(
+    () => () => {
+      material.dispose()
+      texture.dispose()
+    },
+    [material, texture],
+  )
 
   useFrame((state) => {
     const visibility = introPhase(introTime.current, 4.3, 5.22)
