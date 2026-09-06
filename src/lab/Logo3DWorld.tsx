@@ -134,25 +134,30 @@ export default function Logo3DWorld({
       lookTarget.set(0, 0.02, 0)
     }
 
-    state.camera.position.x = THREE.MathUtils.damp(
-      state.camera.position.x,
-      cameraTarget.x,
-      4.2,
-      delta,
-    )
-    state.camera.position.y = THREE.MathUtils.damp(
-      state.camera.position.y,
-      cameraTarget.y,
-      4.2,
-      delta,
-    )
-    state.camera.position.z = THREE.MathUtils.damp(
-      state.camera.position.z,
-      cameraTarget.z,
-      4.2,
-      delta,
-    )
-    state.camera.lookAt(lookTarget)
+    if (homeChoreography) {
+      state.camera.position.copy(cameraTarget)
+      state.camera.rotation.set(0, 0, 0)
+    } else {
+      state.camera.position.x = THREE.MathUtils.damp(
+        state.camera.position.x,
+        cameraTarget.x,
+        4.2,
+        delta,
+      )
+      state.camera.position.y = THREE.MathUtils.damp(
+        state.camera.position.y,
+        cameraTarget.y,
+        4.2,
+        delta,
+      )
+      state.camera.position.z = THREE.MathUtils.damp(
+        state.camera.position.z,
+        cameraTarget.z,
+        4.2,
+        delta,
+      )
+      state.camera.lookAt(lookTarget)
+    }
 
     const worldLight = introPhase(elapsed, 0.75, 4.7)
 
@@ -178,8 +183,14 @@ export default function Logo3DWorld({
       logoRigRef.current.rotation.y = targetYaw
 
       if (homeChoreography) {
+        const breathWeight = introPhase(elapsed, 5.15, 6.35)
+        const breath =
+          Math.sin(state.clock.elapsedTime * 0.55) *
+          0.022 *
+          breathWeight
+
         logoRigRef.current.position.y =
-          state.camera.position.y - PLANET_POSITION[1]
+          state.camera.position.y - PLANET_POSITION[1] + breath
       } else {
         logoRigRef.current.position.y = 0
       }
