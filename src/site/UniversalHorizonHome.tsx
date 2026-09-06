@@ -15,6 +15,7 @@ type Scene = {
   title: string
   body: string
   eyebrow?: string
+  hold?: boolean
 }
 
 const scenes: Scene[] = [
@@ -66,8 +67,9 @@ const scenes: Scene[] = [
     start: 0.755,
     peakStart: 0.81,
     peakEnd: 0.91,
-    end: 0.975,
+    end: 1,
     align: 'center',
+    hold: true,
     kicker: 'Universal Horizon',
     title: 'Research. Creation. Continuity. Connection.',
     body:
@@ -197,11 +199,13 @@ function NarrativeScene({
     0,
     1,
   )
-  const leaving = THREE.MathUtils.clamp(
-    (progress - scene.peakEnd) / Math.max(0.001, scene.end - scene.peakEnd),
-    0,
-    1,
-  )
+  const leaving = scene.hold
+    ? 0
+    : THREE.MathUtils.clamp(
+        (progress - scene.peakEnd) / Math.max(0.001, scene.end - scene.peakEnd),
+        0,
+        1,
+      )
 
   const direction =
     scene.align === 'left' ? -1 : scene.align === 'right' ? 1 : 0
@@ -306,12 +310,20 @@ function NonprofitPortal() {
 }
 
 function sceneVisibility(scene: Scene, progress: number) {
-  if (progress <= scene.start || progress >= scene.end) {
+  if (progress <= scene.start) {
     return 0
   }
 
   if (progress < scene.peakStart) {
     return smoothRange(progress, scene.start, scene.peakStart)
+  }
+
+  if (scene.hold) {
+    return 1
+  }
+
+  if (progress >= scene.end) {
+    return 0
   }
 
   if (progress <= scene.peakEnd) {
