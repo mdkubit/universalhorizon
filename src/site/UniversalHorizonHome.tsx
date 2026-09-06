@@ -186,6 +186,20 @@ export default function UniversalHorizonHome() {
 
   return (
     <main className="relative min-h-[720vh] bg-[#02030b] text-white">
+      <div
+        className="fixed inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 62% 50% at 16% 22%, rgba(111,62,157,0.48) 0%, rgba(62,38,112,0.28) 36%, transparent 72%), radial-gradient(ellipse 58% 48% at 78% 30%, rgba(126,48,104,0.42) 0%, rgba(72,32,92,0.24) 38%, transparent 74%), radial-gradient(ellipse 68% 54% at 48% 68%, rgba(37,73,139,0.38) 0%, rgba(29,45,101,0.22) 42%, transparent 78%), radial-gradient(ellipse 45% 32% at 52% 34%, rgba(82,63,145,0.28) 0%, transparent 70%), linear-gradient(180deg, #050611 0%, #070819 46%, #02030b 100%)',
+        }}
+      />
+      <div
+        className="fixed inset-0 opacity-80"
+        style={{
+          background:
+            'radial-gradient(ellipse 28% 18% at 28% 43%, rgba(145,84,181,0.18), transparent 70%), radial-gradient(ellipse 34% 21% at 64% 55%, rgba(181,66,125,0.14), transparent 72%), radial-gradient(ellipse 30% 18% at 50% 20%, rgba(80,121,191,0.13), transparent 70%)',
+        }}
+      />
       <div className="fixed inset-0">
         <Canvas
           dpr={1.25}
@@ -197,7 +211,7 @@ export default function UniversalHorizonHome() {
           }}
           gl={{
             antialias: true,
-            alpha: false,
+            alpha: true,
             powerPreference: 'high-performance',
             toneMapping: THREE.ACESFilmicToneMapping,
             toneMappingExposure: 0.93,
@@ -206,6 +220,7 @@ export default function UniversalHorizonHome() {
           <Logo3DWorld
             scrollProgress={scrollProgress as MutableRefObject<number>}
             homeChoreography
+            transparentBackground
           />
         </Canvas>
       </div>
