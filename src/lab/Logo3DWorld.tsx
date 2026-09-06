@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
 import * as THREE from 'three'
 import { logoPaths } from './logoPaths'
+import { canonicalLettering } from './canonicalLettering'
+import { cleanLetterGeometry } from './cleanLetterGeometry'
 
 type Logo3DWorldProps = {
   scrollProgress: MutableRefObject<number>
@@ -188,6 +190,99 @@ function ExactEmblem() {
         <ContourEdges key={index} path={path} />
       ))}
 
+      <CanonicalLettering />
+    </group>
+  )
+}
+
+function CanonicalLettering() {
+  const geometries = useMemo(() => {
+    const built: THREE.BufferGeometry[] = []
+
+    for (const letter of canonicalLettering.letters) {
+      const shapePath = new THREE.ShapePath()
+
+      for (const loop of letter.loops) {
+        loop.forEach(([sourceX, sourceY], index) => {
+          const x =
+            (sourceX / canonicalLettering.sourceSize[0] * 1200 - 610) * 0.00825
+          const y =
+            (300 - sourceY / canonicalLettering.sourceSize[1] * 670) * 0.0115
+
+          if (index === 0) {
+            shapePath.moveTo(x, y)
+          } else {
+            shapePath.lineTo(x, y)
+          }
+        })
+      }
+
+      for (const shape of shapePath.toShapes()) {
+        const geometry = cleanLetterGeometry(
+          new THREE.ExtrudeGeometry(shape, {
+            depth: 0.055,
+            bevelEnabled: false,
+            steps: 1,
+          }),
+        )
+
+        geometry.translate(0, 0, 0.17)
+        built.push(geometry)
+      }
+    }
+
+    return built
+  }, [])
+
+  const faceMaterial = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color('#d9ccff'),
+        emissive: new THREE.Color('#66508f'),
+        emissiveIntensity: 0.3,
+        metalness: 0.16,
+        roughness: 0.3,
+        clearcoat: 0.78,
+        clearcoatRoughness: 0.12,
+        reflectivity: 0.72,
+        envMapIntensity: 1.15,
+      }),
+    [],
+  )
+
+  const sideMaterial = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color('#7a678f'),
+        emissive: new THREE.Color('#352845'),
+        emissiveIntensity: 0.12,
+        metalness: 0.48,
+        roughness: 0.34,
+        clearcoat: 0.5,
+        clearcoatRoughness: 0.16,
+        envMapIntensity: 1.28,
+      }),
+    [],
+  )
+
+  useEffect(
+    () => () => {
+      geometries.forEach((geometry) => geometry.dispose())
+      faceMaterial.dispose()
+      sideMaterial.dispose()
+    },
+    [geometries, faceMaterial, sideMaterial],
+  )
+
+  return (
+    <group>
+      {geometries.map((geometry, index) => (
+        <mesh
+          key={index}
+          geometry={geometry}
+          material={[faceMaterial, sideMaterial]}
+        />
+      ))}
     </group>
   )
 }
