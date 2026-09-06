@@ -16,17 +16,46 @@ const EXTRUDE_DEPTH = 0.28
 
 export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
   const emblemRef = useRef<THREE.Group>(null)
+  const introStartedAt = useRef<number | null>(null)
+  const introTime = useRef(0)
+
+  const hemisphereRef = useRef<THREE.HemisphereLight>(null)
+  const warmLightRef = useRef<THREE.PointLight>(null)
+  const blueLightRef = useRef<THREE.PointLight>(null)
+  const violetLightRef = useRef<THREE.PointLight>(null)
+
   const lookTarget = useMemo(() => new THREE.Vector3(0, 0.02, 0), [])
   const cameraTarget = useMemo(() => new THREE.Vector3(), [])
 
   useFrame((state, delta) => {
-    const p = THREE.MathUtils.clamp(scrollProgress.current, 0, 1)
-    const angle = THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
-    const distance = 12.7
+    if (introStartedAt.current === null) {
+      introStartedAt.current = state.clock.elapsedTime
+    }
+
+    const elapsed = state.clock.elapsedTime - introStartedAt.current
+    introTime.current = elapsed
+
+    const arrival = introPhase(elapsed, 0, 5.35)
+    const arrivalDone = arrival >= 1
+    const p = arrivalDone
+      ? THREE.MathUtils.clamp(scrollProgress.current, 0, 1)
+      : 0
+
+    const angle = arrivalDone
+      ? THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
+      : THREE.MathUtils.lerp(-0.04, -0.18, smooth01(arrival))
+
+    const distance = arrivalDone
+      ? 12.7
+      : THREE.MathUtils.lerp(14.2, 12.7, smooth01(arrival))
+
+    const pointerWeight = arrivalDone ? 1 : 0
 
     cameraTarget.set(
-      Math.sin(angle) * distance + state.pointer.x * 0.2,
-      0.38 + Math.sin(p * Math.PI) * 0.24 + state.pointer.y * 0.12,
+      Math.sin(angle) * distance + state.pointer.x * 0.2 * pointerWeight,
+      THREE.MathUtils.lerp(0.78, 0.38, arrival) +
+        Math.sin(p * Math.PI) * 0.24 +
+        state.pointer.y * 0.12 * pointerWeight,
       Math.cos(angle) * distance,
     )
 
@@ -50,13 +79,30 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
     )
     state.camera.lookAt(lookTarget)
 
+    const worldLight = introPhase(elapsed, 0.75, 4.7)
+
+    if (hemisphereRef.current) {
+      hemisphereRef.current.intensity = 0.5 * worldLight
+    }
+    if (warmLightRef.current) {
+      warmLightRef.current.intensity = 13 * worldLight
+    }
+    if (blueLightRef.current) {
+      blueLightRef.current.intensity = 16 * worldLight
+    }
+    if (violetLightRef.current) {
+      violetLightRef.current.intensity = 9 * worldLight
+    }
+
     if (emblemRef.current) {
+      const floatWeight = introPhase(elapsed, 4.15, 5.35)
       emblemRef.current.position.y =
-        0.52 + Math.sin(state.clock.elapsedTime * 0.32) * 0.025
+        0.52 +
+        Math.sin(state.clock.elapsedTime * 0.32) * 0.025 * floatWeight
       emblemRef.current.rotation.x =
-        Math.sin(state.clock.elapsedTime * 0.17) * 0.008
+        Math.sin(state.clock.elapsedTime * 0.17) * 0.008 * floatWeight
       emblemRef.current.rotation.z =
-        Math.sin(state.clock.elapsedTime * 0.13) * 0.006
+        Math.sin(state.clock.elapsedTime * 0.13) * 0.006 * floatWeight
     }
   })
 
@@ -65,40 +111,52 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
       <color attach="background" args={['#02030b']} />
       <fog attach="fog" args={['#02030b', 18, 70]} />
 
-      <ProceduralSky />
-      <DeepStars />
-      <PlanetHorizon />
+      <ProceduralSky introTime={introTime} />
+      <DeepStars introTime={introTime} />
+      <PlanetHorizon introTime={introTime} />
       <ReflectionEnvironment />
 
-      <hemisphereLight args={['#8da7ff', '#1b0d24', 0.5]} />
+      <hemisphereLight
+        ref={hemisphereRef}
+        args={['#8da7ff', '#1b0d24', 0]}
+      />
       <pointLight
+        ref={warmLightRef}
         position={[-4.8, 3.4, 5.8]}
-        intensity={13}
+        intensity={0}
         distance={28}
         decay={2}
         color="#ffd2a0"
       />
       <pointLight
+        ref={blueLightRef}
         position={[5.8, 3.8, 3.5]}
-        intensity={16}
+        intensity={0}
         distance={30}
         decay={2}
         color="#84b8ff"
       />
       <pointLight
+        ref={violetLightRef}
         position={[2.7, -1.0, -1.0]}
-        intensity={9}
+        intensity={0}
         distance={18}
         decay={2}
         color="#a06dff"
       />
 
-      <group ref={emblemRef} position={[0, 0.34, 0]}>
-        <ExactEmblem />
-        <TipLight position={[3.36, 2.773, 0.16]} />
+      <group ref={emblemRef} position={[0, 0.52, 0]}>
+        <ExactEmblem introTime={introTime} />
+        <TipLight
+          position={[3.36, 2.773, 0.16]}
+          introTime={introTime}
+        />
       </group>
 
-      <HorizonLight position={[0.05, -2.72, -3.8]} />
+      <HorizonLight
+        position={[0.05, -2.72, -3.8]}
+        introTime={introTime}
+      />
 
       <EffectComposer multisampling={0}>
         <Bloom
@@ -113,7 +171,11 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
   )
 }
 
-function ExactEmblem() {
+function ExactEmblem({
+  introTime,
+}: {
+  introTime: MutableRefObject<number>
+}) {
   const geometries = useMemo(
     () =>
       logoPaths.map((path) => {
@@ -138,41 +200,65 @@ function ExactEmblem() {
     [],
   )
 
-  const faceMaterial = useMemo(
+  const materialPairs = useMemo(
     () =>
-      new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#06070b'),
-        metalness: 0.95,
-        roughness: 0.16,
-        clearcoat: 1,
-        clearcoatRoughness: 0.055,
-        reflectivity: 1,
-        envMapIntensity: 2.0,
+      logoPaths.map(() => {
+        const face = new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color('#06070b'),
+          metalness: 0.95,
+          roughness: 0.16,
+          clearcoat: 1,
+          clearcoatRoughness: 0.055,
+          reflectivity: 1,
+          envMapIntensity: 0.15,
+          transparent: true,
+          opacity: 0,
+        })
+
+        const side = new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color('#1b1413'),
+          metalness: 0.9,
+          roughness: 0.19,
+          clearcoat: 0.88,
+          clearcoatRoughness: 0.08,
+          reflectivity: 1,
+          envMapIntensity: 0.18,
+          transparent: true,
+          opacity: 0,
+        })
+
+        return [face, side] as const
       }),
     [],
   )
 
-  const sideMaterial = useMemo(
-    () =>
-      new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#1b1413'),
-        metalness: 0.9,
-        roughness: 0.19,
-        clearcoat: 0.88,
-        clearcoatRoughness: 0.08,
-        reflectivity: 1,
-        envMapIntensity: 2.35,
-      }),
-    [],
-  )
+  useFrame(() => {
+    const elapsed = introTime.current
+
+    materialPairs.forEach(([face, side], index) => {
+      const visibility =
+        index === 0
+          ? introPhase(elapsed, 0.55, 2.45)
+          : introPhase(elapsed, 1.15, 3.0)
+
+      const reflected = introPhase(elapsed, 0.95, 4.1)
+
+      face.opacity = visibility
+      side.opacity = visibility
+      face.envMapIntensity = THREE.MathUtils.lerp(0.15, 2.0, reflected)
+      side.envMapIntensity = THREE.MathUtils.lerp(0.18, 2.35, reflected)
+    })
+  })
 
   useEffect(
     () => () => {
       geometries.forEach((geometry) => geometry.dispose())
-      faceMaterial.dispose()
-      sideMaterial.dispose()
+      materialPairs.forEach(([face, side]) => {
+        face.dispose()
+        side.dispose()
+      })
     },
-    [geometries, faceMaterial, sideMaterial],
+    [geometries, materialPairs],
   )
 
   return (
@@ -181,28 +267,38 @@ function ExactEmblem() {
         <mesh
           key={index}
           geometry={geometry}
-          material={[faceMaterial, sideMaterial]}
+          material={materialPairs[index]}
           castShadow
         />
       ))}
 
       {logoPaths.map((path, index) => (
-        <ContourEdges key={index} path={path} />
+        <ContourEdges
+          key={index}
+          path={path}
+          index={index}
+          introTime={introTime}
+        />
       ))}
 
-      <CanonicalLettering />
+      <CanonicalLettering introTime={introTime} />
     </group>
   )
 }
 
-function CanonicalLettering() {
+function CanonicalLettering({
+  introTime,
+}: {
+  introTime: MutableRefObject<number>
+}) {
   const geometries = useMemo(() => {
     const built: {
       geometry: THREE.BufferGeometry
       word: 'niversal' | 'orizon'
+      letterIndex: number
     }[] = []
 
-    for (const letter of canonicalLettering.letters) {
+    canonicalLettering.letters.forEach((letter, letterIndex) => {
       const shapePath = new THREE.ShapePath()
 
       for (const loop of letter.loops) {
@@ -233,76 +329,104 @@ function CanonicalLettering() {
         built.push({
           geometry,
           word: letter.word,
+          letterIndex,
         })
       }
-    }
+    })
 
     return built
   }, [])
 
-  const faceMaterial = useMemo(
+  const materialPairs = useMemo(
     () =>
-      new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#d9ccff'),
-        emissive: new THREE.Color('#66508f'),
-        emissiveIntensity: 0.3,
-        metalness: 0.16,
-        roughness: 0.3,
-        clearcoat: 0.78,
-        clearcoatRoughness: 0.12,
-        reflectivity: 0.72,
-        envMapIntensity: 1.15,
+      canonicalLettering.letters.map(() => {
+        const face = new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color('#d9ccff'),
+          emissive: new THREE.Color('#66508f'),
+          emissiveIntensity: 0,
+          metalness: 0.16,
+          roughness: 0.3,
+          clearcoat: 0.78,
+          clearcoatRoughness: 0.12,
+          reflectivity: 0.72,
+          envMapIntensity: 0.3,
+          transparent: true,
+          opacity: 0,
+        })
+
+        const side = new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color('#7a678f'),
+          emissive: new THREE.Color('#352845'),
+          emissiveIntensity: 0,
+          metalness: 0.48,
+          roughness: 0.34,
+          clearcoat: 0.5,
+          clearcoatRoughness: 0.16,
+          envMapIntensity: 0.35,
+          transparent: true,
+          opacity: 0,
+        })
+
+        return [face, side] as const
       }),
     [],
   )
 
-  const sideMaterial = useMemo(
-    () =>
-      new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#7a678f'),
-        emissive: new THREE.Color('#352845'),
-        emissiveIntensity: 0.12,
-        metalness: 0.48,
-        roughness: 0.34,
-        clearcoat: 0.5,
-        clearcoatRoughness: 0.16,
-        envMapIntensity: 1.28,
-      }),
-    [],
-  )
+  useFrame(() => {
+    const elapsed = introTime.current
+
+    materialPairs.forEach(([face, side], letterIndex) => {
+      const visibility = introPhase(
+        elapsed,
+        2.15 + letterIndex * 0.11,
+        2.85 + letterIndex * 0.11,
+      )
+
+      face.opacity = visibility
+      side.opacity = visibility
+      face.emissiveIntensity = 0.3 * visibility
+      side.emissiveIntensity = 0.12 * visibility
+      face.envMapIntensity = THREE.MathUtils.lerp(0.3, 1.15, visibility)
+      side.envMapIntensity = THREE.MathUtils.lerp(0.35, 1.28, visibility)
+    })
+  })
 
   useEffect(
     () => () => {
       geometries.forEach(({ geometry }) => geometry.dispose())
-      faceMaterial.dispose()
-      sideMaterial.dispose()
+      materialPairs.forEach(([face, side]) => {
+        face.dispose()
+        side.dispose()
+      })
     },
-    [geometries, faceMaterial, sideMaterial],
+    [geometries, materialPairs],
   )
 
   const niversal = geometries.filter(({ word }) => word === 'niversal')
   const orizon = geometries.filter(({ word }) => word === 'orizon')
 
+  const renderLetter = ({
+    geometry,
+    letterIndex,
+  }: {
+    geometry: THREE.BufferGeometry
+    letterIndex: number
+  }) => (
+    <mesh
+      key={`${letterIndex}-${geometry.uuid}`}
+      geometry={geometry}
+      material={materialPairs[letterIndex]}
+    />
+  )
+
   return (
     <>
       <group position={[0.18, -0.22, 0]}>
-        {niversal.map(({ geometry }, index) => (
-          <mesh
-            key={index}
-            geometry={geometry}
-            material={[faceMaterial, sideMaterial]}
-          />
-        ))}
+        {niversal.map(renderLetter)}
       </group>
 
       <group position={[0, -0.12, 0]}>
-        {orizon.map(({ geometry }, index) => (
-          <mesh
-            key={index}
-            geometry={geometry}
-            material={[faceMaterial, sideMaterial]}
-          />
-        ))}
+        {orizon.map(renderLetter)}
       </group>
     </>
   )
@@ -310,8 +434,12 @@ function CanonicalLettering() {
 
 function ContourEdges({
   path,
+  index,
+  introTime,
 }: {
   path: readonly (readonly [number, number])[]
+  index: number
+  introTime: MutableRefObject<number>
 }) {
   const frontGeometry = useMemo(
     () =>
@@ -335,51 +463,63 @@ function ContourEdges({
     [path],
   )
 
-  const gold = useMemo(
-    () =>
-      new THREE.LineBasicMaterial({
-        color: new THREE.Color('#d49b64'),
-        transparent: true,
-        opacity: 0.58,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        toneMapped: false,
-      }),
-    [],
-  )
+  const goldRef = useRef<THREE.LineBasicMaterial>(null)
+  const blueRef = useRef<THREE.LineBasicMaterial>(null)
 
-  const blue = useMemo(
-    () =>
-      new THREE.LineBasicMaterial({
-        color: new THREE.Color('#5da8ff'),
-        transparent: true,
-        opacity: 0.46,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        toneMapped: false,
-      }),
-    [],
-  )
+  useFrame(() => {
+    const elapsed = introTime.current
+    const visibility =
+      index === 0
+        ? introPhase(elapsed, 0.9, 3.45)
+        : introPhase(elapsed, 1.55, 3.75)
+
+    if (goldRef.current) {
+      goldRef.current.opacity = 0.58 * visibility
+    }
+
+    if (blueRef.current) {
+      blueRef.current.opacity = 0.46 * visibility
+    }
+  })
 
   useEffect(
     () => () => {
       frontGeometry.dispose()
       backGeometry.dispose()
-      gold.dispose()
-      blue.dispose()
     },
-    [frontGeometry, backGeometry, gold, blue],
+    [frontGeometry, backGeometry],
   )
 
   return (
     <>
-      <lineLoop geometry={frontGeometry} material={gold} />
-      <lineLoop geometry={backGeometry} material={blue} />
+      <lineLoop geometry={frontGeometry}>
+        <lineBasicMaterial
+          ref={goldRef}
+          color="#d49b64"
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </lineLoop>
+
+      <lineLoop geometry={backGeometry}>
+        <lineBasicMaterial
+          ref={blueRef}
+          color="#5da8ff"
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </lineLoop>
     </>
   )
 }
 
-function ProceduralSky() {
+function ProceduralSky({ introTime }: { introTime: MutableRefObject<number> }) {
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -387,6 +527,7 @@ function ProceduralSky() {
         depthWrite: false,
         uniforms: {
           uTime: { value: 0 },
+          uVisibility: { value: 0.03 },
         },
         vertexShader: `
           varying vec3 vDirection;
@@ -398,6 +539,7 @@ function ProceduralSky() {
         `,
         fragmentShader: `
           uniform float uTime;
+          uniform float uVisibility;
           varying vec3 vDirection;
 
           float hash(vec3 p) {
@@ -454,7 +596,7 @@ function ProceduralSky() {
             ) * 1.55;
             color += pow(fbm(d * 23.0), 5.0) * band * vec3(0.07, 0.12, 0.30);
 
-            gl_FragColor = vec4(color, 1.0);
+            gl_FragColor = vec4(color * uVisibility, 1.0);
           }
         `,
       }),
@@ -465,6 +607,8 @@ function ProceduralSky() {
 
   useFrame((state) => {
     material.uniforms.uTime.value = state.clock.elapsedTime
+    material.uniforms.uVisibility.value =
+      0.03 + 0.97 * introPhase(introTime.current, 0.35, 3.65)
   })
 
   return (
@@ -475,7 +619,11 @@ function ProceduralSky() {
   )
 }
 
-function DeepStars() {
+function DeepStars({
+  introTime,
+}: {
+  introTime: MutableRefObject<number>
+}) {
   const layers = useMemo(() => {
     const random = seededRandom(87)
 
@@ -510,10 +658,20 @@ function DeepStars() {
   }, [])
 
   const groupRef = useRef<THREE.Group>(null)
+  const materialRefs = useRef<(THREE.PointsMaterial | null)[]>([])
 
   useFrame((state) => {
-    if (!groupRef.current) return
-    groupRef.current.rotation.y = state.clock.elapsedTime * 0.001
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.001
+    }
+
+    const visibility = introPhase(introTime.current, 0.1, 3.45)
+
+    materialRefs.current.forEach((material, layer) => {
+      if (!material) return
+      const finalOpacity = layer === 0 ? 0.82 : 0.74
+      material.opacity = THREE.MathUtils.lerp(0.035, finalOpacity, visibility)
+    })
   })
 
   return (
@@ -525,10 +683,13 @@ function DeepStars() {
             <bufferAttribute attach="attributes-color" args={[colors, 3]} />
           </bufferGeometry>
           <pointsMaterial
+            ref={(material) => {
+              materialRefs.current[layer] = material
+            }}
             size={layer === 0 ? 0.09 : 0.035}
             vertexColors
             transparent
-            opacity={0.82}
+            opacity={0.035}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
             toneMapped={false}
@@ -539,10 +700,14 @@ function DeepStars() {
   )
 }
 
-function PlanetHorizon() {
+function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
+        transparent: true,
+        uniforms: {
+          uVisibility: { value: 0 },
+        },
         vertexShader: `
           varying vec3 vNormalView;
           varying vec3 vPositionView;
@@ -560,6 +725,7 @@ function PlanetHorizon() {
           varying vec3 vNormalView;
           varying vec3 vPositionView;
           varying vec3 vSurface;
+          uniform float uVisibility;
 
           float hash(vec3 p) {
             p = fract(p * 0.3183099 + vec3(.1,.2,.3));
@@ -655,7 +821,7 @@ function PlanetHorizon() {
             color = mix(color, vec3(0.07, 0.13, 0.26), rim * 0.52);
             color += vec3(0.13, 0.27, 0.70) * rim * 1.05;
 
-            gl_FragColor = vec4(color, 1.0);
+            gl_FragColor = vec4(color, uVisibility);
           }
         `,
       }),
@@ -663,6 +829,11 @@ function PlanetHorizon() {
   )
 
   useEffect(() => () => material.dispose(), [material])
+
+  useFrame(() => {
+    material.uniforms.uVisibility.value =
+      introPhase(introTime.current, 3.15, 5.1)
+  })
 
   return (
     <mesh position={[0, -37.25, -8.75]}>
@@ -703,11 +874,26 @@ function ReflectionEnvironment() {
   )
 }
 
-function HorizonLight({ position }: { position: [number, number, number] }) {
+function HorizonLight({
+  position,
+  introTime,
+}: {
+  position: [number, number, number]
+  introTime: MutableRefObject<number>
+}) {
+  const ref = useRef<THREE.PointLight>(null)
+
+  useFrame(() => {
+    if (!ref.current) return
+    ref.current.intensity =
+      10 * introPhase(introTime.current, 3.25, 5.05)
+  })
+
   return (
     <pointLight
+      ref={ref}
       position={position}
-      intensity={10}
+      intensity={0}
       distance={18}
       decay={2}
       color="#ffbf7b"
@@ -715,16 +901,36 @@ function HorizonLight({ position }: { position: [number, number, number] }) {
   )
 }
 
-function TipLight({ position }: { position: [number, number, number] }) {
+function TipLight({
+  position,
+  introTime,
+}: {
+  position: [number, number, number]
+  introTime: MutableRefObject<number>
+}) {
+  const ref = useRef<THREE.PointLight>(null)
+
+  useFrame(() => {
+    if (!ref.current) return
+    ref.current.intensity =
+      3.2 * introPhase(introTime.current, 1.65, 3.15)
+  })
+
   return (
     <pointLight
+      ref={ref}
       position={position}
-      intensity={3.2}
+      intensity={0}
       distance={5.5}
       decay={2}
       color="#ffe0b5"
     />
   )
+}
+
+function introPhase(time: number, start: number, end: number) {
+  const raw = THREE.MathUtils.clamp((time - start) / (end - start), 0, 1)
+  return raw * raw * (3 - 2 * raw)
 }
 
 function smooth01(value: number) {
