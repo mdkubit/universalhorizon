@@ -1,6 +1,7 @@
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
+import type { MutableRefObject } from 'react'
 import * as THREE from 'three'
 
 const BEHAVIOR_POINTS = 86
@@ -62,8 +63,8 @@ function InteractionController({
   interaction,
   sparkles,
 }: {
-  interaction: React.MutableRefObject<InteractionState>
-  sparkles: React.MutableRefObject<SparkleParticle[]>
+  interaction: MutableRefObject<InteractionState>
+  sparkles: MutableRefObject<SparkleParticle[]>
 }) {
   const interactionPlane = useMemo(
     () => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0.05),
@@ -136,8 +137,8 @@ function LivingThread({
   interaction,
   sparkles,
 }: {
-  interaction: React.MutableRefObject<InteractionState>
-  sparkles: React.MutableRefObject<SparkleParticle[]>
+  interaction: MutableRefObject<InteractionState>
+  sparkles: MutableRefObject<SparkleParticle[]>
 }) {
   const geometry = useMemo(() => createRibbonGeometry(RENDER_POINTS), [])
   const material = useMemo(() => createThreadMaterial(), [])
@@ -299,7 +300,7 @@ function LivingThread({
 function PointerStar({
   interaction,
 }: {
-  interaction: React.MutableRefObject<InteractionState>
+  interaction: MutableRefObject<InteractionState>
 }) {
   const meshRef = useRef<THREE.Mesh>(null)
   const material = useMemo(() => createPointerStarMaterial(), [])
@@ -335,7 +336,7 @@ function PointerStar({
 function SparkleField({
   sparkles,
 }: {
-  sparkles: React.MutableRefObject<SparkleParticle[]>
+  sparkles: MutableRefObject<SparkleParticle[]>
 }) {
   const geometry = useMemo(() => createSparkleGeometry(SPARKLE_COUNT), [])
   const material = useMemo(() => createSparkleMaterial(), [])
