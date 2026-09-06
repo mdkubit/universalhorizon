@@ -74,7 +74,11 @@ function LivingThread() {
     const energy = pointerEnergy.current
     const idleAmplitude = THREE.MathUtils.lerp(0.38, 0.14, energy)
 
-    pointerTarget.set(pointer.x * 3.35, pointer.y * 2.05, -0.05)
+    pointerTarget.set(
+      pointer.x * state.viewport.width * 0.42,
+      pointer.y * state.viewport.height * 0.38,
+      -0.05,
+    )
     wander.set(
       Math.sin(time * 0.73) * idleAmplitude + Math.sin(time * 0.19) * 0.18,
       Math.cos(time * 0.61) * idleAmplitude * 0.72 + Math.sin(time * 0.31) * 0.14,
@@ -393,7 +397,6 @@ function updateRibbonGeometry(
   }
 
   positionAttribute.needsUpdate = true
-  geometry.computeBoundingSphere()
 }
 
 function createThreadMaterial() {
