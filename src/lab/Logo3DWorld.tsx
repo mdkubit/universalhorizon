@@ -1,5 +1,4 @@
-import { Environment } from '@react-three/drei'
-import { EffectComposer, Bloom, SMAA, Vignette } from '@react-three/postprocessing'
+import { Environment, useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
@@ -15,7 +14,7 @@ type Logo3DWorldProps = {
 
 const EXTRUDE_DEPTH = 0.28
 const renderLogoPaths: [number, number][][] = logoPaths.map((path) =>
-  simplifyClosedPath(path, 0.018),
+  smoothClosedPath(simplifyClosedPath(path, 0.018), 2.38, 4),
 )
 
 export default function Logo3DWorld({
@@ -182,16 +181,6 @@ export default function Logo3DWorld({
         introTime={introTime}
       />
 
-      <EffectComposer multisampling={0}>
-        <Bloom
-          intensity={0.72}
-          luminanceThreshold={0.72}
-          luminanceSmoothing={0.32}
-          mipmapBlur
-        />
-        <SMAA />
-        <Vignette eskil={false} offset={0.16} darkness={0.62} />
-      </EffectComposer>
     </>
   )
 }
@@ -304,7 +293,7 @@ function ExactEmblem({
         />
       ))}
 
-      {logoPaths.map((path, index) => (
+      {renderLogoPaths.map((path, index) => (
         <ContourEdges
           key={index}
           path={path}
@@ -344,7 +333,11 @@ function CanonicalLettering({
       const shapePath = new THREE.ShapePath()
 
       for (const loop of letter.loops) {
-        const renderLoop = simplifyClosedPath(loop, 1.15)
+        const renderLoop = smoothClosedPath(
+          simplifyClosedPath(loop, 1.15),
+          2.18,
+          3,
+        )
 
         renderLoop.forEach(([sourceX, sourceY], index) => {
           const x =
@@ -575,102 +568,47 @@ function ContourEdges({
   )
 }
 
-function ProceduralSky({ introTime }: { introTime: MutableRefObject<number> }) {
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        side: THREE.BackSide,
-        depthWrite: false,
-        uniforms: {
-          uTime: { value: 0 },
-          uVisibility: { value: 0.03 },
-        },
-        vertexShader: `
-          varying vec3 vDirection;
+function ProceduralSky({
+  introTime,
+}: {
+  introTime: MutableRefObject<number>
+}) {
+  const texture = useTexture('/assets/nebula-space.svg')
+  const meshRef = useRef<THREE.Mesh>(null)
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
 
-          void main() {
-            vDirection = normalize(position);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float uTime;
-          uniform float uVisibility;
-          varying vec3 vDirection;
-
-          float hash(vec3 p) {
-            p = fract(p * 0.3183099 + vec3(.1,.2,.3));
-            p *= 17.0;
-            return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
-          }
-
-          float noise(vec3 p) {
-            vec3 i = floor(p);
-            vec3 f = fract(p);
-            f = f * f * (3.0 - 2.0 * f);
-
-            return mix(
-              mix(
-                mix(hash(i), hash(i + vec3(1,0,0)), f.x),
-                mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x),
-                f.y
-              ),
-              mix(
-                mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
-                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x),
-                f.y
-              ),
-              f.z
-            );
-          }
-
-          float fbm(vec3 p) {
-            float value = 0.0;
-            float amp = 0.5;
-
-            for (int i = 0; i < 3; i++) {
-              value += noise(p) * amp;
-              p = p * 2.03 + 7.1;
-              amp *= 0.5;
-            }
-
-            return value;
-          }
-
-          void main() {
-            vec3 d = normalize(vDirection);
-            float drift = uTime * 0.008;
-            float n = fbm(d * 5.0 + vec3(drift, -drift * 0.4, drift * 0.3));
-            float band = exp(-pow((d.y + 0.19 * sin(d.x * 5.0) + 0.12 * d.z) * 3.7, 2.0));
-            float cloud = pow(max(0.0, fbm(d * 9.0 + n * 3.0) - 0.28), 2.0) * band;
-
-            vec3 color = vec3(0.002, 0.003, 0.012);
-            color += cloud * mix(
-              vec3(0.10, 0.08, 0.36),
-              vec3(0.31, 0.08, 0.23),
-              n
-            ) * 1.55;
-            color += pow(fbm(d * 23.0), 5.0) * band * vec3(0.07, 0.12, 0.30);
-
-            gl_FragColor = vec4(color * uVisibility, 1.0);
-          }
-        `,
-      }),
-    [],
-  )
-
-  useEffect(() => () => material.dispose(), [material])
+  useEffect(() => {
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.ClampToEdgeWrapping
+    texture.needsUpdate = true
+  }, [texture])
 
   useFrame((state) => {
-    material.uniforms.uTime.value = state.clock.elapsedTime
-    material.uniforms.uVisibility.value =
+    const visibility =
       0.03 + 0.97 * introPhase(introTime.current, 0.35, 3.65)
+
+    if (materialRef.current) {
+      materialRef.current.opacity = visibility
+    }
+
+    if (meshRef.current) {
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.00085
+    }
   })
 
   return (
-    <mesh scale={92}>
-      <sphereGeometry args={[1, 48, 32]} />
-      <primitive object={material} attach="material" />
+    <mesh ref={meshRef} scale={92}>
+      <sphereGeometry args={[1, 48, 24]} />
+      <meshBasicMaterial
+        ref={materialRef}
+        map={texture}
+        side={THREE.BackSide}
+        transparent
+        opacity={0.03}
+        depthWrite={false}
+        toneMapped={false}
+      />
     </mesh>
   )
 }
@@ -756,22 +694,37 @@ function DeepStars({
   )
 }
 
-function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
+function PlanetHorizon({
+  introTime,
+}: {
+  introTime: MutableRefObject<number>
+}) {
+  const texture = useTexture('/assets/planet-surface.svg')
   const meshRef = useRef<THREE.Mesh>(null)
+
+  useEffect(() => {
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.ClampToEdgeWrapping
+    texture.needsUpdate = true
+  }, [texture])
+
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
         transparent: true,
+        depthWrite: true,
         uniforms: {
+          uMap: { value: texture },
           uVisibility: { value: 0 },
         },
         vertexShader: `
+          varying vec2 vUv;
           varying vec3 vNormalView;
           varying vec3 vPositionView;
-          varying vec3 vSurface;
 
           void main() {
-            vSurface = position / 32.0;
+            vUv = uv;
             vNormalView = normalize(normalMatrix * normal);
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             vPositionView = mvPosition.xyz;
@@ -779,110 +732,33 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
           }
         `,
         fragmentShader: `
-          varying vec3 vNormalView;
-          varying vec3 vPositionView;
-          varying vec3 vSurface;
+          uniform sampler2D uMap;
           uniform float uVisibility;
 
-          float hash(vec3 p) {
-            p = fract(p * 0.3183099 + vec3(.1,.2,.3));
-            p *= 17.0;
-            return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
-          }
-
-          float noise(vec3 p) {
-            vec3 i = floor(p);
-            vec3 f = fract(p);
-            f = f * f * (3.0 - 2.0 * f);
-
-            return mix(
-              mix(
-                mix(hash(i), hash(i + vec3(1,0,0)), f.x),
-                mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x),
-                f.y
-              ),
-              mix(
-                mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
-                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x),
-                f.y
-              ),
-              f.z
-            );
-          }
-
-          float fbm(vec3 p) {
-            float value = 0.0;
-            float amp = 0.5;
-
-            for (int i = 0; i < 3; i++) {
-              value += noise(p) * amp;
-              p = p * 2.03 + 7.1;
-              amp *= 0.5;
-            }
-
-            return value;
-          }
+          varying vec2 vUv;
+          varying vec3 vNormalView;
+          varying vec3 vPositionView;
 
           void main() {
-            vec3 surface = normalize(vSurface);
-            float facing = max(
-              dot(normalize(vNormalView), normalize(-vPositionView)),
+            vec3 normalView = normalize(vNormalView);
+            vec3 viewDirection = normalize(-vPositionView);
+            float facing = max(dot(normalView, viewDirection), 0.0);
+            float rim = pow(1.0 - facing, 3.6);
+
+            vec3 base = texture2D(uMap, vUv).rgb;
+            float softLight = 0.48 + 0.52 * max(
+              dot(normalView, normalize(vec3(-0.32, 0.72, 0.55))),
               0.0
             );
-            float rim = pow(1.0 - facing, 4.0);
 
-            float terrain = fbm(surface * 9.0 + vec3(3.2, 7.1, 1.8));
-            float land = smoothstep(0.49, 0.535, terrain);
-            float shallows = smoothstep(0.44, 0.50, terrain) * (1.0 - land);
-            float detail = fbm(surface * 68.0);
-
-            vec3 ocean = mix(
-              vec3(0.008, 0.025, 0.052),
-              vec3(0.018, 0.075, 0.095),
-              shallows
-            );
-
-            vec3 continent = mix(
-              vec3(0.027, 0.061, 0.047),
-              vec3(0.092, 0.083, 0.057),
-              smoothstep(0.54, 0.70, terrain)
-            );
-            continent *= 0.8 + detail * 0.4;
-
-            vec3 ground = mix(ocean, continent, land);
-            float daylight = smoothstep(
-              -0.12,
-              0.85,
-              dot(surface, normalize(vec3(-0.35, 0.65, -0.5)))
-            );
-            ground *= 0.23 + daylight * 0.85;
-
-            vec3 weather =
-              surface * 22.0 +
-              vec3(
-                fbm(surface * 8.0) * 3.0,
-                0.0,
-                fbm(surface * 7.0 + 5.0) * 3.0
-              );
-
-            float clouds = smoothstep(0.49, 0.70, fbm(weather));
-            float wisps =
-              smoothstep(0.57, 0.76, fbm(surface * 49.0 + vec3(4.0,1.0,8.0))) *
-              0.18;
-            float cover = clamp(clouds * 0.64 + wisps, 0.0, 0.72);
-
-            vec3 cloudColor =
-              vec3(0.23, 0.27, 0.32) * (0.3 + daylight * 0.7);
-            vec3 color = mix(ground, cloudColor, cover);
-
-            color = mix(color, vec3(0.07, 0.13, 0.26), rim * 0.52);
-            color += vec3(0.13, 0.27, 0.70) * rim * 1.05;
+            vec3 color = base * softLight;
+            color += vec3(0.10, 0.22, 0.58) * rim * 0.82;
 
             gl_FragColor = vec4(color, uVisibility);
           }
         `,
       }),
-    [],
+    [texture],
   )
 
   useEffect(() => () => material.dispose(), [material])
@@ -898,7 +774,7 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
 
   return (
     <mesh ref={meshRef} position={[0, -37.25, -8.75]}>
-      <sphereGeometry args={[32, 72, 48]} />
+      <sphereGeometry args={[32, 192, 96]} />
       <primitive object={material} attach="material" />
     </mesh>
   )
@@ -906,7 +782,7 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
 
 function ReflectionEnvironment() {
   return (
-    <Environment background={false} resolution={128}>
+    <Environment background={false} resolution={96}>
       <mesh scale={48}>
         <sphereGeometry args={[1, 48, 32]} />
         <meshBasicMaterial color="#02030b" side={THREE.BackSide} />
@@ -995,6 +871,96 @@ function TipLight({
       color="#ffe0b5"
     />
   )
+}
+
+function smoothClosedPath(
+  path: readonly [number, number][],
+  cornerAngle: number,
+  samplesPerPoint: number,
+): [number, number][] {
+  if (path.length < 4) return [...path]
+
+  const isCorner = (index: number) => {
+    const previous = path[(index - 1 + path.length) % path.length]
+    const current = path[index]
+    const next = path[(index + 1) % path.length]
+
+    const ax = previous[0] - current[0]
+    const ay = previous[1] - current[1]
+    const bx = next[0] - current[0]
+    const by = next[1] - current[1]
+
+    const aLength = Math.hypot(ax, ay)
+    const bLength = Math.hypot(bx, by)
+
+    if (aLength === 0 || bLength === 0) return false
+
+    const cosine = THREE.MathUtils.clamp(
+      (ax * bx + ay * by) / (aLength * bLength),
+      -1,
+      1,
+    )
+    return Math.acos(cosine) < cornerAngle
+  }
+
+  const corners = path
+    .map((_, index) => index)
+    .filter((index) => isCorner(index))
+
+  if (corners.length < 2) {
+    const curve = new THREE.CatmullRomCurve3(
+      path.map(([x, y]) => new THREE.Vector3(x, y, 0)),
+      true,
+      'centripetal',
+    )
+
+    return curve
+      .getPoints(Math.max(path.length * samplesPerPoint, 24))
+      .slice(0, -1)
+      .map((point) => [point.x, point.y] as [number, number])
+  }
+
+  const result: [number, number][] = []
+
+  for (let cornerIndex = 0; cornerIndex < corners.length; cornerIndex += 1) {
+    const start = corners[cornerIndex]
+    const end = corners[(cornerIndex + 1) % corners.length]
+    const segment: [number, number][] = [path[start]]
+    let index = start
+
+    while (index !== end) {
+      index = (index + 1) % path.length
+      segment.push(path[index])
+    }
+
+    if (segment.length <= 2) {
+      if (result.length === 0) result.push(segment[0])
+      result.push(segment[segment.length - 1])
+      continue
+    }
+
+    const curve = new THREE.CatmullRomCurve3(
+      segment.map(([x, y]) => new THREE.Vector3(x, y, 0)),
+      false,
+      'centripetal',
+    )
+    const points = curve
+      .getPoints(Math.max(segment.length * samplesPerPoint, 8))
+      .map((point) => [point.x, point.y] as [number, number])
+
+    if (result.length > 0) points.shift()
+    result.push(...points)
+  }
+
+  if (
+    result.length > 1 &&
+    result[0][0] === result[result.length - 1][0] &&
+    result[0][1] === result[result.length - 1][1]
+  ) {
+    result.pop()
+  }
+
+  return result
 }
 
 function simplifyClosedPath(
