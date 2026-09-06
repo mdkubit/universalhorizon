@@ -51,7 +51,7 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
 
     if (emblemRef.current) {
       emblemRef.current.position.y =
-        0.08 + Math.sin(state.clock.elapsedTime * 0.32) * 0.025
+        0.52 + Math.sin(state.clock.elapsedTime * 0.32) * 0.025
       emblemRef.current.rotation.x =
         Math.sin(state.clock.elapsedTime * 0.17) * 0.008
       emblemRef.current.rotation.z =
