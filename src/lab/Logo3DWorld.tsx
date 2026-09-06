@@ -1,5 +1,5 @@
 import { Environment } from '@react-three/drei'
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
+import { EffectComposer, Bloom, SMAA, Vignette } from '@react-three/postprocessing'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
@@ -186,6 +186,7 @@ export default function Logo3DWorld({
           luminanceSmoothing={0.32}
           mipmapBlur
         />
+        <SMAA />
         <Vignette eskil={false} offset={0.16} darkness={0.62} />
       </EffectComposer>
     </>
@@ -622,7 +623,7 @@ function ProceduralSky({ introTime }: { introTime: MutableRefObject<number> }) {
             float value = 0.0;
             float amp = 0.5;
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 3; i++) {
               value += noise(p) * amp;
               p = p * 2.03 + 7.1;
               amp *= 0.5;
@@ -663,7 +664,7 @@ function ProceduralSky({ introTime }: { introTime: MutableRefObject<number> }) {
 
   return (
     <mesh scale={92}>
-      <sphereGeometry args={[1, 64, 48]} />
+      <sphereGeometry args={[1, 48, 32]} />
       <primitive object={material} attach="material" />
     </mesh>
   )
@@ -678,7 +679,7 @@ function DeepStars({
     const random = seededRandom(87)
 
     return [0, 1, 2].map((layer) => {
-      const count = layer === 0 ? 1600 : 700
+      const count = layer === 0 ? 1200 : 480
       const positions = new Float32Array(count * 3)
       const colors = new Float32Array(count * 3)
 
@@ -807,7 +808,7 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
             float value = 0.0;
             float amp = 0.5;
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 3; i++) {
               value += noise(p) * amp;
               p = p * 2.03 + 7.1;
               amp *= 0.5;
@@ -887,7 +888,7 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
 
   return (
     <mesh position={[0, -37.25, -8.75]}>
-      <sphereGeometry args={[32, 96, 64]} />
+      <sphereGeometry args={[32, 72, 48]} />
       <primitive object={material} attach="material" />
     </mesh>
   )
@@ -895,7 +896,7 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
 
 function ReflectionEnvironment() {
   return (
-    <Environment background={false} resolution={256}>
+    <Environment background={false} resolution={128}>
       <mesh scale={48}>
         <sphereGeometry args={[1, 48, 32]} />
         <meshBasicMaterial color="#02030b" side={THREE.BackSide} />
