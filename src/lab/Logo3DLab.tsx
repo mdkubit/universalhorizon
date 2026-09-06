@@ -25,17 +25,17 @@ export default function Logo3DLab() {
   }, [])
 
   return (
-    <main className="relative min-h-[520vh] bg-[#010207] text-white">
+    <main className="relative min-h-[360vh] bg-[#010207] text-white">
       <div className="fixed inset-0">
         <Canvas
           dpr={[1, 1.7]}
-          camera={{ position: [0, 0.15, 9.6], fov: 44, near: 0.1, far: 120 }}
+          camera={{ position: [-2.27, 0.38, 12.5], fov: 43, near: 0.1, far: 160 }}
           gl={{
             antialias: true,
             alpha: false,
             powerPreference: 'high-performance',
             toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.12,
+            toneMappingExposure: 0.93,
           }}
         >
           <Logo3DWorld scrollProgress={scrollProgress as MutableRefObject<number>} />
@@ -49,7 +49,7 @@ export default function Logo3DLab() {
               Universal Horizon
             </p>
             <p className="mt-2 text-[9px] uppercase tracking-[0.28em] text-cyan-100/25">
-              Spatial logo study 03
+              Spatial logo study 04 · Astra geometry
             </p>
           </div>
 
@@ -71,7 +71,7 @@ export default function Logo3DLab() {
 
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
           <p className="text-[9px] uppercase tracking-[0.36em] text-white/28">
-            scroll to move through the mark
+            scroll to orbit around the mark
           </p>
           <span className="mx-auto mt-3 block h-10 w-px bg-gradient-to-b from-cyan-100/35 to-transparent" />
         </div>
