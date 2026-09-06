@@ -116,6 +116,7 @@ export default function UniversalHorizonHome() {
 
       if (rafRef.current !== null) {
         window.cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
       }
     }
   }, [])
