@@ -47,16 +47,11 @@ const finalScene: Scene = {
   eyebrow: 'Some paths began elsewhere. They can still lead here.',
 }
 
-const CAROUSEL_RADIUS_PX = 760
-const CAROUSEL_END = 0.82
-
 export default function UniversalHorizonHome() {
   const scrollProgress = useRef(0)
   const latestProgress = useRef(0)
   const arrivalReady = useRef(false)
   const rafRef = useRef<number | null>(null)
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const carouselPanelRefs = useRef<(HTMLElement | null)[]>([])
   const finalSceneRef = useRef<HTMLElement | null>(null)
   const scrollHintRef = useRef<HTMLDivElement>(null)
   const bottomFadeRef = useRef<HTMLDivElement>(null)
@@ -65,31 +60,6 @@ export default function UniversalHorizonHome() {
     const paintNarrative = () => {
       const progress = latestProgress.current
       const enabled = arrivalReady.current
-      const carouselProgress = THREE.MathUtils.clamp(
-        progress / CAROUSEL_END,
-        0,
-        1,
-      )
-      const carouselAngle = carouselProgress * 360
-
-      if (carouselRef.current) {
-        carouselRef.current.style.transform =
-          `translate3d(-50%, -50%, 0) rotateY(${(-carouselAngle).toFixed(4)}deg)`
-      }
-
-      carouselPanelRefs.current.forEach((element, index) => {
-        if (!element) return
-
-        const slotAngle = (index + 1) * 72
-        const relativeAngle = normalizeDegrees(slotAngle - carouselAngle)
-        const absoluteAngle = Math.abs(relativeAngle)
-        const visibility = enabled
-          ? 1 - smoothRange(absoluteAngle, 48, 72)
-          : 0
-
-        element.style.opacity = visibility.toFixed(4)
-        element.style.visibility = visibility < 0.002 ? 'hidden' : 'visible'
-      })
 
       if (finalSceneRef.current) {
         const finalVisibility = enabled
@@ -184,7 +154,7 @@ export default function UniversalHorizonHome() {
             position: [-2.27, 0.38, 12.5],
             fov: 43,
             near: 0.1,
-            far: 180,
+            far: 220,
           }}
           gl={{
             antialias: true,
@@ -204,34 +174,17 @@ export default function UniversalHorizonHome() {
 
       <NonprofitPortal />
 
-      <div
-        className="pointer-events-none fixed inset-0 z-20 overflow-hidden"
-        style={{
-          perspective: '1500px',
-          perspectiveOrigin: '50% 46%',
-        }}
-      >
-        <div
-          ref={carouselRef}
-          className="absolute left-1/2 top-[46%] h-0 w-0"
-          style={{
-            transformStyle: 'preserve-3d',
-            willChange: 'transform',
-          }}
-        >
-          {carouselScenes.map((scene, index) => (
-            <CarouselPanel
-              key={scene.title}
-              scene={scene}
-              angle={(index + 1) * 72}
-              radius={CAROUSEL_RADIUS_PX}
-              panelRef={(element) => {
-                carouselPanelRefs.current[index] = element
-              }}
-            />
-          ))}
-        </div>
+      <div className="sr-only" aria-label="Universal Horizon introduction">
+        {carouselScenes.map((scene) => (
+          <section key={scene.title}>
+            <h2>{scene.kicker}</h2>
+            <h3>{scene.title}</h3>
+            <p>{scene.body}</p>
+          </section>
+        ))}
+      </div>
 
+      <div className="pointer-events-none fixed inset-0 z-20 overflow-hidden">
         <FinalNarrative
           scene={finalScene}
           sceneRef={(element) => {
@@ -259,36 +212,6 @@ export default function UniversalHorizonHome() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_56%,rgba(1,2,8,0.24)_100%)]" />
       </div>
     </main>
-  )
-}
-
-function CarouselPanel({
-  scene,
-  angle,
-  radius,
-  panelRef,
-}: {
-  scene: Scene
-  angle: number
-  radius: number
-  panelRef: (element: HTMLElement | null) => void
-}) {
-  return (
-    <section
-      ref={panelRef}
-      className="absolute left-0 top-0 w-[min(82vw,54rem)] text-center"
-      style={{
-        opacity: 0,
-        visibility: 'hidden',
-        transform:
-          `translate3d(-50%, -50%, 0) rotateY(${angle}deg) translateZ(${radius}px)`,
-        transformStyle: 'preserve-3d',
-        backfaceVisibility: 'hidden',
-        willChange: 'opacity',
-      }}
-    >
-      <NarrativeContent scene={scene} />
-    </section>
   )
 }
 
@@ -367,13 +290,6 @@ function NonprofitPortal() {
       </span>
     </Link>
   )
-}
-
-function normalizeDegrees(value: number) {
-  let normalized = value % 360
-  if (normalized > 180) normalized -= 360
-  if (normalized < -180) normalized += 360
-  return normalized
 }
 
 function smoothRange(value: number, start: number, end: number) {
