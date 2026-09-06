@@ -49,7 +49,7 @@ export default function Logo3DLab() {
               Universal Horizon
             </p>
             <p className="mt-2 text-[9px] uppercase tracking-[0.28em] text-cyan-100/25">
-              Spatial logo study 05 · clean space
+              Spatial logo study 06 · canonical lettering
             </p>
           </div>
 
