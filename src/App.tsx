@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router'
 import UniversalHorizonLanding from './site/UniversalHorizonLanding'
 import NonprofitLanding from './site/NonprofitLanding'
 import HorizonLab from './lab/HorizonLab'
+import LogoLab from './lab/LogoLab'
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <Route path="/" element={<UniversalHorizonLanding />} />
       <Route path="/nonprofit" element={<NonprofitLanding />} />
       <Route path="/horizon-lab" element={<HorizonLab />} />
+      <Route path="/logo-lab" element={<LogoLab />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
