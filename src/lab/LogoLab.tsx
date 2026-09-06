@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 
 const upperWord = [
@@ -222,7 +223,7 @@ export default function LogoLab() {
                   '--spark-x': `${spark.dx}px`,
                   '--spark-y': `${spark.dy}px`,
                   animationDelay: `${spark.delay}s`,
-                } as React.CSSProperties
+                } as CSSProperties
               }
             />
           ))}
