@@ -1,5 +1,130 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
 html, body, #root {
   height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #060817;
+}
+
+@keyframes horizon-twinkle {
+  0%, 100% {
+    opacity: 0.22;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes horizon-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.5rem, -0.75rem, 0) scale(1.04);
+  }
+}
+
+@keyframes horizon-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+
+@keyframes horizon-pulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes horizon-breathe {
+  0%, 100% {
+    opacity: 0.56;
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 0.88;
+    filter: blur(1px);
+  }
+}
+
+.horizon-star {
+  animation-name: horizon-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.horizon-aurora {
+  animation: horizon-drift 18s ease-in-out infinite;
+}
+
+.horizon-aurora-delayed {
+  animation-delay: -7s;
+  animation-duration: 23s;
+}
+
+.horizon-thread {
+  stroke-dasharray: 10 20;
+  animation: horizon-flow 20s linear infinite;
+}
+
+.horizon-thread-slow {
+  animation-duration: 29s;
+  animation-direction: reverse;
+}
+
+.horizon-thread-soft {
+  animation-duration: 34s;
+  opacity: 0.5;
+}
+
+.horizon-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: horizon-pulse 5.6s ease-in-out infinite;
+}
+
+.horizon-node-delayed {
+  animation-delay: -1.8s;
+}
+
+.horizon-node-late {
+  animation-delay: -3.6s;
+}
+
+.horizon-halo {
+  animation: horizon-breathe 7s ease-in-out infinite;
+  box-shadow:
+    0 -1px 30px rgba(103, 232, 249, 0.12),
+    0 -20px 90px rgba(167, 139, 250, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .horizon-star,
+  .horizon-aurora,
+  .horizon-thread,
+  .horizon-node,
+  .horizon-halo {
+    animation: none !important;
+  }
 }
