@@ -197,7 +197,10 @@ function ExactEmblem() {
 
 function CanonicalLettering() {
   const geometries = useMemo(() => {
-    const built: THREE.BufferGeometry[] = []
+    const built: {
+      geometry: THREE.BufferGeometry
+      word: 'niversal' | 'orizon'
+    }[] = []
 
     for (const letter of canonicalLettering.letters) {
       const shapePath = new THREE.ShapePath()
@@ -227,7 +230,10 @@ function CanonicalLettering() {
         )
 
         geometry.translate(0, 0, 0.17)
-        built.push(geometry)
+        built.push({
+          geometry,
+          word: letter.word,
+        })
       }
     }
 
@@ -267,23 +273,38 @@ function CanonicalLettering() {
 
   useEffect(
     () => () => {
-      geometries.forEach((geometry) => geometry.dispose())
+      geometries.forEach(({ geometry }) => geometry.dispose())
       faceMaterial.dispose()
       sideMaterial.dispose()
     },
     [geometries, faceMaterial, sideMaterial],
   )
 
+  const niversal = geometries.filter(({ word }) => word === 'niversal')
+  const orizon = geometries.filter(({ word }) => word === 'orizon')
+
   return (
-    <group>
-      {geometries.map((geometry, index) => (
-        <mesh
-          key={index}
-          geometry={geometry}
-          material={[faceMaterial, sideMaterial]}
-        />
-      ))}
-    </group>
+    <>
+      <group position={[0.18, -0.22, 0]}>
+        {niversal.map(({ geometry }, index) => (
+          <mesh
+            key={index}
+            geometry={geometry}
+            material={[faceMaterial, sideMaterial]}
+          />
+        ))}
+      </group>
+
+      <group position={[0, -0.12, 0]}>
+        {orizon.map(({ geometry }, index) => (
+          <mesh
+            key={index}
+            geometry={geometry}
+            material={[faceMaterial, sideMaterial]}
+          />
+        ))}
+      </group>
+    </>
   )
 }
 
