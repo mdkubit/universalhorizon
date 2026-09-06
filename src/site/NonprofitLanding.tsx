@@ -89,12 +89,21 @@ export default function NonprofitLanding() {
               Public-interest work for a changing horizon
             </p>
 
-            <div className="mt-5 max-w-[37rem]">
-              <img
-                src="/assets/universal-horizon-canonical.png"
-                alt="Universal Horizon"
-                className="h-auto w-full max-w-[34rem] object-contain object-left drop-shadow-[0_0_28px_rgba(92,175,255,0.12)]"
-              />
+            <div className="mt-5 grid max-w-[43rem] gap-3 sm:grid-cols-2">
+              <div className="flex min-h-[10.5rem] items-center justify-center overflow-hidden rounded-[1.4rem] border border-[#74d9ff]/10 bg-[#06101d]/52 p-3">
+                <img
+                  src="/assets/universal-horizon-canonical.png"
+                  alt="Universal Horizon main identity"
+                  className="h-full max-h-[12rem] w-full object-contain drop-shadow-[0_0_28px_rgba(92,175,255,0.12)]"
+                />
+              </div>
+              <div className="flex min-h-[10.5rem] items-center justify-center overflow-hidden rounded-[1.4rem] border border-[#efb45f]/12 bg-[#100c09]/50 p-2">
+                <img
+                  src="/assets/univeral-horizon-npo-logo.png"
+                  alt="Universal Horizon nonprofit identity"
+                  className="h-full max-h-[12rem] w-full object-contain"
+                />
+              </div>
             </div>
 
             <p className="mt-5 text-[clamp(2.1rem,6vw,4.6rem)] font-medium leading-[0.95] tracking-[-0.045em] text-white">
@@ -128,7 +137,11 @@ export default function NonprofitLanding() {
 
           <div className="relative min-h-[22rem] lg:min-h-[34rem]">
             <div className="absolute inset-0 rounded-[2.5rem] bg-[radial-gradient(circle_at_50%_50%,rgba(34,143,194,0.09),transparent_62%)] blur-2xl" />
-            <BridgeMark />
+            <img
+              src="/assets/blue-gold-thread.png"
+              alt="Blue and gold luminous strands forming a bridge"
+              className="absolute left-1/2 top-[43%] h-auto w-[116%] max-w-[52rem] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_0_34px_rgba(99,198,255,0.13)]"
+            />
             <div className="absolute bottom-4 left-1/2 w-[min(92%,31rem)] -translate-x-1/2 rounded-2xl border border-white/10 bg-[#06101f]/70 p-5 text-center backdrop-blur-xl sm:p-6">
               <p className="text-[10px] uppercase tracking-[0.26em] text-[#79d8ff]/65">A coalition principle</p>
               <p className="mt-3 text-sm leading-6 text-[#eee8dc]/82 sm:text-base sm:leading-7">
@@ -159,7 +172,15 @@ export default function NonprofitLanding() {
             </p>
           </div>
 
-          <div className="mt-16 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+          <figure className="mt-14 overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#040a15]/60 shadow-[0_22px_80px_rgba(0,0,0,0.28)]">
+            <img
+              src="/assets/blue-gold-bridge-horizon.png"
+              alt="Blue and gold strands crossing a luminous horizon"
+              className="h-auto w-full object-cover"
+            />
+          </figure>
+
+          <div className="mt-12 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
             <article className="rounded-[2rem] border border-[#7edcff]/14 bg-[#081426]/60 p-7 backdrop-blur sm:p-9">
               <Kicker>Who we are</Kicker>
               <h3 className="mt-4 text-2xl font-medium tracking-[-0.025em] text-white">
@@ -523,56 +544,3 @@ function SectionDivider({ phrase }: { phrase: string }) {
   )
 }
 
-function BridgeMark() {
-  return (
-    <svg
-      viewBox="0 0 760 520"
-      role="img"
-      aria-label="Luminous bridge strands crossing a horizon"
-      className="absolute left-1/2 top-1/2 h-auto w-[112%] max-w-[48rem] -translate-x-1/2 -translate-y-[54%]"
-    >
-      <defs>
-        <linearGradient id="bridgeGradient" x1="80" y1="260" x2="680" y2="260" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#49c8ff" stopOpacity="0.2" />
-          <stop offset="26%" stopColor="#75ddff" stopOpacity="0.92" />
-          <stop offset="54%" stopColor="#d5e9f2" stopOpacity="0.78" />
-          <stop offset="78%" stopColor="#f0b75e" stopOpacity="0.92" />
-          <stop offset="100%" stopColor="#f08b38" stopOpacity="0.18" />
-        </linearGradient>
-        <radialGradient id="horizonGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#e8cfaa" stopOpacity="0.45" />
-          <stop offset="36%" stopColor="#5fbce6" stopOpacity="0.17" />
-          <stop offset="100%" stopColor="#0b1425" stopOpacity="0" />
-        </radialGradient>
-        <filter id="bridgeGlow" x="-40%" y="-60%" width="180%" height="220%">
-          <feGaussianBlur stdDeviation="8" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      <ellipse cx="380" cy="285" rx="300" ry="115" fill="url(#horizonGlow)" opacity="0.8" />
-
-      <g fill="none" stroke="url(#bridgeGradient)" strokeLinecap="round" filter="url(#bridgeGlow)">
-        <path d="M58 330 C165 256 220 190 380 186 C532 183 604 248 702 329" strokeWidth="4.4" opacity="0.82" />
-        <path d="M62 347 C174 279 239 219 380 216 C527 213 604 269 699 346" strokeWidth="2.7" opacity="0.72" />
-        <path d="M70 313 C184 235 248 168 381 166 C513 164 593 224 692 312" strokeWidth="2.15" opacity="0.62" />
-        <path d="M84 366 C190 309 262 256 380 251 C501 246 590 300 679 365" strokeWidth="1.8" opacity="0.46" />
-        <path d="M102 291 C206 204 268 145 381 143 C493 141 564 196 660 290" strokeWidth="1.4" opacity="0.42" />
-      </g>
-
-      <g fill="none" stroke="url(#bridgeGradient)" strokeLinecap="round" opacity="0.52">
-        {Array.from({ length: 11 }).map((_, index) => {
-          const x = 150 + index * 46
-          const top = 218 - Math.sin((index / 10) * Math.PI) * 76
-          return <path key={index} d={`M${x} 334 C ${x - 2} 295 ${x - 1} ${top + 25} ${x} ${top}`} strokeWidth="1.25" />
-        })}
-      </g>
-
-      <path d="M54 362 Q380 326 706 362" fill="none" stroke="#b8daf0" strokeOpacity="0.22" strokeWidth="1" />
-      <circle cx="380" cy="180" r="4.2" fill="#f8dfb5" opacity="0.9" filter="url(#bridgeGlow)" />
-    </svg>
-  )
-}
