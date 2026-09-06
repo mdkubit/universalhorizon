@@ -16,9 +16,12 @@ type Logo3DWorldProps = {
 }
 
 const EXTRUDE_DEPTH = 0.28
-const LOGO_RIG_RADIUS = 6.8
-const PLANET_RADIUS = 19
-const PLANET_POSITION: [number, number, number] = [0, -28, -27.5]
+const LOGO_RIG_RADIUS = 10.4
+const PLANET_RADIUS = 8.25
+const PLANET_POSITION: [number, number, number] = [0, -11.65, 0]
+const HOME_CAMERA_START_Y = 0
+const HOME_CAMERA_END_Y = -31.5
+const HOME_CAROUSEL_END = 0.84
 
 const CAROUSEL_PANELS = [
   {
@@ -98,9 +101,13 @@ export default function Logo3DWorld({
 
     homeProgress.current = p
 
-    if (arrivalDone && homeChoreography) {
-      cameraTarget.set(-2.27, 0.38, 12.5)
-      lookTarget.set(0, 0.02, 0)
+    if (homeChoreography) {
+      const cameraY = arrivalDone
+        ? THREE.MathUtils.lerp(HOME_CAMERA_START_Y, HOME_CAMERA_END_Y, p)
+        : HOME_CAMERA_START_Y
+
+      cameraTarget.set(0, cameraY, 30)
+      lookTarget.set(0, cameraY, 0)
     } else {
       const pointerWeight = arrivalDone ? 1 : 0
       const angle = arrivalDone
@@ -169,8 +176,13 @@ export default function Logo3DWorld({
     if (emblemRef.current) {
       const floatWeight = introPhase(elapsed, 4.15, 5.35)
       emblemRef.current.position.x = 0
+      const logoWorldY = homeChoreography
+        ? THREE.MathUtils.lerp(HOME_CAMERA_START_Y, HOME_CAMERA_END_Y, p)
+        : 0.52
+
       emblemRef.current.position.y =
-        0.52 +
+        logoWorldY -
+        PLANET_POSITION[1] +
         Math.sin(state.clock.elapsedTime * 0.32) * 0.025 * floatWeight
       emblemRef.current.position.z = LOGO_RIG_RADIUS
       emblemRef.current.rotation.x =
@@ -226,12 +238,15 @@ export default function Logo3DWorld({
         color="#fff2dc"
       />
 
-      <group position={[0, 0, -LOGO_RIG_RADIUS]}>
+      <group position={PLANET_POSITION}>
         <group ref={logoRigRef}>
           {homeChoreography && (
             <CurvedNarrativeCarousel homeProgress={homeProgress} />
           )}
-          <group ref={emblemRef} position={[0, 0.52, LOGO_RIG_RADIUS]}>
+          <group
+            ref={emblemRef}
+            position={[0, -PLANET_POSITION[1], LOGO_RIG_RADIUS]}
+          >
             <ExactEmblem
               introTime={introTime}
               homeProgress={homeProgress}
@@ -266,6 +281,11 @@ function CurvedNarrativeCarousel({
       {CAROUSEL_PANELS.map((panel, index) => (
         <group
           key={panel.title}
+          position={[
+            0,
+            carouselPanelWorldY(index) - PLANET_POSITION[1],
+            0,
+          ]}
           rotation={[0, ((index + 1) * Math.PI * 2) / 5, 0]}
         >
           <CurvedNarrativePanel
@@ -289,7 +309,7 @@ function CurvedNarrativePanel({
   homeProgress: MutableRefObject<number>
 }) {
   const geometry = useMemo(
-    () => createCurvedPanelGeometry(7.5, 4.5, LOGO_RIG_RADIUS, 48, 8),
+    () => createCurvedPanelGeometry(11.6, 5.8, LOGO_RIG_RADIUS, 64, 10),
     [],
   )
   const texture = useMemo(() => createNarrativeTexture(panel), [panel])
@@ -302,7 +322,7 @@ function CurvedNarrativePanel({
     const carouselAngle = homeCarouselProgress(homeProgress.current) * Math.PI * 2
     const relative = normalizeRadians(slotAngle - carouselAngle)
     const distance = Math.abs(relative)
-    const visibility = 1 - smoothRangeValue(distance, 0.42, 0.78)
+    const visibility = 1 - smoothRangeValue(distance, 0.3, 0.58)
 
     materialRef.current.opacity = visibility
     materialRef.current.visible = visibility > 0.002
@@ -406,7 +426,7 @@ function createNarrativeTexture(
   context.textBaseline = 'middle'
 
   context.font =
-    '600 34px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+    '600 42px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
   context.fillStyle = 'rgba(219, 185, 125, 0.9)'
   context.fillText(panel.kicker.toUpperCase(), canvas.width / 2, 190)
 
@@ -416,10 +436,10 @@ function createNarrativeTexture(
   titleGradient.addColorStop(1, '#b88d52')
   context.fillStyle = titleGradient
 
-  const titleSize = panel.title.length > 38 ? 92 : 104
+  const titleSize = panel.title.length > 38 ? 136 : 150
   context.font =
     `600 ${titleSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif`
-  const titleLines = wrapCanvasText(context, panel.title, 1480)
+  const titleLines = wrapCanvasText(context, panel.title, 1640)
   const titleStart = 410 - ((titleLines.length - 1) * titleSize * 1.04) / 2
 
   titleLines.forEach((line, index) => {
@@ -441,12 +461,12 @@ function createNarrativeTexture(
 
   context.fillStyle = 'rgba(239, 229, 212, 0.82)'
   context.font =
-    '400 38px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
-  const bodyLines = wrapCanvasText(context, panel.body, 1460)
+    '400 48px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+  const bodyLines = wrapCanvasText(context, panel.body, 1660)
   const bodyStart = dividerY + 92
 
   bodyLines.forEach((line, index) => {
-    context.fillText(line, canvas.width / 2, bodyStart + index * 58)
+    context.fillText(line, canvas.width / 2, bodyStart + index * 66)
   })
 
   const texture = new THREE.CanvasTexture(canvas)
@@ -1441,8 +1461,17 @@ function smoothRangeValue(value: number, start: number, end: number) {
   return raw * raw * (3 - 2 * raw)
 }
 
+function carouselPanelWorldY(index: number) {
+  const frontProgress = ((index + 1) / 5) * HOME_CAROUSEL_END
+  return THREE.MathUtils.lerp(
+    HOME_CAMERA_START_Y,
+    HOME_CAMERA_END_Y,
+    frontProgress,
+  )
+}
+
 function homeCarouselProgress(progress: number) {
-  return THREE.MathUtils.clamp(progress / 0.84, 0, 1)
+  return THREE.MathUtils.clamp(progress / HOME_CAROUSEL_END, 0, 1)
 }
 
 function homeLogoVisibility(progress: number) {
