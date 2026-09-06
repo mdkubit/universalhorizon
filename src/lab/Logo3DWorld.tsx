@@ -14,7 +14,7 @@ type Logo3DWorldProps = {
 }
 
 const EXTRUDE_DEPTH = 0.28
-const renderLogoPaths = renderLogoPaths.map((path) =>
+const renderLogoPaths: [number, number][][] = logoPaths.map((path) =>
   simplifyClosedPath(path, 0.018),
 )
 
