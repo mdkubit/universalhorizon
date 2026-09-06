@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { Link } from 'react-router'
-import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties, MutableRefObject } from 'react'
+import { useEffect, useRef } from 'react'
+import type { MutableRefObject } from 'react'
 import * as THREE from 'three'
 import Logo3DWorld from '../lab/Logo3DWorld'
 
@@ -80,41 +80,102 @@ const scenes: Scene[] = [
 
 export default function UniversalHorizonHome() {
   const scrollProgress = useRef(0)
-  const [progress, setProgress] = useState(0)
-  const [arrivalReady, setArrivalReady] = useState(false)
+  const latestProgress = useRef(0)
+  const arrivalReady = useRef(false)
   const rafRef = useRef<number | null>(null)
+  const sceneRefs = useRef<(HTMLElement | null)[]>([])
+  const scrollHintRef = useRef<HTMLDivElement>(null)
+  const bottomFadeRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setArrivalReady(true), 5350)
-    return () => window.clearTimeout(timer)
-  }, [])
+    const paintNarrative = () => {
+      const progress = latestProgress.current
+      const enabled = arrivalReady.current
 
-  useEffect(() => {
-    const update = () => {
+      sceneRefs.current.forEach((element, index) => {
+        if (!element) return
+        const scene = scenes[index]
+        const visibility = enabled ? sceneVisibility(scene, progress) : 0
+
+        const entering = THREE.MathUtils.clamp(
+          (progress - scene.start) /
+            Math.max(0.001, scene.peakStart - scene.start),
+          0,
+          1,
+        )
+
+        const leaving = scene.hold
+          ? 0
+          : THREE.MathUtils.clamp(
+              (progress - scene.peakEnd) /
+                Math.max(0.001, scene.end - scene.peakEnd),
+              0,
+              1,
+            )
+
+        const direction =
+          scene.align === 'left' ? -1 : scene.align === 'right' ? 1 : 0
+
+        const translateX =
+          direction * (1 - entering) * 54 + direction * leaving * 42
+        const translateY =
+          scene.align === 'center'
+            ? (1 - entering) * 28 + leaving * -18
+            : (1 - entering) * 14 + leaving * -10
+
+        element.style.opacity = visibility.toFixed(4)
+        element.style.visibility = visibility < 0.002 ? 'hidden' : 'visible'
+        element.style.transform =
+          scene.align === 'center'
+            ? `translate3d(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px), 0)`
+            : `translate3d(${translateX}px, calc(-50% + ${translateY}px), 0)`
+      })
+
+      if (scrollHintRef.current) {
+        const opacity = enabled
+          ? THREE.MathUtils.clamp(1 - progress / 0.065, 0, 1)
+          : 0
+        scrollHintRef.current.style.opacity = opacity.toFixed(4)
+      }
+
+      if (bottomFadeRef.current) {
+        bottomFadeRef.current.style.opacity = enabled ? '0.7' : '0'
+      }
+
+      rafRef.current = null
+    }
+
+    const schedulePaint = () => {
+      if (rafRef.current === null) {
+        rafRef.current = window.requestAnimationFrame(paintNarrative)
+      }
+    }
+
+    const updateProgress = () => {
       const max = Math.max(
         1,
         document.documentElement.scrollHeight - window.innerHeight,
       )
       const next = THREE.MathUtils.clamp(window.scrollY / max, 0, 1)
+
+      latestProgress.current = next
       scrollProgress.current = next
-
-      if (rafRef.current !== null) {
-        return
-      }
-
-      rafRef.current = window.requestAnimationFrame(() => {
-        setProgress(next)
-        rafRef.current = null
-      })
+      schedulePaint()
     }
 
-    update()
-    window.addEventListener('scroll', update, { passive: true })
-    window.addEventListener('resize', update)
+    const timer = window.setTimeout(() => {
+      arrivalReady.current = true
+      schedulePaint()
+    }, 5350)
+
+    updateProgress()
+    window.addEventListener('scroll', updateProgress, { passive: true })
+    window.addEventListener('resize', updateProgress)
 
     return () => {
-      window.removeEventListener('scroll', update)
-      window.removeEventListener('resize', update)
+      window.clearTimeout(timer)
+      window.removeEventListener('scroll', updateProgress)
+      window.removeEventListener('resize', updateProgress)
 
       if (rafRef.current !== null) {
         window.cancelAnimationFrame(rafRef.current)
@@ -123,15 +184,11 @@ export default function UniversalHorizonHome() {
     }
   }, [])
 
-  const scrollHintOpacity = arrivalReady
-    ? THREE.MathUtils.clamp(1 - progress / 0.065, 0, 1)
-    : 0
-
   return (
     <main className="relative min-h-[720vh] bg-[#02030b] text-white">
       <div className="fixed inset-0">
         <Canvas
-          dpr={1.5}
+          dpr={1.25}
           camera={{
             position: [-2.27, 0.38, 12.5],
             fov: 43,
@@ -139,7 +196,7 @@ export default function UniversalHorizonHome() {
             far: 160,
           }}
           gl={{
-            antialias: false,
+            antialias: true,
             alpha: false,
             powerPreference: 'high-performance',
             toneMapping: THREE.ACESFilmicToneMapping,
@@ -156,18 +213,20 @@ export default function UniversalHorizonHome() {
       <NonprofitPortal />
 
       <div className="pointer-events-none fixed inset-0 z-20 overflow-hidden">
-        {scenes.map((scene) => (
+        {scenes.map((scene, index) => (
           <NarrativeScene
             key={scene.title}
             scene={scene}
-            progress={arrivalReady ? progress : 0}
-            enabled={arrivalReady}
+            sceneRef={(element) => {
+              sceneRefs.current[index] = element
+            }}
           />
         ))}
 
         <div
-          className="absolute bottom-7 left-1/2 -translate-x-1/2 text-center transition-opacity duration-700"
-          style={{ opacity: scrollHintOpacity }}
+          ref={scrollHintRef}
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 text-center opacity-0"
+          style={{ willChange: 'opacity' }}
         >
           <p className="text-[9px] uppercase tracking-[0.42em] text-[#e8cda0]/55">
             scroll to cross the horizon
@@ -176,9 +235,12 @@ export default function UniversalHorizonHome() {
         </div>
 
         <div
-          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#02030b]/45 to-transparent transition-opacity duration-1000"
-          style={{ opacity: arrivalReady ? 0.7 : 0 }}
+          ref={bottomFadeRef}
+          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#02030b]/45 to-transparent opacity-0"
+          style={{ willChange: 'opacity' }}
         />
+
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_56%,rgba(1,2,8,0.24)_100%)]" />
       </div>
     </main>
   )
@@ -186,48 +248,11 @@ export default function UniversalHorizonHome() {
 
 function NarrativeScene({
   scene,
-  progress,
-  enabled,
+  sceneRef,
 }: {
   scene: Scene
-  progress: number
-  enabled: boolean
+  sceneRef: (element: HTMLElement | null) => void
 }) {
-  const visibility = enabled ? sceneVisibility(scene, progress) : 0
-  const entering = THREE.MathUtils.clamp(
-    (progress - scene.start) / Math.max(0.001, scene.peakStart - scene.start),
-    0,
-    1,
-  )
-  const leaving = scene.hold
-    ? 0
-    : THREE.MathUtils.clamp(
-        (progress - scene.peakEnd) / Math.max(0.001, scene.end - scene.peakEnd),
-        0,
-        1,
-      )
-
-  const direction =
-    scene.align === 'left' ? -1 : scene.align === 'right' ? 1 : 0
-
-  const translateX =
-    direction * (1 - entering) * 54 + direction * leaving * 42
-  const translateY =
-    scene.align === 'center'
-      ? (1 - entering) * 28 + leaving * -18
-      : (1 - entering) * 14 + leaving * -10
-
-  const transform =
-    scene.align === 'center'
-      ? `translate3d(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px), 0)`
-      : `translate3d(${translateX}px, calc(-50% + ${translateY}px), 0)`
-
-  const style: CSSProperties = {
-    opacity: visibility,
-    transform,
-    filter: `blur(${(1 - visibility) * 5}px)`,
-  }
-
   const positionClass =
     scene.align === 'left'
       ? 'left-[7vw] top-1/2 text-left'
@@ -240,17 +265,29 @@ function NarrativeScene({
       ? 'w-[min(88vw,62rem)]'
       : 'w-[min(76vw,35rem)]'
 
+  const initialTransform =
+    scene.align === 'center'
+      ? 'translate3d(-50%, calc(-50% + 28px), 0)'
+      : scene.align === 'left'
+        ? 'translate3d(-54px, -50%, 0)'
+        : 'translate3d(54px, -50%, 0)'
+
   return (
     <section
-      className={`absolute ${positionClass} ${widthClass} transition-[opacity,filter] duration-150`}
-      style={style}
-      aria-hidden={visibility < 0.03}
+      ref={sceneRef}
+      className={`absolute ${positionClass} ${widthClass}`}
+      style={{
+        opacity: 0,
+        visibility: 'hidden',
+        transform: initialTransform,
+        willChange: 'transform, opacity',
+      }}
     >
       <p className="text-[10px] font-medium uppercase tracking-[0.42em] text-[#d7b67e]/70 sm:text-[11px]">
         {scene.kicker}
       </p>
 
-      <h1 className="mt-4 bg-gradient-to-r from-[#fff1cf] via-[#dfbd82] to-[#b88d52] bg-clip-text text-[clamp(2.35rem,5vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em] text-transparent drop-shadow-[0_0_24px_rgba(218,177,106,0.12)]">
+      <h1 className="mt-4 bg-gradient-to-r from-[#fff1cf] via-[#dfbd82] to-[#b88d52] bg-clip-text text-[clamp(2.35rem,5vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em] text-transparent drop-shadow-[0_0_18px_rgba(218,177,106,0.10)]">
         {scene.title}
       </h1>
 
