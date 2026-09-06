@@ -144,9 +144,9 @@ export function createPlanetTexture() {
   }
 
   const ocean = context.createLinearGradient(0, 0, 0, height)
-  ocean.addColorStop(0, '#102f49')
-  ocean.addColorStop(0.46, '#0d5162')
-  ocean.addColorStop(1, '#08283e')
+  ocean.addColorStop(0, '#18466c')
+  ocean.addColorStop(0.46, '#176f82')
+  ocean.addColorStop(1, '#0c3854')
   context.fillStyle = ocean
   context.fillRect(0, 0, width, height)
 
@@ -212,8 +212,8 @@ export function createPlanetTexture() {
     const length = 180 + random() * 540
     const controlY = y - 90 + random() * 180
 
-    context.strokeStyle = `rgba(228, 238, 243, ${0.035 + random() * 0.055})`
-    context.lineWidth = 8 + random() * 26
+    context.strokeStyle = `rgba(228, 238, 243, ${0.07 + random() * 0.09})`
+    context.lineWidth = 10 + random() * 30
     context.shadowBlur = 10
     context.shadowColor = 'rgba(224, 236, 245, 0.10)'
     context.beginPath()
@@ -242,9 +242,9 @@ function drawContinent(
   points: readonly (readonly [number, number])[],
 ) {
   const gradient = context.createLinearGradient(0, 150, 700, 760)
-  gradient.addColorStop(0, '#4d6653')
-  gradient.addColorStop(0.5, '#7c7456')
-  gradient.addColorStop(1, '#345343')
+  gradient.addColorStop(0, '#6f875f')
+  gradient.addColorStop(0.5, '#9a8a63')
+  gradient.addColorStop(1, '#456c57')
 
   context.fillStyle = gradient
   context.beginPath()
