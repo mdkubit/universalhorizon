@@ -131,7 +131,7 @@ export default function UniversalHorizonHome() {
     <main className="relative min-h-[720vh] bg-[#02030b] text-white">
       <div className="fixed inset-0">
         <Canvas
-          dpr={[1, 1.7]}
+          dpr={[1, 1.5]}
           camera={{
             position: [-2.27, 0.38, 12.5],
             fov: 43,
@@ -139,7 +139,7 @@ export default function UniversalHorizonHome() {
             far: 160,
           }}
           gl={{
-            antialias: true,
+            antialias: false,
             alpha: false,
             powerPreference: 'high-performance',
             toneMapping: THREE.ACESFilmicToneMapping,
