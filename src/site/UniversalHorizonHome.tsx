@@ -212,18 +212,23 @@ function NarrativeScene({
       ? (1 - entering) * 28 + leaving * -18
       : (1 - entering) * 14 + leaving * -10
 
+  const transform =
+    scene.align === 'center'
+      ? `translate3d(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px), 0)`
+      : `translate3d(${translateX}px, calc(-50% + ${translateY}px), 0)`
+
   const style: CSSProperties = {
     opacity: visibility,
-    transform: `translate3d(${translateX}px, ${translateY}px, 0)`,
+    transform,
     filter: `blur(${(1 - visibility) * 5}px)`,
   }
 
   const positionClass =
     scene.align === 'left'
-      ? 'left-[7vw] top-1/2 -translate-y-1/2 text-left'
+      ? 'left-[7vw] top-1/2 text-left'
       : scene.align === 'right'
-        ? 'right-[7vw] top-1/2 -translate-y-1/2 text-right'
-        : 'left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 text-center'
+        ? 'right-[7vw] top-1/2 text-right'
+        : 'left-1/2 top-[46%] text-center'
 
   const widthClass =
     scene.align === 'center'
