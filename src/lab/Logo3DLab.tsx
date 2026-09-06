@@ -49,7 +49,7 @@ export default function Logo3DLab() {
               Universal Horizon
             </p>
             <p className="mt-2 text-[9px] uppercase tracking-[0.28em] text-cyan-100/25">
-              Spatial logo study 04 · Astra geometry
+              Spatial logo study 05 · clean space
             </p>
           </div>
 
@@ -71,7 +71,7 @@ export default function Logo3DLab() {
 
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
           <p className="text-[9px] uppercase tracking-[0.36em] text-white/28">
-            scroll to orbit around the mark
+            scroll to orbit gently around the mark
           </p>
           <span className="mx-auto mt-3 block h-10 w-px bg-gradient-to-b from-cyan-100/35 to-transparent" />
         </div>
