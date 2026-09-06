@@ -34,6 +34,10 @@ export default function CanonicalLogoLab() {
 
     stage.style.setProperty('--logo-pointer-x', x.toFixed(4))
     stage.style.setProperty('--logo-pointer-y', y.toFixed(4))
+    stage.style.setProperty('--logo-shift-x', `${(-x * 4.5).toFixed(2)}px`)
+    stage.style.setProperty('--logo-shift-y', `${(-y * 3.2).toFixed(2)}px`)
+    stage.style.setProperty('--logo-reflection-x', `${(x * 8.0).toFixed(2)}px`)
+    stage.style.setProperty('--logo-reflection-y', `${(y * 5.5).toFixed(2)}px`)
   }
 
   const resetPointer = () => {
@@ -41,6 +45,10 @@ export default function CanonicalLogoLab() {
     if (!stage) return
     stage.style.setProperty('--logo-pointer-x', '0')
     stage.style.setProperty('--logo-pointer-y', '0')
+    stage.style.setProperty('--logo-shift-x', '0px')
+    stage.style.setProperty('--logo-shift-y', '0px')
+    stage.style.setProperty('--logo-reflection-x', '0px')
+    stage.style.setProperty('--logo-reflection-y', '0px')
   }
 
   return (
