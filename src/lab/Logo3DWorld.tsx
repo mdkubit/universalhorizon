@@ -4,7 +4,6 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
 import * as THREE from 'three'
-import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare.js'
 import { logoPaths } from './logoPaths'
 
 type Logo3DWorldProps = {
@@ -94,10 +93,10 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
 
       <group ref={emblemRef} position={[0, 0.34, 0]}>
         <ExactEmblem />
-        <TipFlare position={[3.36, 2.773, 0.2]} />
+        <TipLight position={[3.36, 2.773, 0.16]} />
       </group>
 
-      <HorizonFlare position={[0.05, -2.72, -3.8]} />
+      <HorizonLight position={[0.05, -2.72, -3.8]} />
 
       <EffectComposer multisampling={0}>
         <Bloom
@@ -550,7 +549,7 @@ function PlanetHorizon() {
   useEffect(() => () => material.dispose(), [material])
 
   return (
-    <mesh position={[0, -40.5, -10.5]}>
+    <mesh position={[0, -37.25, -8.75]}>
       <sphereGeometry args={[32, 96, 64]} />
       <primitive object={material} attach="material" />
     </mesh>
@@ -588,129 +587,28 @@ function ReflectionEnvironment() {
   )
 }
 
-function HorizonFlare({ position }: { position: [number, number, number] }) {
-  const flare = useMemo(() => {
-    const core = createFlareTexture(192, false)
-    const ring = createFlareTexture(192, true)
-    const lensflare = new Lensflare()
-
-    lensflare.addElement(
-      new LensflareElement(core, 120, 0, new THREE.Color('#ffcf92')),
-    )
-    lensflare.addElement(
-      new LensflareElement(ring, 48, 0.24, new THREE.Color('#7fa7ff')),
-    )
-    lensflare.addElement(
-      new LensflareElement(ring, 26, 0.58, new THREE.Color('#9c70e6')),
-    )
-
-    return { lensflare, core, ring }
-  }, [])
-
-  useEffect(
-    () => () => {
-      flare.core.dispose()
-      flare.ring.dispose()
-    },
-    [flare],
-  )
-
+function HorizonLight({ position }: { position: [number, number, number] }) {
   return (
     <pointLight
       position={position}
-      intensity={12}
+      intensity={10}
       distance={18}
       decay={2}
       color="#ffbf7b"
-    >
-      <primitive object={flare.lensflare} />
-    </pointLight>
+    />
   )
 }
 
-function TipFlare({ position }: { position: [number, number, number] }) {
-  const flare = useMemo(() => {
-    const core = createFlareTexture(128, false)
-    const lensflare = new Lensflare()
-
-    lensflare.addElement(
-      new LensflareElement(core, 62, 0, new THREE.Color('#ffe6c2')),
-    )
-
-    return { lensflare, core }
-  }, [])
-
-  useEffect(() => () => flare.core.dispose(), [flare])
-
+function TipLight({ position }: { position: [number, number, number] }) {
   return (
     <pointLight
       position={position}
-      intensity={5.5}
-      distance={8}
+      intensity={3.2}
+      distance={5.5}
       decay={2}
       color="#ffe0b5"
-    >
-      <mesh>
-        <sphereGeometry args={[0.026, 16, 16]} />
-        <meshBasicMaterial color="#fff4de" toneMapped={false} />
-      </mesh>
-      <primitive object={flare.lensflare} />
-    </pointLight>
+    />
   )
-}
-
-function createFlareTexture(size: number, ring: boolean) {
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
-
-  const context = canvas.getContext('2d')
-  if (!context) return new THREE.CanvasTexture(canvas)
-
-  const center = size / 2
-
-  if (ring) {
-    const gradient = context.createRadialGradient(
-      center,
-      center,
-      size * 0.1,
-      center,
-      center,
-      size * 0.5,
-    )
-
-    gradient.addColorStop(0, 'rgba(255,255,255,0)')
-    gradient.addColorStop(0.42, 'rgba(255,255,255,0.06)')
-    gradient.addColorStop(0.54, 'rgba(255,255,255,0.22)')
-    gradient.addColorStop(0.68, 'rgba(255,255,255,0.04)')
-    gradient.addColorStop(1, 'rgba(255,255,255,0)')
-
-    context.fillStyle = gradient
-    context.fillRect(0, 0, size, size)
-  } else {
-    const gradient = context.createRadialGradient(
-      center,
-      center,
-      0,
-      center,
-      center,
-      size * 0.5,
-    )
-
-    gradient.addColorStop(0, 'rgba(255,255,255,0.78)')
-    gradient.addColorStop(0.08, 'rgba(255,244,221,0.56)')
-    gradient.addColorStop(0.3, 'rgba(255,200,145,0.19)')
-    gradient.addColorStop(0.62, 'rgba(137,170,255,0.05)')
-    gradient.addColorStop(1, 'rgba(255,255,255,0)')
-
-    context.fillStyle = gradient
-    context.fillRect(0, 0, size, size)
-  }
-
-  const texture = new THREE.CanvasTexture(canvas)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.needsUpdate = true
-  return texture
 }
 
 function smooth01(value: number) {
