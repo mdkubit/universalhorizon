@@ -82,10 +82,10 @@ export default function Logo3DWorld({ scrollProgress }: Logo3DWorldProps) {
 
       <group ref={groupRef} position={[0, -0.08, 0]}>
         <UniversalHorizonMark material={material} />
+        <TipStar position={[4.88, 3.42, -0.02]} />
       </group>
 
       <WorldLensFlare position={[0.45, -2.55, 0.2]} />
-      <TipStar position={[4.88, 3.42, -0.02]} />
 
       <EffectComposer multisampling={0}>
         <Bloom
@@ -192,7 +192,7 @@ function UniversalHorizonMark({ material }: { material: THREE.MeshPhysicalMateri
         18,
         (t) => {
           const base = 0.21 + Math.sin(t * Math.PI) * 0.12
-          const tipTaper = THREE.MathUtils.smoothstep(1 - t, 0, 0.18)
+          const tipTaper = THREE.MathUtils.smoothstep(t, 0.82, 1)
           return THREE.MathUtils.lerp(base, 0.055, tipTaper)
         },
         0.46,
