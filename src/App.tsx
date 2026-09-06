@@ -4,6 +4,7 @@ import NonprofitLanding from './site/NonprofitLanding'
 import HorizonLab from './lab/HorizonLab'
 import LogoLab from './lab/LogoLab'
 import CanonicalLogoLab from './lab/CanonicalLogoLab'
+import Logo3DLab from './lab/Logo3DLab'
 
 export default function App() {
   return (
@@ -11,7 +12,8 @@ export default function App() {
       <Route path="/" element={<UniversalHorizonLanding />} />
       <Route path="/nonprofit" element={<NonprofitLanding />} />
       <Route path="/horizon-lab" element={<HorizonLab />} />
-      <Route path="/logo-lab" element={<CanonicalLogoLab />} />
+      <Route path="/logo-lab" element={<Logo3DLab />} />
+      <Route path="/logo-lab-v2" element={<CanonicalLogoLab />} />
       <Route path="/logo-lab-v1" element={<LogoLab />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
