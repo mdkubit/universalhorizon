@@ -11,6 +11,7 @@ import { createNebulaTexture, createPlanetTexture } from './staticTextures'
 type Logo3DWorldProps = {
   scrollProgress: MutableRefObject<number>
   homeChoreography?: boolean
+  transparentBackground?: boolean
 }
 
 const EXTRUDE_DEPTH = 0.28
@@ -21,6 +22,7 @@ const renderLogoPaths: [number, number][][] = logoPaths.map((path) =>
 export default function Logo3DWorld({
   scrollProgress,
   homeChoreography = false,
+  transparentBackground = false,
 }: Logo3DWorldProps) {
   const emblemRef = useRef<THREE.Group>(null)
   const introStartedAt = useRef<number | null>(null)
@@ -126,10 +128,12 @@ export default function Logo3DWorld({
 
   return (
     <>
-      <color attach="background" args={['#02030b']} />
+      {!transparentBackground && (
+        <color attach="background" args={['#02030b']} />
+      )}
       <fog attach="fog" args={['#02030b', 18, 70]} />
 
-      <ProceduralSky introTime={introTime} />
+      {!transparentBackground && <ProceduralSky introTime={introTime} />}
       <DeepStars introTime={introTime} />
       <PlanetHorizon introTime={introTime} />
       <ReflectionEnvironment />
@@ -223,7 +227,9 @@ function ExactEmblem({
     () =>
       renderLogoPaths.map(() => {
         const face = new THREE.MeshPhysicalMaterial({
-          color: new THREE.Color('#06070b'),
+          color: new THREE.Color('#0a0b11'),
+          emissive: new THREE.Color('#070611'),
+          emissiveIntensity: 0.16,
           metalness: 0.95,
           roughness: 0.16,
           clearcoat: 1,
@@ -267,8 +273,8 @@ function ExactEmblem({
 
       face.opacity = visibility * homeVisibility
       side.opacity = visibility * homeVisibility
-      face.envMapIntensity = THREE.MathUtils.lerp(0.15, 2.0, reflected)
-      side.envMapIntensity = THREE.MathUtils.lerp(0.18, 2.35, reflected)
+      face.envMapIntensity = THREE.MathUtils.lerp(0.2, 2.55, reflected)
+      side.envMapIntensity = THREE.MathUtils.lerp(0.22, 2.85, reflected)
     })
   })
 
@@ -763,7 +769,8 @@ function PlanetHorizon({
     material.uniforms.uVisibility.value = visibility
 
     if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.0032 * visibility
+      meshRef.current.rotation.y =
+        1.12 + state.clock.elapsedTime * 0.0032 * visibility
     }
   })
 
