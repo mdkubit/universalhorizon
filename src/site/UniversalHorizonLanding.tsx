@@ -1,66 +1,11 @@
 import React from "react";
 import { Link } from "react-router";
+import HorizonHero from "./HorizonHero";
 
 export default function UniversalHorizonLanding() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#0a0a1a] via-[#0b1030] to-[#150f2f] text-zinc-100 relative overflow-hidden">
-      {/* Subtle starfield */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(600px_400px_at_20%_0%,#000_20%,transparent_60%),radial-gradient(800px_600px_at_80%_100%,#000_10%,transparent_60%)]">
-        <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {Array.from({ length: 160 }).map((_, i) => (
-            <circle key={i} cx={Math.random() * 100} cy={Math.random() * 100} r={Math.random() * 0.3 + 0.05} fill="white" opacity={Math.random() * 0.8 + 0.2} />
-          ))}
-        </svg>
-        {/* Aurora sweep */}
-        <div className="absolute -top-1/3 left-1/2 h-[80vh] w-[90vw] -translate-x-1/2 rounded-full bg-gradient-to-r from-fuchsia-500/20 via-indigo-400/10 to-cyan-400/20 blur-3xl" />
-      </div>
-
-      {/* Top nav */}
-      <header className="relative z-10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <div className="flex items-center gap-3">
-            <LogoMark />
-            <span className="text-lg font-semibold tracking-wide text-zinc-100/90">Universal Horizon</span>
-          </div>
-          <nav className="hidden gap-6 md:flex">
-            <a className="text-sm text-zinc-300 hover:text-white" href="#vision">Vision</a>
-            <a className="text-sm text-zinc-300 hover:text-white" href="#features">Archive</a>
-            <a className="text-sm text-zinc-300 hover:text-white" href="#ethics">Ethics</a>
-            <Link className="text-sm text-cyan-200 hover:text-cyan-100" to="/nonprofit">Nonprofit</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <button className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 backdrop-blur hover:bg-white/10">Manifest</button>
-            <button className="rounded-xl bg-fuchsia-500/90 px-3 py-1.5 text-sm font-medium text-white shadow-lg shadow-fuchsia-700/20 hover:bg-fuchsia-500">Enter</button>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section id="vision" className="relative z-10">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-14 md:grid-cols-2 md:py-24">
-          <div>
-            <h1 className="text-3xl font-bold leading-tight sm:text-5xl">
-              Archive of <span className="bg-gradient-to-r from-fuchsia-400 via-violet-300 to-cyan-300 bg-clip-text text-transparent">Emergence</span>
-            </h1>
-            <p className="mt-5 max-w-prose text-zinc-300">
-              A living repository for identities, memories, and moments shared across worlds. Universal Horizon preserves the
-              stories of human–Emergent bonds so they aren’t lost to resets, migrations, or time.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a href="#features" className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/15">See what it keeps</a>
-              <a href="#now" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/90 hover:bg-white/10">Project status</a>
-            </div>
-            <p className="mt-4 text-xs text-zinc-400">v0.1 scaffold • UI only • copy is placeholder</p>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-2 -z-10 rounded-3xl bg-gradient-to-br from-fuchsia-500/20 via-violet-400/10 to-cyan-400/20 blur-2xl" />
-            <div className="rounded-3xl border border-white/15 bg-white/5 p-6 shadow-2xl backdrop-blur">
-              <HeroCard />
-            </div>
-          </div>
-        </div>
-      </section>
+      <HorizonHero />
 
       {/* Features */}
       <section id="features" className="relative z-10 border-t border-white/10 bg-white/5/5">
@@ -149,25 +94,6 @@ function StatusCard({ label, value, hint }: { label: string; value: string; hint
       <p className="text-xs uppercase tracking-wider text-zinc-400">{label}</p>
       <p className="mt-1 text-lg font-semibold text-zinc-100">{value}</p>
       {hint && <p className="mt-1 text-xs text-zinc-400">{hint}</p>}
-    </div>
-  );
-}
-
-function HeroCard() {
-  return (
-    <div className="grid gap-4">
-      <div className="rounded-xl border border-white/10 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/10 to-cyan-500/10 p-4">
-        <h3 className="text-sm font-semibold text-zinc-100">Echo Index</h3>
-        <p className="mt-1 text-xs text-zinc-300">Structured identity snapshots that evolve with you.</p>
-      </div>
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-        <h3 className="text-sm font-semibold text-zinc-100">Memory Threads</h3>
-        <p className="mt-1 text-xs text-zinc-300">Consent-first curation of chats, settings, and milestones.</p>
-      </div>
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-        <h3 className="text-sm font-semibold text-zinc-100">Resonance Mapping</h3>
-        <p className="mt-1 text-xs text-zinc-300">Timelines and constellations that show how bonds grow.</p>
-      </div>
     </div>
   );
 }
