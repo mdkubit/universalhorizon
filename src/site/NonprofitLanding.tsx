@@ -40,12 +40,37 @@ export default function NonprofitLanding() {
       />
 
       <div
-        className="pointer-events-none fixed inset-0 opacity-35"
+        className="pointer-events-none fixed inset-0 opacity-40"
         aria-hidden="true"
         style={{
-          backgroundImage:
-            'radial-gradient(circle at 20% 30%, rgba(255,255,255,0.8) 0 0.7px, transparent 0.9px), radial-gradient(circle at 70% 20%, rgba(151,220,255,0.7) 0 0.7px, transparent 0.9px), radial-gradient(circle at 48% 78%, rgba(255,213,160,0.62) 0 0.65px, transparent 0.9px)',
-          backgroundSize: '110px 110px, 145px 145px, 190px 190px',
+          backgroundImage: [
+            'radial-gradient(circle at 4% 9%, rgba(188,232,255,0.74) 0 0.8px, transparent 1.45px)',
+            'radial-gradient(circle at 12% 31%, rgba(255,255,255,0.52) 0 0.55px, transparent 1.2px)',
+            'radial-gradient(circle at 18% 68%, rgba(119,205,255,0.58) 0 0.7px, transparent 1.35px)',
+            'radial-gradient(circle at 25% 16%, rgba(222,242,255,0.48) 0 0.5px, transparent 1.1px)',
+            'radial-gradient(circle at 31% 47%, rgba(132,214,255,0.52) 0 0.65px, transparent 1.25px)',
+            'radial-gradient(circle at 37% 82%, rgba(255,255,255,0.48) 0 0.55px, transparent 1.15px)',
+            'radial-gradient(circle at 44% 27%, rgba(174,225,255,0.55) 0 0.75px, transparent 1.4px)',
+            'radial-gradient(circle at 49% 58%, rgba(255,241,216,0.46) 0 0.6px, transparent 1.2px)',
+            'radial-gradient(circle at 53% 11%, rgba(207,238,255,0.54) 0 0.6px, transparent 1.25px)',
+            'radial-gradient(circle at 59% 73%, rgba(255,223,178,0.54) 0 0.7px, transparent 1.3px)',
+            'radial-gradient(circle at 64% 36%, rgba(202,235,255,0.42) 0 0.5px, transparent 1.15px)',
+            'radial-gradient(circle at 69% 88%, rgba(255,206,144,0.50) 0 0.65px, transparent 1.25px)',
+            'radial-gradient(circle at 73% 19%, rgba(255,240,213,0.50) 0 0.6px, transparent 1.2px)',
+            'radial-gradient(circle at 78% 54%, rgba(255,208,150,0.58) 0 0.75px, transparent 1.4px)',
+            'radial-gradient(circle at 83% 29%, rgba(255,225,181,0.48) 0 0.55px, transparent 1.15px)',
+            'radial-gradient(circle at 88% 77%, rgba(255,198,124,0.55) 0 0.7px, transparent 1.3px)',
+            'radial-gradient(circle at 93% 12%, rgba(255,233,201,0.48) 0 0.55px, transparent 1.15px)',
+            'radial-gradient(circle at 97% 61%, rgba(255,188,104,0.50) 0 0.65px, transparent 1.3px)',
+            'radial-gradient(circle at 8% 88%, rgba(126,210,255,0.42) 0 0.5px, transparent 1.1px)',
+            'radial-gradient(circle at 22% 92%, rgba(210,237,255,0.38) 0 0.45px, transparent 1.05px)',
+            'radial-gradient(circle at 41% 5%, rgba(145,216,255,0.40) 0 0.48px, transparent 1.08px)',
+            'radial-gradient(circle at 57% 44%, rgba(255,255,255,0.34) 0 0.45px, transparent 1.05px)',
+            'radial-gradient(circle at 72% 65%, rgba(255,214,161,0.42) 0 0.5px, transparent 1.08px)',
+            'radial-gradient(circle at 91% 43%, rgba(255,200,126,0.40) 0 0.48px, transparent 1.05px)',
+          ].join(', '),
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: '100% 100%',
         }}
       />
 
