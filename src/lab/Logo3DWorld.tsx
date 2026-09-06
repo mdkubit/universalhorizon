@@ -6,7 +6,7 @@ import * as THREE from 'three'
 import { logoPaths } from './logoPaths'
 import { canonicalLettering } from './canonicalLettering'
 import { cleanLetterGeometry } from './cleanLetterGeometry'
-import { createNebulaTexture, createPlanetTexture } from './staticTextures'
+import { createCloudTexture, createNebulaTexture, createPlanetTexture } from './staticTextures'
 
 type Logo3DWorldProps = {
   scrollProgress: MutableRefObject<number>
@@ -15,6 +15,7 @@ type Logo3DWorldProps = {
 }
 
 const EXTRUDE_DEPTH = 0.28
+const LOGO_RIG_RADIUS = 6.8
 const renderLogoPaths: [number, number][][] = logoPaths.map((path) =>
   smoothClosedPath(simplifyClosedPath(path, 0.018), 2.38, 4),
 )
@@ -24,6 +25,7 @@ export default function Logo3DWorld({
   homeChoreography = false,
   transparentBackground = false,
 }: Logo3DWorldProps) {
+  const logoRigRef = useRef<THREE.Group>(null)
   const emblemRef = useRef<THREE.Group>(null)
   const introStartedAt = useRef<number | null>(null)
   const introTime = useRef(0)
@@ -53,19 +55,26 @@ export default function Logo3DWorld({
     homeProgress.current = p
 
     const angle = arrivalDone
-      ? THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
+      ? homeChoreography
+        ? THREE.MathUtils.lerp(-0.055, 0.055, smooth01(p))
+        : THREE.MathUtils.lerp(-0.18, 0.2, smooth01(p))
       : THREE.MathUtils.lerp(-0.04, -0.18, smooth01(arrival))
 
     const distance = arrivalDone
-      ? 12.7
+      ? homeChoreography
+        ? THREE.MathUtils.lerp(12.7, 11.9, horizonCrossing(p))
+        : 12.7
       : THREE.MathUtils.lerp(14.2, 12.7, smooth01(arrival))
 
     const pointerWeight = arrivalDone ? 1 : 0
+    const descent = homeChoreography ? homeCameraDescent(p) : 0
+    const lookY = homeChoreography ? homeLookTargetY(p) : 0.02
+    lookTarget.y = lookY
 
     cameraTarget.set(
       Math.sin(angle) * distance + state.pointer.x * 0.2 * pointerWeight,
       THREE.MathUtils.lerp(0.78, 0.38, arrival) +
-        Math.sin(p * Math.PI) * 0.24 +
+        descent +
         state.pointer.y * 0.12 * pointerWeight,
       Math.cos(angle) * distance,
     )
@@ -105,20 +114,25 @@ export default function Logo3DWorld({
       violetLightRef.current.intensity = 9 * worldLight
     }
 
-    if (emblemRef.current) {
-      const floatWeight = introPhase(elapsed, 4.15, 5.35)
-      const targetX =
-        arrivalDone && homeChoreography ? homeLogoOffset(p) : 0
+    if (logoRigRef.current) {
+      const targetYaw =
+        arrivalDone && homeChoreography ? homeLogoYaw(p) : 0
 
-      emblemRef.current.position.x = THREE.MathUtils.damp(
-        emblemRef.current.position.x,
-        targetX,
+      logoRigRef.current.rotation.y = THREE.MathUtils.damp(
+        logoRigRef.current.rotation.y,
+        targetYaw,
         3.1,
         delta,
       )
+    }
+
+    if (emblemRef.current) {
+      const floatWeight = introPhase(elapsed, 4.15, 5.35)
+      emblemRef.current.position.x = 0
       emblemRef.current.position.y =
         0.52 +
         Math.sin(state.clock.elapsedTime * 0.32) * 0.025 * floatWeight
+      emblemRef.current.position.z = LOGO_RIG_RADIUS
       emblemRef.current.rotation.x =
         Math.sin(state.clock.elapsedTime * 0.17) * 0.008 * floatWeight
       emblemRef.current.rotation.z =
@@ -167,18 +181,20 @@ export default function Logo3DWorld({
         color="#a06dff"
       />
 
-      <group ref={emblemRef} position={[0, 0.52, 0]}>
-        <ExactEmblem
+      <group ref={logoRigRef} position={[0, 0, -LOGO_RIG_RADIUS]}>
+        <group ref={emblemRef} position={[0, 0.52, LOGO_RIG_RADIUS]}>
+          <ExactEmblem
           introTime={introTime}
           homeProgress={homeProgress}
           homeChoreography={homeChoreography}
         />
-        <TipLight
-          position={[3.36, 2.773, 0.16]}
-          introTime={introTime}
-          homeProgress={homeProgress}
-          homeChoreography={homeChoreography}
-        />
+          <TipLight
+            position={[3.36, 2.773, 0.16]}
+            introTime={introTime}
+            homeProgress={homeProgress}
+            homeChoreography={homeChoreography}
+          />
+        </group>
       </group>
 
       <HorizonLight
@@ -339,7 +355,16 @@ function CanonicalLettering({
     canonicalLettering.letters.forEach((letter, letterIndex) => {
       const shapePath = new THREE.ShapePath()
 
-      for (const loop of letter.loops) {
+      for (const [loopIndex, loop] of letter.loops.entries()) {
+        if (
+          letter.word === 'orizon' &&
+          letter.letter === 'o' &&
+          letterIndex === 8 &&
+          loopIndex === 2
+        ) {
+          continue
+        }
+
         const renderLoop = smoothClosedPath(
           simplifyClosedPath(loop, 1.15),
           2.18,
@@ -702,7 +727,10 @@ function PlanetHorizon({
   introTime: MutableRefObject<number>
 }) {
   const texture = useMemo(() => createPlanetTexture(), [])
-  const meshRef = useRef<THREE.Mesh>(null)
+  const cloudTexture = useMemo(() => createCloudTexture(), [])
+  const groundRef = useRef<THREE.Mesh>(null)
+  const cloudRef = useRef<THREE.Mesh>(null)
+  const cloudMaterialRef = useRef<THREE.MeshBasicMaterial>(null)
 
   const material = useMemo(
     () =>
@@ -741,7 +769,7 @@ function PlanetHorizon({
             float rim = pow(1.0 - facing, 3.45);
 
             vec3 base = texture2D(uMap, vUv).rgb;
-            float softLight = 0.62 + 0.38 * max(
+            float softLight = 0.66 + 0.34 * max(
               dot(normalView, normalize(vec3(-0.32, 0.72, 0.55))),
               0.0
             );
@@ -760,25 +788,49 @@ function PlanetHorizon({
     () => () => {
       material.dispose()
       texture.dispose()
+      cloudTexture.dispose()
     },
-    [material, texture],
+    [material, texture, cloudTexture],
   )
 
   useFrame((state) => {
     const visibility = introPhase(introTime.current, 4.3, 5.22)
     material.uniforms.uVisibility.value = visibility
 
-    if (meshRef.current) {
-      meshRef.current.rotation.y =
-        1.12 + state.clock.elapsedTime * 0.0032 * visibility
+    if (groundRef.current) {
+      groundRef.current.rotation.y = state.clock.elapsedTime * 0.0072
+    }
+
+    if (cloudRef.current) {
+      cloudRef.current.rotation.y =
+        0.24 + state.clock.elapsedTime * 0.0105
+      cloudRef.current.rotation.z = 0.035
+    }
+
+    if (cloudMaterialRef.current) {
+      cloudMaterialRef.current.opacity = 0.72 * visibility
     }
   })
 
   return (
-    <mesh ref={meshRef} position={[0, -37.25, -8.75]}>
-      <sphereGeometry args={[32, 192, 96]} />
-      <primitive object={material} attach="material" />
-    </mesh>
+    <group position={[0, -37.25, -8.75]}>
+      <mesh ref={groundRef}>
+        <sphereGeometry args={[32, 192, 96]} />
+        <primitive object={material} attach="material" />
+      </mesh>
+
+      <mesh ref={cloudRef}>
+        <sphereGeometry args={[32.12, 144, 72]} />
+        <meshBasicMaterial
+          ref={cloudMaterialRef}
+          map={cloudTexture}
+          transparent
+          opacity={0}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
   )
 }
 
@@ -1076,28 +1128,67 @@ function introPhase(time: number, start: number, end: number) {
   return raw * raw * (3 - 2 * raw)
 }
 
-function homeLogoOffset(progress: number) {
+function homeLogoYaw(progress: number) {
   const keyframes = [
     [0, 0],
-    [0.08, 1.72],
-    [0.18, 1.72],
-    [0.27, -1.68],
-    [0.37, -1.68],
-    [0.46, 1.64],
-    [0.56, 1.64],
-    [0.65, -1.6],
-    [0.75, -1.6],
+    [0.08, 0.29],
+    [0.18, 0.29],
+    [0.27, -0.285],
+    [0.37, -0.285],
+    [0.46, 0.278],
+    [0.56, 0.278],
+    [0.65, -0.27],
+    [0.75, -0.27],
     [0.84, 0],
     [1, 0],
   ] as const
 
+  return sampleKeyframes(progress, keyframes)
+}
+
+function homeCameraDescent(progress: number) {
+  const keyframes = [
+    [0, 0],
+    [0.52, 0],
+    [0.64, -0.55],
+    [0.74, -1.55],
+    [0.82, -2.8],
+    [0.9, -4.55],
+    [1, -7.2],
+  ] as const
+
+  return sampleKeyframes(progress, keyframes)
+}
+
+function homeLookTargetY(progress: number) {
+  const keyframes = [
+    [0, 0.02],
+    [0.56, 0.02],
+    [0.7, -0.65],
+    [0.82, -2.05],
+    [0.92, -3.9],
+    [1, -5.8],
+  ] as const
+
+  return sampleKeyframes(progress, keyframes)
+}
+
+function horizonCrossing(progress: number) {
+  return smoothRangeValue(progress, 0.58, 1)
+}
+
+function sampleKeyframes(
+  progress: number,
+  keyframes: readonly (readonly [number, number])[],
+) {
   for (let index = 0; index < keyframes.length - 1; index += 1) {
     const [startProgress, startValue] = keyframes[index]
     const [endProgress, endValue] = keyframes[index + 1]
 
     if (progress <= endProgress) {
       const raw = THREE.MathUtils.clamp(
-        (progress - startProgress) / Math.max(0.0001, endProgress - startProgress),
+        (progress - startProgress) /
+          Math.max(0.0001, endProgress - startProgress),
         0,
         1,
       )
@@ -1106,7 +1197,12 @@ function homeLogoOffset(progress: number) {
     }
   }
 
-  return 0
+  return keyframes[keyframes.length - 1][1]
+}
+
+function smoothRangeValue(value: number, start: number, end: number) {
+  const raw = THREE.MathUtils.clamp((value - start) / (end - start), 0, 1)
+  return raw * raw * (3 - 2 * raw)
 }
 
 function homeLogoVisibility(progress: number) {
