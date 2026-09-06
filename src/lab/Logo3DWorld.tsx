@@ -379,11 +379,9 @@ function createNarrativeTexture(
 
   context.font =
     '600 34px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
-  context.letterSpacing = '9px'
   context.fillStyle = 'rgba(219, 185, 125, 0.9)'
   context.fillText(panel.kicker.toUpperCase(), canvas.width / 2, 190)
 
-  context.letterSpacing = '0px'
   const titleGradient = context.createLinearGradient(420, 0, 1620, 0)
   titleGradient.addColorStop(0, '#fff1cf')
   titleGradient.addColorStop(0.52, '#dfbd82')
