@@ -832,7 +832,7 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
 
   useFrame(() => {
     material.uniforms.uVisibility.value =
-      introPhase(introTime.current, 3.15, 5.1)
+      introPhase(introTime.current, 4.3, 5.22)
   })
 
   return (
@@ -886,7 +886,7 @@ function HorizonLight({
   useFrame(() => {
     if (!ref.current) return
     ref.current.intensity =
-      10 * introPhase(introTime.current, 3.25, 5.05)
+      10 * introPhase(introTime.current, 4.42, 5.28)
   })
 
   return (
