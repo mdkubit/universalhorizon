@@ -128,3 +128,479 @@ body {
     animation: none !important;
   }
 }
+
+
+/* Universal Horizon logo motion laboratory */
+.logo-lab {
+  isolation: isolate;
+}
+
+.logo-stage {
+  width: min(98vw, 1600px);
+  height: min(96vh, 900px);
+  overflow: visible;
+}
+
+.logo-nebula {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: logo-nebula-wake 4.8s ease-out 2.6s forwards, logo-nebula-breathe 14s ease-in-out 7.4s infinite;
+}
+
+.logo-nebula-violet {
+  left: 4%;
+  top: 9%;
+  width: 54vw;
+  height: 44vh;
+  background: radial-gradient(circle, rgba(108, 61, 255, 0.2), rgba(113, 56, 210, 0.07) 44%, transparent 72%);
+}
+
+.logo-nebula-blue {
+  right: -4%;
+  bottom: 0;
+  width: 52vw;
+  height: 46vh;
+  background: radial-gradient(circle, rgba(45, 151, 255, 0.16), rgba(78, 81, 220, 0.07) 48%, transparent 74%);
+  animation-delay: 3.15s, 8s;
+}
+
+.logo-space-star {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  background: rgba(236, 244, 255, 0.95);
+  box-shadow: 0 0 7px rgba(160, 202, 255, 0.8);
+  animation: logo-star-breathe ease-in-out infinite alternate;
+}
+
+.logo-horizon-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -10vh;
+  width: min(84vw, 1500px);
+  height: 30vh;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 221, 180, 0.18), transparent 22%),
+    radial-gradient(ellipse at 50% 8%, rgba(120, 170, 255, 0.14), transparent 43%),
+    radial-gradient(ellipse at 50% 12%, rgba(124, 86, 255, 0.1), transparent 60%);
+  filter: blur(18px);
+  opacity: 0;
+  animation: logo-horizon-wake 2s ease-out 2.35s forwards, logo-horizon-breathe 7s ease-in-out 4.35s infinite;
+}
+
+.logo-horizon-line {
+  position: absolute;
+  left: 50%;
+  bottom: 5.5vh;
+  width: min(92vw, 1600px);
+  height: 14vh;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border-top: 1px solid rgba(158, 205, 255, 0.38);
+  box-shadow:
+    0 -1px 18px rgba(128, 181, 255, 0.22),
+    0 -10px 48px rgba(126, 90, 255, 0.08);
+  opacity: 0;
+  animation: logo-horizon-line-arrive 1.5s ease-out 2.42s forwards;
+}
+
+.logo-trace,
+.logo-crossbar,
+.logo-orbit,
+.logo-final-shimmer {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.logo-trace {
+  stroke: url(#logoStroke);
+  stroke-width: 13;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: url(#logoGlow);
+}
+
+.logo-trace-glow {
+  stroke-width: 34;
+  opacity: 0.12;
+  filter: url(#logoSoftGlow);
+}
+
+.logo-u-trace {
+  animation: logo-draw 1.85s cubic-bezier(.2,.72,.18,1) .62s forwards, logo-core-breathe 8s ease-in-out 5.2s infinite;
+}
+
+.logo-h-left {
+  animation: logo-draw 1.05s cubic-bezier(.18,.72,.17,1) 1.62s forwards, logo-core-breathe 8.6s ease-in-out 5.4s infinite;
+}
+
+.logo-h-right {
+  animation: logo-draw 1.12s cubic-bezier(.18,.72,.17,1) 1.82s forwards, logo-core-breathe 9.2s ease-in-out 5.6s infinite;
+}
+
+.logo-crossbar {
+  stroke: url(#horizonSweep);
+  stroke-width: 13;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: url(#logoGlow);
+  animation: logo-draw .92s cubic-bezier(.13,.75,.15,1) 2.36s forwards, logo-crossbar-breathe 7s ease-in-out 5.1s infinite;
+}
+
+.logo-crossbar-glow {
+  stroke-width: 42;
+  opacity: .15;
+  filter: url(#logoSoftGlow);
+}
+
+.logo-orbit {
+  stroke: url(#horizonSweep);
+  stroke-width: 2.2;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.logo-orbit-a {
+  animation: logo-orbit-draw 1.45s ease-out 2.48s forwards, logo-orbit-drift 12s ease-in-out 5s infinite;
+}
+
+.logo-orbit-b {
+  animation: logo-orbit-draw 1.75s ease-out 2.7s forwards, logo-orbit-drift 15s ease-in-out 5.2s infinite reverse;
+}
+
+.logo-comet-head {
+  fill: #fff6e8;
+  filter: url(#logoGlow);
+  opacity: 0;
+  animation: logo-comet-sweep .92s cubic-bezier(.13,.75,.15,1) 2.36s forwards;
+  offset-path: path("M 402 610 C 585 575 724 538 880 505 C 1037 472 1192 450 1348 453");
+  offset-rotate: 0deg;
+}
+
+.logo-word-letter {
+  fill: #f8f1ff;
+  stroke: rgba(255, 220, 198, 0.34);
+  stroke-width: 0.6;
+  paint-order: stroke fill;
+  font-family: "Snell Roundhand", "Apple Chancery", "Segoe Script", cursive;
+  font-style: italic;
+  font-weight: 400;
+  opacity: 0;
+  filter: url(#logoGlow);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-letter-arrive .78s cubic-bezier(.16,.8,.2,1.16) forwards, logo-letter-breathe 9s ease-in-out 5.4s infinite;
+}
+
+.logo-word-letter-upper {
+  fill: #eee7ff;
+}
+
+.logo-word-letter-lower {
+  fill: #ffe4d5;
+}
+
+.logo-sweep-spark {
+  fill: #fff4dd;
+  opacity: 0;
+  filter: url(#logoGlow);
+  animation: logo-spark-burst 1.2s ease-out forwards;
+}
+
+.logo-final-shimmer {
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-dasharray: .055 .945;
+  stroke-dashoffset: .98;
+  opacity: 0;
+  filter: url(#logoGlow);
+  animation: logo-shimmer-run 1.7s ease-out 4.55s forwards;
+}
+
+.logo-arrival-burst {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-arrival-flare 1.9s ease-out 2.35s forwards;
+}
+
+.logo-lab-label,
+.logo-lab-caption {
+  opacity: 0;
+  animation: logo-ui-arrive 1.1s ease-out 5.2s forwards;
+}
+
+@keyframes logo-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes logo-core-breathe {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(126, 191, 255, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 13px rgba(201, 153, 255, 0.58));
+  }
+}
+
+@keyframes logo-crossbar-breathe {
+  0%, 100% {
+    opacity: .86;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes logo-orbit-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  12% {
+    opacity: .2;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: .62;
+  }
+}
+
+@keyframes logo-orbit-drift {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: .48;
+  }
+  50% {
+    transform: translateY(-3px);
+    opacity: .72;
+  }
+}
+
+@keyframes logo-comet-sweep {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+    r: 4px;
+  }
+  10% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 1;
+    r: 8px;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+    r: 2px;
+  }
+}
+
+@keyframes logo-letter-arrive {
+  0% {
+    opacity: 0;
+    translate: -12px 9px;
+    scale: .72;
+    filter: blur(5px);
+  }
+  55% {
+    opacity: .92;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes logo-letter-breathe {
+  0%, 100% {
+    opacity: .91;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes logo-spark-burst {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(.5);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--spark-x), var(--spark-y)) scale(.05);
+  }
+}
+
+@keyframes logo-shimmer-run {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: .98;
+  }
+  12% {
+    opacity: .9;
+  }
+  88% {
+    opacity: .75;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -.04;
+  }
+}
+
+@keyframes logo-arrival-flare {
+  0% {
+    opacity: 0;
+    transform: scale(.18);
+  }
+  20% {
+    opacity: .4;
+  }
+  48% {
+    opacity: .86;
+    transform: scale(1);
+  }
+  100% {
+    opacity: .16;
+    transform: scale(1.34);
+  }
+}
+
+@keyframes logo-nebula-wake {
+  from {
+    opacity: 0;
+    transform: scale(.78);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes logo-nebula-breathe {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2vw, -1vh, 0) scale(1.06);
+  }
+}
+
+@keyframes logo-star-breathe {
+  from {
+    transform: scale(.7);
+    filter: brightness(.72);
+  }
+  to {
+    transform: scale(1.25);
+    filter: brightness(1.35);
+  }
+}
+
+@keyframes logo-horizon-wake {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scaleX(.15);
+  }
+  58% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .9;
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+@keyframes logo-horizon-breathe {
+  0%, 100% {
+    opacity: .68;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes logo-horizon-line-arrive {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scaleX(.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+@keyframes logo-ui-arrive {
+  from {
+    opacity: 0;
+    translate: 0 5px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .logo-stage {
+    width: 122vw;
+    max-width: none;
+    translate: -4vw 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-nebula,
+  .logo-space-star,
+  .logo-horizon-glow,
+  .logo-horizon-line,
+  .logo-trace,
+  .logo-crossbar,
+  .logo-orbit,
+  .logo-comet-head,
+  .logo-word-letter,
+  .logo-sweep-spark,
+  .logo-final-shimmer,
+  .logo-arrival-burst,
+  .logo-lab-label,
+  .logo-lab-caption {
+    animation: none !important;
+  }
+
+  .logo-nebula,
+  .logo-horizon-glow,
+  .logo-horizon-line,
+  .logo-trace,
+  .logo-crossbar,
+  .logo-orbit,
+  .logo-word-letter,
+  .logo-lab-label,
+  .logo-lab-caption {
+    opacity: 1;
+  }
+}
