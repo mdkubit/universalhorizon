@@ -142,7 +142,6 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
             vertexShader={`
               varying vec3 vNormalView;
               varying vec3 vPositionView;
-              uniform float uVisibility;
 
               void main() {
                 vNormalView = normalize(normalMatrix * normal);
@@ -152,6 +151,7 @@ export default function PlanetWorld({ scrollProgress }: PlanetWorldProps) {
               }
             `}
             fragmentShader={`
+              uniform float uVisibility;
               varying vec3 vNormalView;
               varying vec3 vPositionView;
 
