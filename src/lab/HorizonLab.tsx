@@ -7,7 +7,7 @@ export default function HorizonLab() {
   return (
     <main className="fixed inset-0 overflow-hidden bg-[#02040b] text-white">
       <Canvas
-        className="cursor-crosshair"
+        className="cursor-none"
         dpr={[1, 1.6]}
         camera={{ position: [0, 0, 6], fov: 50, near: 0.1, far: 100 }}
         gl={{
@@ -52,7 +52,7 @@ export default function HorizonLab() {
 
         <div className="absolute bottom-7 left-1/2 w-full -translate-x-1/2 px-6 text-center">
           <p className="text-[9px] uppercase tracking-[0.34em] text-white/35 sm:text-[10px]">
-            Move slowly · move quickly · stop · let it find you
+            Move to shed sparks · pause · watch what the thread chooses
           </p>
         </div>
       </div>
