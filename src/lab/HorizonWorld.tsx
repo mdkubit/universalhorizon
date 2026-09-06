@@ -350,7 +350,6 @@ function createRibbonGeometry(count: number) {
   geometry.setAttribute('position', positionAttribute)
   geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
   geometry.setIndex(indices)
-  geometry.frustumCulled = false
 
   return geometry
 }
