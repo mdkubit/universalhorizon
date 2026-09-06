@@ -178,15 +178,8 @@ export default function Logo3DWorld({
       logoRigRef.current.rotation.y = targetYaw
 
       if (homeChoreography) {
-        const cameraJourney = smootherStep01(p)
-        const carouselWorldY = THREE.MathUtils.lerp(
-          HOME_CAMERA_START_Y,
-          HOME_CAMERA_END_Y,
-          cameraJourney,
-        )
-
         logoRigRef.current.position.y =
-          carouselWorldY - PLANET_POSITION[1]
+          state.camera.position.y - PLANET_POSITION[1]
       } else {
         logoRigRef.current.position.y = 0
       }
@@ -195,10 +188,17 @@ export default function Logo3DWorld({
     if (emblemRef.current) {
       const floatWeight = introPhase(elapsed, 4.15, 5.35)
       emblemRef.current.position.x = 0
-      emblemRef.current.position.y =
-        0.52 +
-        Math.sin(state.clock.elapsedTime * 0.32) * 0.025 * floatWeight
+      emblemRef.current.position.y = 0.36
       emblemRef.current.position.z = LOGO_RIG_RADIUS
+
+      if (homeChoreography) {
+        const logoAngle = normalizeRadians(
+          -homeCarouselTurn(p) * Math.PI * 2,
+        )
+        emblemRef.current.visible = Math.abs(logoAngle) < 1.06
+      } else {
+        emblemRef.current.visible = true
+      }
       emblemRef.current.rotation.x =
         Math.sin(state.clock.elapsedTime * 0.17) * 0.008 * floatWeight
       emblemRef.current.rotation.z =
@@ -293,16 +293,12 @@ function CurvedNarrativeCarousel({
   return (
     <group>
       {CAROUSEL_PANELS.map((panel, index) => (
-        <group
+        <CurvedNarrativePanel
           key={panel.title}
-          rotation={[0, ((index + 1) * Math.PI * 2) / 5, 0]}
-        >
-          <CurvedNarrativePanel
-            panel={panel}
-            panelIndex={index}
-            homeProgress={homeProgress}
-          />
-        </group>
+          panel={panel}
+          panelIndex={index}
+          homeProgress={homeProgress}
+        />
       ))}
     </group>
   )
@@ -317,46 +313,84 @@ function CurvedNarrativePanel({
   panelIndex: number
   homeProgress: MutableRefObject<number>
 }) {
-  const geometry = useMemo(
+  const panelGeometry = useMemo(
     () => createCurvedPanelGeometry(11.6, 5.8, LOGO_RIG_RADIUS, 64, 10),
     [],
   )
   const texture = useMemo(() => createNarrativeTexture(panel), [panel])
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
+  const slotRef = useRef<THREE.Group>(null)
+  const meshRef = useRef<THREE.Mesh>(null)
+  const lastCurve = useRef(-1)
 
   useFrame(() => {
-    if (!materialRef.current) return
+    if (!slotRef.current || !meshRef.current) return
 
     const slotAngle = ((panelIndex + 1) * Math.PI * 2) / 5
     const carouselAngle = homeCarouselTurn(homeProgress.current) * Math.PI * 2
     const relative = normalizeRadians(slotAngle - carouselAngle)
     const distance = Math.abs(relative)
-    const visibility = 1 - smoothRangeValue(distance, 0.22, 0.48)
 
-    materialRef.current.opacity = visibility
-    materialRef.current.visible = visibility > 0.002
+    // Keep the actual carousel motion visible. The panel only disappears once
+    // it is already nearly edge-on, avoiding the previous "ordinary fade-in".
+    meshRef.current.visible = distance < 1.14
+
+    // At the exact dwell position the text becomes a truly flat readable card.
+    // As scrolling resumes, it bends back onto the cylindrical surface.
+    const curveAmount = smootherStep01(
+      smoothRangeValue(distance, 0.035, 0.54),
+    )
+
+    if (Math.abs(curveAmount - lastCurve.current) > 0.001) {
+      const position = panelGeometry.geometry.getAttribute(
+        'position',
+      ) as THREE.BufferAttribute
+      const target = position.array as Float32Array
+      const flat = panelGeometry.flatPositions
+      const curved = panelGeometry.curvedPositions
+
+      for (let index = 0; index < target.length; index += 1) {
+        target[index] = THREE.MathUtils.lerp(
+          flat[index],
+          curved[index],
+          curveAmount,
+        )
+      }
+
+      position.needsUpdate = true
+      lastCurve.current = curveAmount
+    }
   })
 
   useEffect(
     () => () => {
-      geometry.dispose()
+      panelGeometry.geometry.dispose()
       texture.dispose()
     },
-    [geometry, texture],
+    [panelGeometry, texture],
   )
 
   return (
-    <mesh geometry={geometry} position={[0, 0.25, 0]}>
-      <meshBasicMaterial
-        ref={materialRef}
-        map={texture}
-        transparent
-        opacity={0}
-        depthWrite={false}
-        side={THREE.FrontSide}
-        toneMapped={false}
-      />
-    </mesh>
+    <group
+      ref={slotRef}
+      rotation={[0, ((panelIndex + 1) * Math.PI * 2) / 5, 0]}
+    >
+      <mesh
+        ref={meshRef}
+        geometry={panelGeometry.geometry}
+        position={[0, 0.36, 0]}
+        frustumCulled={false}
+      >
+        <meshBasicMaterial
+          map={texture}
+          transparent
+          opacity={1}
+          alphaTest={0.015}
+          depthWrite={false}
+          side={THREE.FrontSide}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
   )
 }
 
@@ -368,8 +402,8 @@ function createCurvedPanelGeometry(
   segmentsY: number,
 ) {
   const geometry = new THREE.BufferGeometry()
-  const positions: number[] = []
-  const normals: number[] = []
+  const curvedPositions: number[] = []
+  const flatPositions: number[] = []
   const uvs: number[] = []
   const indices: number[] = []
 
@@ -381,11 +415,14 @@ function createCurvedPanelGeometry(
       const u = xIndex / segmentsX
       const localX = (u - 0.5) * width
       const theta = localX / radius
-      const x = Math.sin(theta) * radius
-      const z = Math.cos(theta) * radius
 
-      positions.push(x, y, z)
-      normals.push(Math.sin(theta), 0, Math.cos(theta))
+      curvedPositions.push(
+        Math.sin(theta) * radius,
+        y,
+        Math.cos(theta) * radius,
+      )
+
+      flatPositions.push(localX, y, radius)
       uvs.push(u, v)
     }
   }
@@ -403,19 +440,25 @@ function createCurvedPanelGeometry(
     }
   }
 
+  const curvedArray = new Float32Array(curvedPositions)
+  const flatArray = new Float32Array(flatPositions)
+
   geometry.setAttribute(
     'position',
-    new THREE.Float32BufferAttribute(positions, 3),
+    new THREE.BufferAttribute(curvedArray.slice(), 3),
   )
   geometry.setAttribute(
-    'normal',
-    new THREE.Float32BufferAttribute(normals, 3),
+    'uv',
+    new THREE.Float32BufferAttribute(uvs, 2),
   )
-  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
   geometry.setIndex(indices)
   geometry.computeBoundingSphere()
 
-  return geometry
+  return {
+    geometry,
+    curvedPositions: curvedArray,
+    flatPositions: flatArray,
+  }
 }
 
 function createNarrativeTexture(
