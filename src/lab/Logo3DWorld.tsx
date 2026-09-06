@@ -17,7 +17,6 @@ type Logo3DWorldProps = {
 
 const EXTRUDE_DEPTH = 0.28
 const LOGO_RIG_RADIUS = 6.8
-const LOGO_CAMERA_DISTANCE = 12.7
 const PLANET_RADIUS = 19
 const PLANET_POSITION: [number, number, number] = [0, -28, -27.5]
 
