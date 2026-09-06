@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 import UniversalHorizonLanding from './site/UniversalHorizonLanding'
+import UniversalHorizonHome from './site/UniversalHorizonHome'
 import NonprofitLanding from './site/NonprofitLanding'
 import HorizonLab from './lab/HorizonLab'
 import LogoLab from './lab/LogoLab'
@@ -9,7 +10,8 @@ import Logo3DLab from './lab/Logo3DLab'
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<UniversalHorizonLanding />} />
+      <Route path="/" element={<UniversalHorizonHome />} />
+      <Route path="/legacy-home" element={<UniversalHorizonLanding />} />
       <Route path="/nonprofit" element={<NonprofitLanding />} />
       <Route path="/horizon-lab" element={<HorizonLab />} />
       <Route path="/logo-lab" element={<Logo3DLab />} />
