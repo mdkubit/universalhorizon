@@ -191,14 +191,7 @@ export default function Logo3DWorld({
       emblemRef.current.position.y = 0.36
       emblemRef.current.position.z = LOGO_RIG_RADIUS
 
-      if (homeChoreography) {
-        const logoAngle = normalizeRadians(
-          -homeCarouselTurn(p) * Math.PI * 2,
-        )
-        emblemRef.current.visible = Math.abs(logoAngle) < 1.06
-      } else {
-        emblemRef.current.visible = true
-      }
+      emblemRef.current.visible = true
       emblemRef.current.rotation.x =
         Math.sin(state.clock.elapsedTime * 0.17) * 0.008 * floatWeight
       emblemRef.current.rotation.z =
@@ -320,6 +313,7 @@ function CurvedNarrativePanel({
   const texture = useMemo(() => createNarrativeTexture(panel), [panel])
   const slotRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
   const lastCurve = useRef(-1)
 
   useFrame(() => {
@@ -330,9 +324,23 @@ function CurvedNarrativePanel({
     const relative = normalizeRadians(slotAngle - carouselAngle)
     const distance = Math.abs(relative)
 
-    // Keep the actual carousel motion visible. The panel only disappears once
-    // it is already nearly edge-on, avoiding the previous "ordinary fade-in".
-    meshRef.current.visible = distance < 1.14
+    const slotAngleSpacing = (Math.PI * 2) / 5
+    const fadeStart = 0.94
+    const fadeEnd = slotAngleSpacing
+
+    // Preserve the physical carousel motion for most of the turn. Fade only
+    // during the last part of the outgoing arc, reaching zero exactly when
+    // the neighboring panel locks into its front-facing dwell.
+    const opacity =
+      distance <= fadeStart
+        ? 1
+        : 1 - smoothRangeValue(distance, fadeStart, fadeEnd)
+
+    if (materialRef.current) {
+      materialRef.current.opacity = opacity
+    }
+
+    meshRef.current.visible = opacity > 0.002
 
     // At the exact dwell position the text becomes a truly flat readable card.
     // As scrolling resumes, it bends back onto the cylindrical surface.
@@ -381,9 +389,10 @@ function CurvedNarrativePanel({
         frustumCulled={false}
       >
         <meshBasicMaterial
+          ref={materialRef}
           map={texture}
           transparent
-          opacity={1}
+          opacity={0}
           alphaTest={0.015}
           depthWrite={false}
           side={THREE.FrontSide}
@@ -1556,16 +1565,35 @@ function homeCarouselTurn(progress: number) {
 }
 
 function homeLogoVisibility(progress: number) {
-  if (progress <= 0.86) return 1
-  if (progress >= 0.94) return 0.06
-
-  const raw = THREE.MathUtils.clamp(
-    (progress - 0.86) / (0.94 - 0.86),
-    0,
-    1,
+  const carouselAngle = normalizeRadians(
+    -homeCarouselTurn(progress) * Math.PI * 2,
   )
-  const eased = raw * raw * (3 - 2 * raw)
-  return THREE.MathUtils.lerp(1, 0.06, eased)
+  const orbitDistance = Math.abs(carouselAngle)
+  const slotAngleSpacing = (Math.PI * 2) / 5
+  const fadeStart = 0.94
+
+  const orbitVisibility =
+    orbitDistance <= fadeStart
+      ? 1
+      : 1 - smoothRangeValue(
+          orbitDistance,
+          fadeStart,
+          slotAngleSpacing,
+        )
+
+  let finalVisibility = 1
+
+  if (progress > 0.86) {
+    const raw = THREE.MathUtils.clamp(
+      (progress - 0.86) / (0.94 - 0.86),
+      0,
+      1,
+    )
+    const eased = raw * raw * (3 - 2 * raw)
+    finalVisibility = THREE.MathUtils.lerp(1, 0.06, eased)
+  }
+
+  return orbitVisibility * finalVisibility
 }
 
 function smooth01(value: number) {
