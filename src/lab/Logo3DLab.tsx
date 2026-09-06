@@ -35,7 +35,7 @@ export default function Logo3DLab() {
     <main className="relative min-h-[360vh] bg-[#010207] text-white">
       <div className="fixed inset-0">
         <Canvas
-          dpr={[1, 1.5]}
+          dpr={1.5}
           camera={{ position: [-2.27, 0.38, 12.5], fov: 43, near: 0.1, far: 160 }}
           gl={{
             antialias: false,
