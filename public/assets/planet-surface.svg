@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1024" viewBox="0 0 2048 1024">
+  <defs>
+    <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#07182a"/>
+      <stop offset=".5" stop-color="#0b3140"/>
+      <stop offset="1" stop-color="#07131f"/>
+    </linearGradient>
+    <filter id="terrain" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".006 .012" numOctaves="4" seed="44" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="115"/>
+    </filter>
+    <filter id="clouds" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".009 .025" numOctaves="4" seed="72" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="
+        1 0 0 0 .05
+        0 1 0 0 .07
+        0 0 1 0 .10
+        0 0 0 .42 -.18" result="cloudNoise"/>
+      <feGaussianBlur stdDeviation="1.5"/>
+    </filter>
+    <linearGradient id="landA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#46523e"/>
+      <stop offset=".55" stop-color="#6b6651"/>
+      <stop offset="1" stop-color="#34483d"/>
+    </linearGradient>
+    <linearGradient id="landB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#355243"/>
+      <stop offset=".6" stop-color="#776d52"/>
+      <stop offset="1" stop-color="#2d4038"/>
+    </linearGradient>
+  </defs>
+  <rect width="2048" height="1024" fill="url(#ocean)"/>
+  <g filter="url(#terrain)" opacity=".88">
+    <path d="M120 330 C240 210 430 200 560 270 C665 326 700 424 818 455 C904 478 930 550 842 611 C720 694 520 640 430 566 C350 500 204 515 120 430 Z" fill="url(#landA)"/>
+    <path d="M970 190 C1110 110 1310 144 1382 250 C1440 335 1372 405 1450 470 C1540 546 1690 504 1780 590 C1840 648 1792 755 1650 790 C1502 826 1405 730 1310 714 C1210 697 1122 754 1045 686 C968 618 1000 540 930 470 C850 390 850 258 970 190 Z" fill="url(#landB)"/>
+    <path d="M1780 180 C1860 125 1980 170 2035 245 L2048 450 C1955 474 1875 420 1808 355 C1748 295 1720 222 1780 180 Z" fill="#465a48"/>
+  </g>
+  <rect width="2048" height="1024" filter="url(#clouds)" opacity=".72"/>
+  <g fill="none" stroke="#d7e3e7" stroke-opacity=".18" stroke-width="18" stroke-linecap="round">
+    <path d="M80 300 C360 210 520 360 760 330 S1170 190 1430 300 S1800 440 2050 340"/>
+    <path d="M-30 650 C260 540 520 720 780 620 S1250 520 1510 660 S1870 760 2080 650"/>
+  </g>
+</svg>
