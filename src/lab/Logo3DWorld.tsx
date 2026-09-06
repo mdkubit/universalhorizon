@@ -14,6 +14,9 @@ type Logo3DWorldProps = {
 }
 
 const EXTRUDE_DEPTH = 0.28
+const renderLogoPaths = renderLogoPaths.map((path) =>
+  simplifyClosedPath(path, 0.018),
+)
 
 export default function Logo3DWorld({
   scrollProgress,
@@ -204,7 +207,7 @@ function ExactEmblem({
 }) {
   const geometries = useMemo(
     () =>
-      logoPaths.map((path) => {
+      renderLogoPaths.map((path) => {
         const shape = new THREE.Shape(
           path.map(([x, y]) => new THREE.Vector2(x, y)),
         )
@@ -228,7 +231,7 @@ function ExactEmblem({
 
   const materialPairs = useMemo(
     () =>
-      logoPaths.map(() => {
+      renderLogoPaths.map(() => {
         const face = new THREE.MeshPhysicalMaterial({
           color: new THREE.Color('#06070b'),
           metalness: 0.95,
@@ -341,7 +344,9 @@ function CanonicalLettering({
       const shapePath = new THREE.ShapePath()
 
       for (const loop of letter.loops) {
-        loop.forEach(([sourceX, sourceY], index) => {
+        const renderLoop = simplifyClosedPath(loop, 1.15)
+
+        renderLoop.forEach(([sourceX, sourceY], index) => {
           const x =
             (sourceX / canonicalLettering.sourceSize[0] * 1200 - 610) * 0.00825
           const y =
@@ -752,6 +757,7 @@ function DeepStars({
 }
 
 function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
+  const meshRef = useRef<THREE.Mesh>(null)
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -881,13 +887,17 @@ function PlanetHorizon({ introTime }: { introTime: MutableRefObject<number> }) {
 
   useEffect(() => () => material.dispose(), [material])
 
-  useFrame(() => {
-    material.uniforms.uVisibility.value =
-      introPhase(introTime.current, 4.3, 5.22)
+  useFrame((state) => {
+    const visibility = introPhase(introTime.current, 4.3, 5.22)
+    material.uniforms.uVisibility.value = visibility
+
+    if (meshRef.current) {
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.0032 * visibility
+    }
   })
 
   return (
-    <mesh position={[0, -37.25, -8.75]}>
+    <mesh ref={meshRef} position={[0, -37.25, -8.75]}>
       <sphereGeometry args={[32, 72, 48]} />
       <primitive object={material} attach="material" />
     </mesh>
@@ -985,6 +995,112 @@ function TipLight({
       color="#ffe0b5"
     />
   )
+}
+
+function simplifyClosedPath(
+  path: readonly (readonly [number, number])[],
+  tolerance: number,
+): [number, number][] {
+  const points = path.map(([x, y]) => [x, y] as [number, number])
+
+  if (
+    points.length > 1 &&
+    points[0][0] === points[points.length - 1][0] &&
+    points[0][1] === points[points.length - 1][1]
+  ) {
+    points.pop()
+  }
+
+  if (points.length < 4) return points
+
+  let first = 0
+  let second = 1
+  let maxDistanceSquared = -1
+
+  for (let a = 0; a < points.length; a += 1) {
+    for (let b = a + 1; b < points.length; b += 1) {
+      const dx = points[a][0] - points[b][0]
+      const dy = points[a][1] - points[b][1]
+      const distanceSquared = dx * dx + dy * dy
+
+      if (distanceSquared > maxDistanceSquared) {
+        maxDistanceSquared = distanceSquared
+        first = a
+        second = b
+      }
+    }
+  }
+
+  const arc = (start: number, end: number) => {
+    const result: [number, number][] = [points[start]]
+    let index = start
+
+    while (index !== end) {
+      index = (index + 1) % points.length
+      result.push(points[index])
+    }
+
+    return result
+  }
+
+  const a = simplifyOpenPath(arc(first, second), tolerance)
+  const b = simplifyOpenPath(arc(second, first), tolerance)
+
+  return [...a.slice(0, -1), ...b.slice(0, -1)]
+}
+
+function simplifyOpenPath(
+  points: readonly [number, number][],
+  tolerance: number,
+): [number, number][] {
+  if (points.length <= 2) return [...points]
+
+  const start = points[0]
+  const end = points[points.length - 1]
+  let furthestIndex = -1
+  let furthestDistance = 0
+
+  for (let index = 1; index < points.length - 1; index += 1) {
+    const distance = pointToSegmentDistance(points[index], start, end)
+
+    if (distance > furthestDistance) {
+      furthestDistance = distance
+      furthestIndex = index
+    }
+  }
+
+  if (furthestIndex !== -1 && furthestDistance > tolerance) {
+    const left = simplifyOpenPath(points.slice(0, furthestIndex + 1), tolerance)
+    const right = simplifyOpenPath(points.slice(furthestIndex), tolerance)
+    return [...left.slice(0, -1), ...right]
+  }
+
+  return [start, end]
+}
+
+function pointToSegmentDistance(
+  point: readonly [number, number],
+  start: readonly [number, number],
+  end: readonly [number, number],
+) {
+  const dx = end[0] - start[0]
+  const dy = end[1] - start[1]
+
+  if (dx === 0 && dy === 0) {
+    return Math.hypot(point[0] - start[0], point[1] - start[1])
+  }
+
+  const t = THREE.MathUtils.clamp(
+    ((point[0] - start[0]) * dx + (point[1] - start[1]) * dy) /
+      (dx * dx + dy * dy),
+    0,
+    1,
+  )
+
+  const projectedX = start[0] + t * dx
+  const projectedY = start[1] + t * dy
+
+  return Math.hypot(point[0] - projectedX, point[1] - projectedY)
 }
 
 function introPhase(time: number, start: number, end: number) {
