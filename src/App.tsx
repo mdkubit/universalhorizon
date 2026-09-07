@@ -4,6 +4,7 @@ import UniversalHorizonLanding from './site/UniversalHorizonLanding'
 import UniversalHorizonHome from './site/UniversalHorizonHome'
 import NonprofitLanding from './site/NonprofitLanding'
 import ExploreLanding from './site/ExploreLanding'
+import RememberLanding from './site/RememberLanding'
 import HorizonLab from './lab/HorizonLab'
 import LogoLab from './lab/LogoLab'
 import CanonicalLogoLab from './lab/CanonicalLogoLab'
@@ -18,6 +19,7 @@ export default function App() {
       <Route path="/legacy-home" element={<UniversalHorizonLanding />} />
       <Route path="/nonprofit" element={<NonprofitLanding />} />
       <Route path="/explore" element={<ExploreLanding />} />
+      <Route path="/remember" element={<RememberLanding />} />
       <Route path="/horizon-lab" element={<HorizonLab />} />
       <Route path="/logo-lab" element={<Logo3DLab />} />
       <Route path="/logo-lab-v2" element={<CanonicalLogoLab />} />
