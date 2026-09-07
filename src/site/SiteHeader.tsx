@@ -33,7 +33,7 @@ export default function SiteHeader({ pageLabel }: { pageLabel: string }) {
             <p className="truncate text-[11px] font-medium uppercase tracking-[0.24em] text-[#e8d5b4]">
               Universal Horizon
             </p>
-            <p className="mt-0.5 truncate text-[8px] uppercase tracking-[0.24em] text-[#78c7f0]/58 sm:text-[9px]">
+            <p className="mt-0.5 truncate text-[8px] uppercase tracking-[0.24em] text-[#8bd4f7]/66 sm:text-[9px]">
               {pageLabel}
             </p>
           </div>
@@ -57,7 +57,7 @@ export default function SiteHeader({ pageLabel }: { pageLabel: string }) {
                 className={
                   active
                     ? 'relative px-3 py-2 text-[9px] font-medium uppercase tracking-[0.18em] text-[#edf8ff] after:absolute after:inset-x-4 after:-bottom-1 after:h-px after:bg-[#44cfff] after:shadow-[0_0_10px_rgba(68,207,255,0.72)]'
-                    : 'px-3 py-2 text-[9px] uppercase tracking-[0.18em] text-[#91b8d1]/70 transition hover:text-[#e8f7ff]'
+                    : 'px-3 py-2 text-[9px] uppercase tracking-[0.18em] text-[#a5c7dc]/78 transition hover:text-[#e8f7ff]'
                 }
               >
                 {item.label}
