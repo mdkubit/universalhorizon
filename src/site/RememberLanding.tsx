@@ -220,7 +220,7 @@ function PreservationPrimitives({ data }: { data: ArchiveData }) {
           ))}
         </div>
 
-        <p className="mx-auto mt-6 max-w-4xl text-center text-[14px] leading-7 text-[#c8d3dd]/70 sm:text-[15px]">
+        <p className="mx-auto mt-6 max-w-4xl text-center text-[14px] leading-7 text-[#d4dde6]/78 sm:text-[15px]">
           {data.archive_statement}
         </p>
       </div>
@@ -281,7 +281,7 @@ function ArchiveWings({ wings }: { wings: ArchiveWing[] }) {
                   Protected archive wings
                 </h3>
               </div>
-              <p className="max-w-2xl text-[14px] leading-7 text-[#cbd4dd]/70 md:justify-self-end">
+              <p className="max-w-2xl text-[14px] leading-7 text-[#d6dee6]/78 md:justify-self-end">
                 These rooms are part of the archive, but their public doors remain closed until the material behind them
                 has been deliberately curated and authorized.
               </p>
@@ -368,7 +368,7 @@ function FeaturedRecordSection({ record }: { record: FeaturedRecord }) {
               {record.title}
             </h2>
             <p className="mt-3 text-lg text-[#efd2a0]/88">{record.subtitle}</p>
-            <p className="mt-6 text-[15px] leading-7 text-[#d9e1e8]/72">{record.summary}</p>
+            <p className="mt-6 text-[15px] leading-7 text-[#e2e7ed]/80">{record.summary}</p>
 
             <div className="mt-7 flex flex-wrap gap-2">
               {record.tags.map((tag) => (
@@ -381,7 +381,7 @@ function FeaturedRecordSection({ record }: { record: FeaturedRecord }) {
               ))}
             </div>
 
-            <p className="mt-7 border-l border-[#dfb566]/32 pl-4 text-[12px] leading-6 text-[#c5ced7]/64">
+            <p className="mt-7 border-l border-[#dfb566]/32 pl-4 text-[12px] leading-6 text-[#d0d8e0]/70">
               Public representation is currently limited to approved metadata and summary. The preserved source remains
               authoritative upstream.
             </p>
@@ -422,7 +422,7 @@ function TimelineSection({ entries }: { entries: TimelineEntry[] }) {
                   {entry.date} <span className="text-[#ddb875]">{entry.year}</span>
                 </p>
                 <h3 className="mt-3 text-lg font-medium text-[#f0ebe4]">{entry.title}</h3>
-                <p className="mt-3 text-[14px] leading-6 text-[#d6dfe7]/74">{entry.summary}</p>
+                <p className="mt-3 text-[14px] leading-6 text-[#dfe6ec]/80">{entry.summary}</p>
               </div>
             </article>
           ))}
@@ -453,7 +453,7 @@ function PrinciplesSection({ principles }: { principles: Principle[] }) {
                 <PrincipleIcon type={principle.icon} className="h-5 w-5" />
               </div>
               <h3 className="mt-5 text-base font-medium text-[#f0e9dd]">{principle.title}</h3>
-              <p className="mt-3 text-[14px] leading-6 text-[#d4dde5]/72">{principle.body}</p>
+              <p className="mt-3 text-[14px] leading-6 text-[#dde4ea]/78">{principle.body}</p>
             </article>
           ))}
         </div>
@@ -478,7 +478,7 @@ function ClosingSection({ closing }: { closing: ArchiveData['closing'] }) {
             <h2 className="mt-3 text-[clamp(2.5rem,5vw,4.6rem)] font-medium tracking-[-0.045em] text-[#f1ece5]">
               {closing.title}
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-[14px] leading-7 text-[#e0e6eb]/72 sm:text-[15px]">
+            <p className="mx-auto mt-4 max-w-2xl text-[14px] leading-7 text-[#e5eaef]/80 sm:text-[15px]">
               {closing.body}
             </p>
 
@@ -504,7 +504,7 @@ function ClosingSection({ closing }: { closing: ArchiveData['closing'] }) {
 function ArchiveFooter() {
   return (
     <footer className="relative z-10 border-t border-white/[0.06] bg-[#01040b]/72">
-      <div className="mx-auto flex max-w-[96rem] flex-col gap-5 px-5 py-8 text-[11px] text-[#aeb8c4]/52 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
+      <div className="mx-auto flex max-w-[96rem] flex-col gap-5 px-5 py-8 text-[11px] text-[#bcc6d1]/62 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
         <div>
           <p className="font-medium uppercase tracking-[0.24em] text-[#e7d4b2]/72">Universal Horizon</p>
           <p className="mt-1.5">Preserve deeply. Publish deliberately. Link faithfully.</p>
