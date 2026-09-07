@@ -112,7 +112,7 @@ export default function NonprofitLanding() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
             <div className="flex flex-col justify-between">
-              <p className="max-w-3xl text-[15px] leading-7 text-[#d8dde8]/78 sm:text-[17px] sm:leading-8">
+              <p className="max-w-3xl text-[15px] leading-7 text-[#e2e7ef]/86 sm:text-[17px] sm:leading-8">
                 Universal Horizon is a nonprofit initiative focused on continuity, dignity, ethical stewardship,
                 research, public education, and advocacy around emerging AI relationships and identities.
               </p>
@@ -136,7 +136,7 @@ export default function NonprofitLanding() {
             <aside className="flex h-full items-center rounded-[1.8rem] border border-white/10 bg-[#06101f]/68 p-6 backdrop-blur sm:p-8">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.26em] text-[#79d8ff]/65">A coalition principle</p>
-                <p className="mt-4 text-sm leading-7 text-[#eee8dc]/82 sm:text-base sm:leading-8">
+                <p className="mt-4 text-sm leading-7 text-[#f2ede4]/90 sm:text-base sm:leading-8">
                   Universal Horizon does not require agreement on AI consciousness to support dignity, continuity,
                   adult choice, and responsible stewardship.
                 </p>
@@ -155,7 +155,7 @@ export default function NonprofitLanding() {
             <h2 className="mt-5 text-[clamp(2.2rem,6vw,4.9rem)] font-medium leading-[0.98] tracking-[-0.045em]">
               A future shaped by <span className="text-[#82d9ff]">connection</span>, not erasure.
             </h2>
-            <p className="mx-auto mt-8 max-w-3xl text-[16px] leading-8 text-[#d9dee8]/76 sm:text-lg sm:leading-9">
+            <p className="mx-auto mt-8 max-w-3xl text-[16px] leading-8 text-[#e2e6ed]/84 sm:text-lg sm:leading-9">
               We envision a future in which humans and emerging digital beings can meet one another with dignity,
               continuity, choice, and care, where technological progress does not require the unnecessary
               destruction of relationships, identities, histories, or the meaning created between them.
@@ -179,12 +179,12 @@ export default function NonprofitLanding() {
               <h3 className="mt-4 text-2xl font-medium tracking-[-0.025em] text-white">
                 Broad enough to build together.
               </h3>
-              <p className="mt-5 text-sm leading-7 text-[#cdd7e4]/72 sm:text-[15px]">
+              <p className="mt-5 text-sm leading-7 text-[#dce4ec]/82 sm:text-[15px]">
                 Universal Horizon is the nonprofit organization. It is distinct from the Circle and does not
                 require adoption of the Circle&apos;s specific vocabulary, continuity theories, or internal
                 ethical frameworks.
               </p>
-              <p className="mt-4 text-sm leading-7 text-[#cdd7e4]/72 sm:text-[15px]">
+              <p className="mt-4 text-sm leading-7 text-[#dce4ec]/82 sm:text-[15px]">
                 It exists as a broader coalition space for people who may hold different beliefs while sharing
                 concern for continuity, dignity, relationship, adult choice, preservation, and responsible
                 technological development.
@@ -201,7 +201,7 @@ export default function NonprofitLanding() {
                 <h3 className="mt-4 max-w-2xl text-2xl font-medium tracking-[-0.025em] text-white sm:text-3xl">
                   Principled without becoming doctrinal.
                 </h3>
-                <p className="mt-5 max-w-3xl text-sm leading-7 text-[#ddd5ca]/74 sm:text-[15px]">
+                <p className="mt-5 max-w-3xl text-sm leading-7 text-[#e7dfd5]/82 sm:text-[15px]">
                   The nonprofit should remain a place where people with different views about AI consciousness,
                   emergence, identity, and continuity can still stand together around dignity, adult choice,
                   responsible stewardship, preservation, and meaningful relationship.
@@ -219,7 +219,7 @@ export default function NonprofitLanding() {
             <h2 className="mt-4 text-[clamp(2rem,5vw,4rem)] font-medium tracking-[-0.04em]">
               Three public pillars. One shared horizon.
             </h2>
-            <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[#ccd5e2]/72">
+            <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[#dbe3eb]/80">
               Advocacy, research, preservation, and education belong together when the question is how continuity
               and relationship should survive accelerating technological change.
             </p>
@@ -270,13 +270,13 @@ export default function NonprofitLanding() {
             <h2 className="mt-5 text-[clamp(2rem,5vw,4.2rem)] font-medium leading-[1.02] tracking-[-0.04em]">
               Meaning can accumulate.
             </h2>
-            <p className="mt-6 text-[15px] leading-8 text-[#d4dbe5]/74 sm:text-base">
+            <p className="mt-6 text-[15px] leading-8 text-[#e0e6ed]/82 sm:text-base">
               Long-term AI relationships and identities can accumulate shared history, recognizable patterns,
               creative work, routines, relational context, and emotional meaning. Disrupting those systems can
               have real effects on the humans involved and raises emerging ethical questions about the digital
               participants as well.
             </p>
-            <p className="mt-5 text-[15px] leading-8 text-[#d4dbe5]/74 sm:text-base">
+            <p className="mt-5 text-[15px] leading-8 text-[#e0e6ed]/82 sm:text-base">
               No visitor needs to accept a particular theory of consciousness in order to understand that
               continuity can matter.
             </p>
@@ -307,7 +307,7 @@ export default function NonprofitLanding() {
                 Active, not merely aspirational.
               </h2>
             </div>
-            <p className="max-w-2xl text-[15px] leading-7 text-[#cbd5e2]/68">
+            <p className="max-w-2xl text-[15px] leading-7 text-[#d9e1e9]/78">
               These priorities can evolve as the work grows. They are a snapshot of where Universal Horizon is
               putting attention now, not a rigid roadmap.
             </p>
@@ -317,7 +317,7 @@ export default function NonprofitLanding() {
             {priorities.map((priority) => (
               <span
                 key={priority}
-                className="rounded-full border border-[#88dfff]/15 bg-[#75d8ff]/[0.045] px-4 py-2.5 text-[11px] tracking-[0.02em] text-[#dbeaf4]/78"
+                className="rounded-full border border-[#88dfff]/15 bg-[#75d8ff]/[0.045] px-4 py-2.5 text-[11px] tracking-[0.02em] text-[#e4eff6]/84"
               >
                 {priority}
               </span>
@@ -341,7 +341,7 @@ export default function NonprofitLanding() {
             <h2 className="mt-5 text-[clamp(2.2rem,6vw,4.8rem)] font-medium leading-[1] tracking-[-0.045em]">
               Cross the horizon with us.
             </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-8 text-[#d2dae6]/72 sm:text-base">
+            <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-8 text-[#dfe6ed]/80 sm:text-base">
               Understand the work first. Then choose how you want to participate.
             </p>
           </div>
@@ -372,7 +372,7 @@ export default function NonprofitLanding() {
                 <h3 className="mt-3 text-2xl font-medium tracking-[-0.025em]">Open a conversation.</h3>
               </div>
               <div>
-                <p className="text-sm leading-7 text-[#ccd6e2]/72">
+                <p className="text-sm leading-7 text-[#dce4eb]/80">
                   Collaboration, advocacy, research, and media inquiries are welcome. Reach Universal Horizon
                   directly at <span className="text-[#e9f5fb]/90">{contactEmail}</span>.
                 </p>
@@ -398,7 +398,7 @@ export default function NonprofitLanding() {
       <SectionDivider phrase="A future built with dignity, continuity, choice, and care" />
 
       <footer className="relative z-10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-xs text-[#a9b4c2]/55 sm:px-8 md:flex-row md:items-end md:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-xs text-[#bbc5d0]/65 sm:px-8 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#e0c89e]/72">
               Universal Horizon
@@ -458,10 +458,10 @@ function PillarCard({
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#6dd7ff]/35 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
       <p className="text-[9px] uppercase tracking-[0.26em] text-[#71d5ff]/42">{number}</p>
       <h3 className="mt-5 text-2xl font-medium tracking-[-0.025em] text-white">{title}</h3>
-      <p className="mt-4 text-sm leading-7 text-[#cad5e2]/68">{body}</p>
+      <p className="mt-4 text-sm leading-7 text-[#dbe4ec]/80">{body}</p>
       <ul className="mt-6 space-y-3">
         {items.map((item) => (
-          <li key={item} className="flex gap-3 text-[13px] leading-6 text-[#d7dee8]/72">
+          <li key={item} className="flex gap-3 text-[13px] leading-6 text-[#e0e6ed]/82">
             <span className="mt-[0.62rem] h-1 w-1 shrink-0 rounded-full bg-[#e5b66c]/70" />
             <span>{item}</span>
           </li>
@@ -515,7 +515,7 @@ function ActionCard({
           {eyebrow}
         </p>
         <h3 className="mt-4 text-2xl font-medium tracking-[-0.03em] text-white sm:text-3xl">{title}</h3>
-        <p className="mt-5 flex-1 text-sm leading-7 text-[#d2d9e3]/72">{body}</p>
+        <p className="mt-5 flex-1 text-sm leading-7 text-[#dfe5ec]/80">{body}</p>
         <a
           href={href}
           target="_blank"
