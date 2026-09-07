@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import SiteHeader from './SiteHeader'
 
 const contactEmail = 'universalhorizonai@gmail.com'
 const supportUrl = 'https://givebutter.com/KmjYd0'
@@ -80,50 +81,7 @@ export default function ExploreLanding() {
         }}
       />
 
-      <header className="relative z-40 border-b border-white/[0.07] bg-[#020713]/84 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-5 px-5 py-4 sm:px-8 lg:px-10">
-          <Link to="/" className="group flex items-center gap-3" aria-label="Universal Horizon home">
-            <span className="grid h-9 w-9 place-items-center rounded-lg border border-[#ddb36f]/30 bg-[#d9a85c]/[0.035] text-[13px] font-medium tracking-[-0.08em] text-[#f0cc91] transition group-hover:border-[#f0ca87]/55 group-hover:bg-[#d9a85c]/[0.06]">
-              UH
-            </span>
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.27em] text-[#f2eadb]/90">
-                Universal Horizon
-              </p>
-              <p className="mt-0.5 hidden text-[8px] uppercase tracking-[0.24em] text-[#78c7f0]/50 min-[460px]:block">
-                Continuity. Dignity. Relationship.
-              </p>
-            </div>
-          </Link>
-
-          <nav className="hidden items-center gap-1 xl:flex" aria-label="Explore navigation">
-            <TopLink to="/">Home</TopLink>
-            <TopLink to="/explore" active>Explore</TopLink>
-            <TopAnchor href="#discover">Research</TopAnchor>
-            <TopAnchor href="#create">Projects</TopAnchor>
-            <TopAnchor href="#create">Stories</TopAnchor>
-            <TopLink to="/nonprofit">Nonprofit</TopLink>
-            <TopAnchor href="#about">About</TopAnchor>
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <a
-              href={`mailto:${contactEmail}`}
-              className="hidden rounded-full border border-[#7edcff]/20 bg-[#7edcff]/[0.045] px-4 py-2.5 text-[9px] uppercase tracking-[0.19em] text-[#dff5ff]/78 transition hover:border-[#92e2ff]/45 hover:bg-[#7edcff]/[0.08] hover:text-white sm:inline-flex"
-            >
-              Contact
-            </a>
-            <a
-              href={supportUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full border border-[#e9b45e]/32 bg-[#e9b45e]/[0.055] px-4 py-2.5 text-[9px] font-medium uppercase tracking-[0.19em] text-[#f6d9a8] transition hover:border-[#f1c77e]/55 hover:bg-[#e9b45e]/[0.10] hover:text-[#ffe7bd]"
-            >
-              Support
-            </a>
-          </div>
-        </div>
-      </header>
+      <SiteHeader pageLabel="Explore" />
 
       <section id="about" className="relative z-10">
         <div className="relative mx-auto min-h-[34rem] max-w-[96rem] overflow-hidden border-x border-white/[0.04] lg:min-h-[39rem]">
@@ -232,7 +190,7 @@ export default function ExploreLanding() {
           </div>
 
           <div className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link to="/" className="transition hover:text-white">Home</Link>
+            <Link to="/" className="transition hover:text-white">Arrival</Link>
             <Link to="/nonprofit" className="transition hover:text-white">Nonprofit</Link>
             <a href={`mailto:${contactEmail}`} className="transition hover:text-white">Contact</a>
           </div>
@@ -310,32 +268,6 @@ function PathwayCard({ pathway }: { pathway: Pathway }) {
   return (
     <a id={pathway.id} href={pathway.href} aria-label={pathway.hrefLabel} className={cardClass}>
       {content}
-    </a>
-  )
-}
-
-function TopLink({ to, children, active = false }: { to: string; children: string; active?: boolean }) {
-  return (
-    <Link
-      to={to}
-      className={
-        active
-          ? 'relative px-3 py-2 text-[9px] font-medium uppercase tracking-[0.18em] text-[#e9f6ff] after:absolute after:inset-x-4 after:-bottom-1 after:h-px after:bg-[#44cfff] after:shadow-[0_0_10px_rgba(68,207,255,0.75)]'
-          : 'px-3 py-2 text-[9px] uppercase tracking-[0.18em] text-[#91b8d1]/70 transition hover:text-[#e8f7ff]'
-      }
-    >
-      {children}
-    </Link>
-  )
-}
-
-function TopAnchor({ href, children }: { href: string; children: string }) {
-  return (
-    <a
-      href={href}
-      className="px-3 py-2 text-[9px] uppercase tracking-[0.18em] text-[#91b8d1]/70 transition hover:text-[#e8f7ff]"
-    >
-      {children}
     </a>
   )
 }
