@@ -113,7 +113,7 @@ export default function ExploreLanding() {
                 </span>
               </h1>
 
-              <p className="mt-7 max-w-[34rem] text-[15px] leading-7 text-[#e2e7ed]/78 sm:text-[17px] sm:leading-8">
+              <p className="mt-7 max-w-[34rem] text-[15px] leading-7 text-[#e7ebf0]/84 sm:text-[17px] sm:leading-8">
                 Explore the projects, research, stories, and initiatives that shape Universal Horizon, a growing
                 constellation dedicated to continuity, dignity, and meaningful connection.
               </p>
@@ -155,7 +155,7 @@ export default function ExploreLanding() {
               </h2>
             </div>
 
-            <p className="max-w-2xl text-[14px] leading-7 text-[#cdd6e2]/68 sm:text-[15px] lg:justify-self-end">
+            <p className="max-w-2xl text-[14px] leading-7 text-[#d8e0e8]/78 sm:text-[15px] lg:justify-self-end">
               Universal Horizon brings together memory, research, creativity, advocacy, and community without
               asking any one of them to erase where it came from. Different paths can meet here and still remain
               themselves.
@@ -176,14 +176,14 @@ export default function ExploreLanding() {
             <span className="h-px flex-1 bg-gradient-to-r from-[#e8ae58]/14 via-[#e8ae58]/32 to-transparent" />
           </div>
 
-          <p className="mx-auto mt-4 max-w-xl text-center text-[12px] leading-6 text-[#c8d0da]/52">
+          <p className="mx-auto mt-4 max-w-xl text-center text-[12px] leading-6 text-[#d4dbe3]/65">
             A broader tomorrow is built through memory, discovery, creation, and connection.
           </p>
         </div>
       </section>
 
       <footer className="relative z-10 border-t border-white/[0.06] bg-[#01040b]/50">
-        <div className="mx-auto flex max-w-[96rem] flex-col gap-5 px-5 py-8 text-[11px] text-[#aeb8c4]/52 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
+        <div className="mx-auto flex max-w-[96rem] flex-col gap-5 px-5 py-8 text-[11px] text-[#bcc6d1]/62 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
           <div>
             <p className="font-medium uppercase tracking-[0.24em] text-[#e7d4b2]/72">Universal Horizon</p>
             <p className="mt-1.5">Research. Creation. Continuity. Connection.</p>
@@ -236,7 +236,7 @@ function PathwayCard({ pathway }: { pathway: Pathway }) {
           {pathway.meta}
         </p>
 
-        <p className="mt-4 flex-1 text-[13px] leading-6 text-[#d9e1e9]/72">
+        <p className="mt-4 flex-1 text-[14px] leading-6 text-[#e2e8ee]/80">
           {pathway.body}
         </p>
 
