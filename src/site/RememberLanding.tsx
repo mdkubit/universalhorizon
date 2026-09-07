@@ -229,28 +229,71 @@ function PreservationPrimitives({ data }: { data: ArchiveData }) {
 }
 
 function ArchiveWings({ wings }: { wings: ArchiveWing[] }) {
+  const openWings = wings.filter((wing) => !wing.locked)
+  const lockedWings = wings.filter((wing) => wing.locked)
+  const firstOpenRow = openWings.slice(0, 3)
+  const secondOpenRow = openWings.slice(3)
+
   return (
     <section id="archive-wings" className="relative z-10 scroll-mt-24">
       <div className="mx-auto max-w-[96rem] px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
         <div className="grid gap-7 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.36em] text-[#65d5ff]/65">The Living Archive</p>
+            <p className="text-[10px] uppercase tracking-[0.36em] text-[#65d5ff]/72">The Living Archive</p>
             <h2 className="mt-3 text-[clamp(2.4rem,5vw,4.6rem)] font-medium leading-[0.96] tracking-[-0.045em] text-[#f1ece4]">
               The Archive <span className="text-[#e8b968]">Wings</span>
             </h2>
           </div>
 
-          <p className="max-w-2xl text-[14px] leading-7 text-[#c9d3dd]/67 sm:text-[15px] lg:justify-self-end">
+          <p className="max-w-2xl text-[15px] leading-7 text-[#d4dde6]/76 sm:text-[16px] lg:justify-self-end">
             Each wing preserves a different kind of continuity. Open wings expose only curated public material. Closed
             wings remain visible without pretending that visibility grants access.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {wings.map((wing) => (
-            <ArchiveWingCard key={wing.id} wing={wing} />
-          ))}
+        <div className="mt-10">
+          <div className="flex items-center gap-4" aria-hidden="true">
+            <span className="text-[9px] font-medium uppercase tracking-[0.3em] text-[#6fd9ff]/64">Open archive wings</span>
+            <span className="h-px flex-1 bg-gradient-to-r from-[#58d1ff]/20 to-transparent" />
+          </div>
+
+          <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {firstOpenRow.map((wing) => (
+              <ArchiveWingCard key={wing.id} wing={wing} />
+            ))}
+          </div>
+
+          {secondOpenRow.length > 0 ? (
+            <div className="mt-5 grid gap-5 md:grid-cols-2 xl:mx-auto xl:max-w-[64rem]">
+              {secondOpenRow.map((wing) => (
+                <ArchiveWingCard key={wing.id} wing={wing} />
+              ))}
+            </div>
+          ) : null}
         </div>
+
+        {lockedWings.length > 0 ? (
+          <div className="mt-14 border-t border-[#d8b36d]/12 pt-9">
+            <div className="grid gap-4 md:grid-cols-[auto_1fr] md:items-end">
+              <div>
+                <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-[#dfba72]/66">Curated Access</p>
+                <h3 className="mt-2 text-[1.45rem] font-medium tracking-[-0.025em] text-[#eee7dc]">
+                  Protected archive wings
+                </h3>
+              </div>
+              <p className="max-w-2xl text-[14px] leading-7 text-[#cbd4dd]/70 md:justify-self-end">
+                These rooms are part of the archive, but their public doors remain closed until the material behind them
+                has been deliberately curated and authorized.
+              </p>
+            </div>
+
+            <div className="mt-6 grid gap-5 md:grid-cols-2 xl:mx-auto xl:max-w-[64rem]">
+              {lockedWings.map((wing) => (
+                <ArchiveWingCard key={wing.id} wing={wing} />
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   )
@@ -262,8 +305,8 @@ function ArchiveWingCard({ wing }: { wing: ArchiveWing }) {
       id={wing.id}
       className={
         wing.locked
-          ? 'group relative min-h-[24rem] overflow-hidden rounded-[1.6rem] border border-[#bba36e]/14 bg-[#050a11] shadow-[0_24px_72px_rgba(0,0,0,0.28)]'
-          : 'group relative min-h-[24rem] overflow-hidden rounded-[1.6rem] border border-[#47cfff]/18 bg-[#050d17] shadow-[0_24px_72px_rgba(0,0,0,0.28)] transition duration-500 hover:-translate-y-1 hover:border-[#5ad8ff]/38'
+          ? 'relative min-h-[24rem] overflow-hidden rounded-[1.6rem] border border-[#bba36e]/16 bg-[#050a11] shadow-[0_24px_72px_rgba(0,0,0,0.28)]'
+          : 'relative min-h-[24rem] overflow-hidden rounded-[1.6rem] border border-[#47cfff]/22 bg-[#050d17] shadow-[0_24px_72px_rgba(0,0,0,0.28)]'
       }
     >
       <img
@@ -271,28 +314,32 @@ function ArchiveWingCard({ wing }: { wing: ArchiveWing }) {
         alt=""
         className={
           wing.locked
-            ? 'absolute inset-0 h-full w-full object-cover opacity-60 saturate-[0.78]'
-            : 'absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]'
+            ? 'absolute inset-0 h-full w-full object-cover opacity-56 saturate-[0.72]'
+            : 'absolute inset-0 h-full w-full object-cover brightness-[1.10] saturate-[1.05]'
         }
       />
 
       <div
-        className="absolute inset-0 bg-gradient-to-t from-[#020712] via-[#020712]/72 to-[#020712]/08"
+        className={
+          wing.locked
+            ? 'absolute inset-0 bg-gradient-to-t from-[#020712] via-[#020712]/78 to-[#020712]/22'
+            : 'absolute inset-0 bg-gradient-to-t from-[#020712] via-[#020712]/50 to-transparent'
+        }
         aria-hidden="true"
       />
 
       {wing.locked ? (
-        <div className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full border border-[#d0b578]/24 bg-[#020713]/74 text-[#dfc58c] backdrop-blur-sm">
+        <div className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full border border-[#d0b578]/28 bg-[#020713]/76 text-[#e6ca91] backdrop-blur-sm">
           <LockIcon className="h-4.5 w-4.5" />
         </div>
       ) : null}
 
       <div className="absolute inset-x-0 bottom-0 p-6 sm:p-7">
-        <p className="text-[9px] uppercase tracking-[0.24em] text-[#74d8ff]/60">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-[#7edfff]/72">
           {wing.locked ? 'Curated access pending' : wing.concept}
         </p>
-        <h3 className="mt-2 text-[1.45rem] font-medium tracking-[-0.025em] text-[#f1ece3]">{wing.title}</h3>
-        <p className="mt-3 max-w-lg text-[13px] leading-6 text-[#d6dee6]/68">{wing.body}</p>
+        <h3 className="mt-2 text-[1.45rem] font-medium tracking-[-0.025em] text-[#f3eee6]">{wing.title}</h3>
+        <p className="mt-3 max-w-lg text-[14px] leading-6 text-[#e0e6ec]/78">{wing.body}</p>
       </div>
     </article>
   )
@@ -334,7 +381,7 @@ function FeaturedRecordSection({ record }: { record: FeaturedRecord }) {
               ))}
             </div>
 
-            <p className="mt-7 border-l border-[#dfb566]/32 pl-4 text-[11px] leading-6 text-[#b9c3ce]/54">
+            <p className="mt-7 border-l border-[#dfb566]/32 pl-4 text-[12px] leading-6 text-[#c5ced7]/64">
               Public representation is currently limited to approved metadata and summary. The preserved source remains
               authoritative upstream.
             </p>
@@ -375,7 +422,7 @@ function TimelineSection({ entries }: { entries: TimelineEntry[] }) {
                   {entry.date} <span className="text-[#ddb875]">{entry.year}</span>
                 </p>
                 <h3 className="mt-3 text-lg font-medium text-[#f0ebe4]">{entry.title}</h3>
-                <p className="mt-3 text-[13px] leading-6 text-[#cad4de]/64">{entry.summary}</p>
+                <p className="mt-3 text-[14px] leading-6 text-[#d6dfe7]/74">{entry.summary}</p>
               </div>
             </article>
           ))}
@@ -406,7 +453,7 @@ function PrinciplesSection({ principles }: { principles: Principle[] }) {
                 <PrincipleIcon type={principle.icon} className="h-5 w-5" />
               </div>
               <h3 className="mt-5 text-base font-medium text-[#f0e9dd]">{principle.title}</h3>
-              <p className="mt-3 text-[13px] leading-6 text-[#cbd4dd]/64">{principle.body}</p>
+              <p className="mt-3 text-[14px] leading-6 text-[#d4dde5]/72">{principle.body}</p>
             </article>
           ))}
         </div>
