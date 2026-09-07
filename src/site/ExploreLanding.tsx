@@ -28,8 +28,8 @@ const pathways: Pathway[] = [
     image: '/assets/explore-remember.jpg',
     tone: 'blue',
     icon: 'book',
-    href: '#remember',
-    hrefLabel: 'Remember pathway',
+    href: '/remember',
+    hrefLabel: 'Enter the archive',
   },
   {
     id: 'discover',
