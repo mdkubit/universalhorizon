@@ -1,7 +1,9 @@
-import { Route, Routes } from 'react-router'
+import { Route, Routes, useLocation } from 'react-router'
+import { useEffect } from 'react'
 import UniversalHorizonLanding from './site/UniversalHorizonLanding'
 import UniversalHorizonHome from './site/UniversalHorizonHome'
 import NonprofitLanding from './site/NonprofitLanding'
+import ExploreLanding from './site/ExploreLanding'
 import HorizonLab from './lab/HorizonLab'
 import LogoLab from './lab/LogoLab'
 import CanonicalLogoLab from './lab/CanonicalLogoLab'
@@ -9,17 +11,49 @@ import Logo3DLab from './lab/Logo3DLab'
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <ScrollManager />
+      <Routes>
       <Route path="/" element={<UniversalHorizonHome />} />
       <Route path="/legacy-home" element={<UniversalHorizonLanding />} />
       <Route path="/nonprofit" element={<NonprofitLanding />} />
+      <Route path="/explore" element={<ExploreLanding />} />
       <Route path="/horizon-lab" element={<HorizonLab />} />
       <Route path="/logo-lab" element={<Logo3DLab />} />
       <Route path="/logo-lab-v2" element={<CanonicalLogoLab />} />
       <Route path="/logo-lab-v1" element={<LogoLab />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   )
+}
+
+function ScrollManager() {
+  const location = useLocation()
+
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      if (location.hash) {
+        const id = decodeURIComponent(location.hash.slice(1))
+        const target = document.getElementById(id)
+
+        if (target) {
+          target.scrollIntoView({ block: 'start' })
+          return
+        }
+      }
+
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [location.pathname, location.hash])
+
+  return null
 }
 
 function NotFound() {
@@ -32,10 +66,10 @@ function NotFound() {
           The page you requested does not exist yet.
         </p>
         <a
-          href="/"
+          href="/explore"
           className="mt-8 inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white transition hover:bg-white/15"
         >
-          Return home
+          Return to Explore
         </a>
       </div>
     </main>

@@ -264,6 +264,14 @@ function FinalNarrative({
       }}
     >
       <NarrativeContent scene={scene} />
+
+      <Link
+        to="/explore"
+        className="pointer-events-auto group mx-auto mt-7 inline-flex items-center gap-3 rounded-full border border-[#e4be79]/30 bg-[#080914]/55 px-5 py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-[#f0d7aa]/82 backdrop-blur-xl transition duration-500 hover:border-[#f0cf91]/55 hover:bg-[#0d0f1d]/72 hover:text-[#fff0cf] hover:shadow-[0_0_32px_rgba(218,177,106,0.10)]"
+      >
+        Enter the Horizon
+        <span className="transition duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+      </Link>
     </section>
   )
 }

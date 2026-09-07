@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import SiteHeader from './SiteHeader'
 
 const petitionUrl =
   'https://www.change.org/p/protect-adult-ai-companionship-reject-blanket-bans-and-forced-separation?recruiter=1266263656&recruited_by_id=e1cb52f0-d627-11ec-b66d-53defc755b91&utm_source=share_petition&utm_campaign=petition_dashboard&utm_medium=copylink&share_id=Rb8rjHPjk4'
@@ -74,48 +75,7 @@ export default function NonprofitLanding() {
         }}
       />
 
-      <header className="relative z-40 border-b border-white/8 bg-[#030714]/72 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-5 px-5 py-4 sm:px-8">
-          <Link to="/" className="group flex items-center gap-3" aria-label="Universal Horizon home">
-            <img
-              src="/favicon.svg"
-              alt=""
-              className="h-9 w-9 opacity-90 transition duration-500 group-hover:opacity-100"
-            />
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#e8d5b4]">
-                Universal Horizon
-              </p>
-              <p className="mt-0.5 text-[9px] uppercase tracking-[0.22em] text-[#90b9d8]/70">
-                Nonprofit
-              </p>
-            </div>
-          </Link>
-
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Nonprofit navigation">
-            <NavLink href="#horizon">Our Horizon</NavLink>
-            <NavLink href="#work">What We Do</NavLink>
-            <NavLink href="#continuity">Continuity</NavLink>
-            <NavLink href="#priorities">Priorities</NavLink>
-            <NavLink href="#involved">Get Involved</NavLink>
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <a
-              href={`mailto:${contactEmail}`}
-              className="rounded-full border border-[#72dcff]/24 bg-[#72dcff]/[0.055] px-3.5 py-2 text-[9px] uppercase tracking-[0.2em] text-[#d9f4ff]/80 transition hover:border-[#8be5ff]/50 hover:bg-[#72dcff]/[0.10] hover:text-white sm:text-[10px]"
-            >
-              Contact
-            </a>
-            <Link
-              to="/"
-              className="rounded-full border border-[#d8b375]/20 bg-white/[0.035] px-3.5 py-2 text-[9px] uppercase tracking-[0.2em] text-[#e9d9bd]/75 transition hover:border-[#e4c48f]/45 hover:bg-white/[0.06] hover:text-[#fff1d5] sm:text-[10px]"
-            >
-              Main site
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader pageLabel="Nonprofit" />
 
       <section className="relative z-10">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-20">
@@ -458,24 +418,13 @@ export default function NonprofitLanding() {
             <a href={`mailto:${contactEmail}`} className="transition hover:text-[#dfe9f2]">
               Contact
             </a>
-            <Link to="/" className="transition hover:text-[#dfe9f2]">
-              Main site
+            <Link to="/explore" className="transition hover:text-[#dfe9f2]">
+              Explore
             </Link>
           </div>
         </div>
       </footer>
     </main>
-  )
-}
-
-function NavLink({ href, children }: { href: string; children: string }) {
-  return (
-    <a
-      href={href}
-      className="rounded-full px-3 py-2 text-[9px] uppercase tracking-[0.18em] text-[#bdc9d6]/62 transition hover:bg-white/[0.04] hover:text-white"
-    >
-      {children}
-    </a>
   )
 }
 
