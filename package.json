@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "prepare:earth-assets": "node scripts/copy-earth-assets.mjs",
-    "predev": "npm run prepare:earth-assets",
+    "predev": "npm run prepare:earth-assets && npm run validate:remember-data",
     "dev": "vite",
-    "prebuild": "npm run prepare:earth-assets",
+    "prebuild": "npm run prepare:earth-assets && npm run validate:remember-data",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:remember-data": "node scripts/validate-remember-public-data.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
