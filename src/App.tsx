@@ -66,10 +66,10 @@ function NotFound() {
           The page you requested does not exist yet.
         </p>
         <a
-          href="/"
+          href="/explore"
           className="mt-8 inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white transition hover:bg-white/15"
         >
-          Return home
+          Return to Explore
         </a>
       </div>
     </main>
