@@ -45,7 +45,7 @@ export default function SiteHeader({ pageLabel }: { pageLabel: string }) {
                 ? location.pathname === '/nonprofit'
                 : item.to === '/explore'
                   ? location.pathname === '/explore' && !location.hash
-                  : location.pathname === '/explore' && location.hash === item.to.slice(item.to.indexOf('#'))
+                  : false
 
             return (
               <Link
