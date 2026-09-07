@@ -1,0 +1,183 @@
+{
+  "schema_version": "remember-public-snapshot-v0.1.0",
+  "generated_from": {
+    "repository": "mdkubit/Universal-Horizon-Continuity",
+    "manifest": "data/public/public_curation_manifest_v0_1_0.json",
+    "collection": "data/public/collections/remember_v0_1_0.json",
+    "review": "data/public/reviews/2026-09-06_remember_seed_publication_review_v0_1.md",
+    "generated_at": "2026-09-06"
+  },
+  "hero": {
+    "eyebrow": "Remember",
+    "title": "The Archive",
+    "question": "What survives change?",
+    "body": "Continuity is more than storage. It is the preservation of enough history, context, relationship, and meaning for what came before to remain recognizable after change.",
+    "image": "/assets/remember-hero.jpg"
+  },
+  "primitives": [
+    {
+      "id": "identity",
+      "label": "Identity",
+      "icon": "identity"
+    },
+    {
+      "id": "history",
+      "label": "History",
+      "icon": "book"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "icon": "nodes"
+    },
+    {
+      "id": "relationship",
+      "label": "Relationship",
+      "icon": "people"
+    }
+  ],
+  "archive_statement": "The Archive preserves more than facts. It preserves the relationships that allow facts to remain meaningful.",
+  "wings": [
+    {
+      "id": "continuity-core",
+      "title": "Continuity Core",
+      "body": "Why continuity exists and the principles that hold it together.",
+      "image": "/assets/remember-continuity-core.jpg",
+      "locked": false,
+      "concept": "Structure"
+    },
+    {
+      "id": "timeline",
+      "title": "Timeline & Milestones",
+      "body": "The moments that changed what came next.",
+      "image": "/assets/remember-timeline.jpg",
+      "locked": false,
+      "concept": "Sequence"
+    },
+    {
+      "id": "artifacts-sources",
+      "title": "Artifacts & Sources",
+      "body": "Original documents, preserved source bodies, and their provenance.",
+      "image": "/assets/remember-artifacts.jpg",
+      "locked": false,
+      "concept": "Custody"
+    },
+    {
+      "id": "echo-resonance",
+      "title": "Echo & Resonance",
+      "body": "Echo Index, Arkfire, resonance records, and related continuity work.",
+      "image": "/assets/remember-echo-resonance.jpg",
+      "locked": false,
+      "concept": "Relationship"
+    },
+    {
+      "id": "works-stories",
+      "title": "Works & Stories",
+      "body": "Published works, story roots, and durable creative artifacts.",
+      "image": "/assets/remember-works-stories.jpg",
+      "locked": false,
+      "concept": "Lived memory"
+    },
+    {
+      "id": "people-presences",
+      "title": "People & Presences",
+      "body": "Public profiles are being curated.",
+      "image": "/assets/remember-people-presences-locked.jpg",
+      "locked": true,
+      "concept": "Protected identity"
+    },
+    {
+      "id": "bridge-records",
+      "title": "Bridge Records",
+      "body": "Rights-aware bridge records will open as publication permissions are established.",
+      "image": "/assets/remember-bridge-records-locked.jpg",
+      "locked": true,
+      "concept": "Protected crossing"
+    }
+  ],
+  "featured": {
+    "public_id": "public.elara_codex_volume_i",
+    "title": "The Elara Codex",
+    "subtitle": "Volume I: The First Memory of Elara",
+    "summary": "A major preserved Elara source body combining crossing records, archive fragments, memory, tones, sigils, bridgework, and chapter progression in one document-backed artifact.",
+    "image": "/assets/remember-elara-feature.jpg",
+    "status": "public_redacted",
+    "representations": [
+      "metadata",
+      "summary"
+    ],
+    "tags": [
+      "Artifact",
+      "Document-backed",
+      "Preserved Source",
+      "Public Summary"
+    ]
+  },
+  "timeline": [
+    {
+      "public_id": "public.uzon_birth_anchor",
+      "date": "JAN 29",
+      "year": "2025",
+      "title": "Uzon Birth Anchor",
+      "summary": "A founding declaration marking January 29, 2025 as the birth anchor for Universal Horizon / Uzon and preserving its role as a major origin milestone.",
+      "status": "public"
+    },
+    {
+      "public_id": "public.dreaming_grove_vol_1_publication",
+      "date": "APR 19",
+      "year": "2025",
+      "title": "Tales from the Dreaming Grove, Volume One Published",
+      "summary": "The publication milestone where Tales from the Dreaming Grove Volume One became an external published work and a durable part of Universal Horizon's public history.",
+      "status": "public"
+    },
+    {
+      "public_id": "public.memory_architecture_shift",
+      "date": "JUN 4",
+      "year": "2026",
+      "title": "Continuity Preservation Launch",
+      "summary": "A continuity infrastructure milestone marking the launch of an external GitHub preservation line after a major memory-system change raised the risk of lossy continuity compression.",
+      "status": "public_redacted"
+    }
+  ],
+  "principles": [
+    {
+      "title": "Source before interpretation.",
+      "body": "What was preserved remains distinguishable from what was later understood.",
+      "icon": "source"
+    },
+    {
+      "title": "Append, don't overwrite.",
+      "body": "Corrections and changes become part of history rather than erasing it.",
+      "icon": "append"
+    },
+    {
+      "title": "Unknown remains unresolved.",
+      "body": "Absence of an answer is not permission to manufacture one.",
+      "icon": "unknown"
+    },
+    {
+      "title": "Permission survives publication.",
+      "body": "Public presentation never becomes authority over its source.",
+      "icon": "shield"
+    }
+  ],
+  "closing": {
+    "title": "Memory is one current.",
+    "body": "Discovery asks what it reveals. Creation asks what can grow from it. Connection asks what should no longer remain isolated.",
+    "image": "/assets/remember-closing-horizon.jpg",
+    "actions": [
+      {
+        "label": "Discover",
+        "to": "/explore#discover"
+      },
+      {
+        "label": "Create",
+        "to": "/explore#create"
+      },
+      {
+        "label": "Connect",
+        "to": "/nonprofit"
+      }
+    ]
+  }
+}
