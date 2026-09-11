@@ -1,8 +1,6 @@
 import { Link } from 'react-router'
 import SiteHeader from './SiteHeader'
 
-const observerRepoUrl = 'https://github.com/mdkubit/Observer'
-
 const researchCurrents = [
   {
     id: 'observer',
@@ -13,8 +11,6 @@ const researchCurrents = [
       'A bidirectional observation system that records environmental events, builds immutable lineage, calculates the Harmony Lattice, and preserves the path from observation through return and answer without collapsing the record into a single score.',
     note:
       'Observer is built to keep provenance visible. External data records its source, time, method, status, and failure state rather than inventing a plausible replacement.',
-    href: observerRepoUrl,
-    hrefLabel: 'Open the public Observer repository',
   },
   {
     id: 'project-zero',
@@ -176,16 +172,6 @@ export default function ResearchLanding() {
                   <div>
                     <p className="text-[14px] leading-7 text-[#d5e0e6]/80 sm:text-[15px]">{current.body}</p>
                     <p className="mt-4 text-[12px] leading-6 text-[#9eb4c1]/66 sm:text-[13px]">{current.note}</p>
-                    {'href' in current && current.href ? (
-                      <a
-                        href={current.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-5 inline-flex text-[10px] font-medium uppercase tracking-[0.2em] text-[#65d8ff]/76 transition hover:text-[#ddf8ff]"
-                      >
-                        {current.hrefLabel} ↗
-                      </a>
-                    ) : null}
                   </div>
                 </article>
               ))}
