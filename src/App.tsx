@@ -6,7 +6,6 @@ import NonprofitLanding from './site/NonprofitLanding'
 import ExploreLanding from './site/ExploreLanding'
 import RememberLanding from './site/RememberLanding'
 import AboutLanding from './site/AboutLanding'
-import ResearchLanding from './site/ResearchLanding'
 import HorizonLab from './lab/HorizonLab'
 import LogoLab from './lab/LogoLab'
 import CanonicalLogoLab from './lab/CanonicalLogoLab'
@@ -23,7 +22,6 @@ export default function App() {
       <Route path="/explore" element={<ExploreLanding />} />
       <Route path="/remember" element={<RememberLanding />} />
       <Route path="/about" element={<AboutLanding />} />
-      <Route path="/research" element={<ResearchLanding />} />
       <Route path="/horizon-lab" element={<HorizonLab />} />
       <Route path="/logo-lab" element={<Logo3DLab />} />
       <Route path="/logo-lab-v2" element={<CanonicalLogoLab />} />
