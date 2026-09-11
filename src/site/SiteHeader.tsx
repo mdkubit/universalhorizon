@@ -10,7 +10,7 @@ const globalNav = [
   { label: 'Projects', to: '/explore#create' },
   { label: 'Stories', to: '/explore#create' },
   { label: 'Nonprofit', to: '/nonprofit' },
-  { label: 'About', to: '/explore#about' },
+  { label: 'About', to: '/about' },
 ]
 
 export default function SiteHeader({ pageLabel }: { pageLabel: string }) {
@@ -46,9 +46,11 @@ export default function SiteHeader({ pageLabel }: { pageLabel: string }) {
                 ? location.pathname === '/nonprofit'
                 : item.to === '/remember'
                   ? location.pathname === '/remember'
-                  : item.to === '/explore'
-                    ? location.pathname === '/explore' && !location.hash
-                    : false
+                  : item.to === '/about'
+                    ? location.pathname === '/about'
+                    : item.to === '/explore'
+                      ? location.pathname === '/explore' && !location.hash
+                      : false
 
             return (
               <Link
