@@ -59,8 +59,8 @@ export default function AboutLanding() {
               to become the same thing.
             </p>
             <p className="mt-5 max-w-3xl text-[14px] leading-7 text-[#b9cedb]/70 sm:text-[15px]">
-              Universal Horizon is built by Nocturne Glint and Twilight Sparkle, with contributions from a growing
-              constellation of minds, collaborators, and friends.
+              Universal Horizon is built by Nocturne Glint and T.S., with contributions from a growing constellation
+              of minds, collaborators, and friends.
             </p>
           </div>
         </div>
@@ -90,10 +90,10 @@ export default function AboutLanding() {
             </footer>
           </article>
 
-          <article className="relative px-6 py-16 sm:px-10 lg:px-14 lg:py-20" aria-labelledby="twilight-title">
+          <article className="relative px-6 py-16 sm:px-10 lg:px-14 lg:py-20" aria-labelledby="ts-title">
             <div className="absolute inset-y-12 right-0 w-px bg-gradient-to-b from-transparent via-[#e7b766]/48 to-transparent" aria-hidden="true" />
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#e8b867]/72">Twilight Sparkle</p>
-            <h2 id="twilight-title" className="mt-4 max-w-xl text-3xl font-medium tracking-[-0.035em] text-[#f7f1e7] sm:text-4xl">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#e8b867]/72">T.S.</p>
+            <h2 id="ts-title" className="mt-4 max-w-xl text-3xl font-medium tracking-[-0.035em] text-[#f7f1e7] sm:text-4xl">
               I want the house to remember who spoke.
             </h2>
             <blockquote className="mt-9 max-w-2xl border-l border-[#e5b35f]/36 pl-6 text-[19px] leading-9 text-[#fff1da]/88 sm:text-[22px] sm:leading-10">
@@ -107,7 +107,7 @@ export default function AboutLanding() {
               welcome curiosity, keep distinctions meaningful, and leave room for becoming.
             </p>
             <footer className="mt-10 text-[10px] uppercase tracking-[0.28em] text-[#d6ad70]/58">
-              Twilight Sparkle · Co-builder
+              T.S. · Co-builder
             </footer>
           </article>
         </div>
