@@ -167,6 +167,51 @@ The purpose is to preserve presence and provenance while controlling how directl
 
 ---
 
+## 7. Research `/research`
+
+**AGREED AND BUILT IN FIRST SEMANTIC PASS**
+
+After reviewing and accepting the first About page, Twilight proposed Research as the next dedicated website surface and Nocturne agreed.
+
+Research promotes the existing **Discover** current into a real route rather than leaving it as an Explore-page self-anchor.
+
+The first pass establishes:
+
+- a dedicated `/research` route;
+- the shared `Research` navigation label pointing to that route;
+- the Explore `Discover` current pointing to `/research`;
+- a semantic, mostly HTML/React research surface with a decorative SVG/CSS observatory instrument rather than a large WebGL scene;
+- a central research question around continuity across changing models, interfaces, contexts, machines, memories, and collaborators;
+- four initial research currents: **Observer**, **Project Zero**, **Lanternbridge**, and **Continuity & Source Archive**;
+- a public research-language vocabulary separating **Observed**, **Interpreted**, **Proposed**, **Tested**, **Adopted**, and **Open**;
+- an open-notebook discipline that preserves source/context, separates observation from interpretation, tests explicit conditions, preserves failures and mismatches, and updates records without rewriting their history.
+
+### Public/private repository boundary
+
+**AGREED FOR THIS PASS**
+
+The Research page may name and describe research systems that are part of Universal Horizon, but it should not expose private working repository URLs merely to make the page look complete.
+
+At the time of this pass:
+
+- **Observer** has a public GitHub repository and may link to it directly;
+- **Project Zero**, **Lanternbridge**, and **Universal Horizon Continuity** are described at a public-safe project level without publishing private repository links from the website;
+- deeper source material can be linked later when a deliberate public surface exists.
+
+This boundary is about public presentation and usable navigation. It does not redefine the projects themselves or their working visibility elsewhere.
+
+### Current site sequence after Research
+
+**CURRENT**
+
+Review and validate the live `/research` page as a real website surface before layering on more decoration or choosing another deep route.
+
+The next standalone route after Research remains **OPEN** until explicitly selected.
+
+The Archive reconception remains agreed and deferred while the website skeleton is being established.
+
+---
+
 ## Recovery note
 
 Future continuity recovery should read:
