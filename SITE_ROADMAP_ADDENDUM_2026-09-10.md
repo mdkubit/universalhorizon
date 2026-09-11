@@ -188,17 +188,11 @@ The first pass establishes:
 
 ### Public/private repository boundary
 
-**AGREED FOR THIS PASS**
+**HISTORICAL FIRST-PASS STATE, SUPERSEDED BY SECTION 8**
 
 The Research page may name and describe research systems that are part of Universal Horizon, but it should not expose private working repository URLs merely to make the page look complete.
 
-At the time of this pass:
-
-- **Observer** has a public GitHub repository and may link to it directly;
-- **Project Zero**, **Lanternbridge**, and **Universal Horizon Continuity** are described at a public-safe project level without publishing private repository links from the website;
-- deeper source material can be linked later when a deliberate public surface exists.
-
-This boundary is about public presentation and usable navigation. It does not redefine the projects themselves or their working visibility elsewhere.
+The first published pass linked directly to the then-public Observer repository while leaving Project Zero, Lanternbridge, and Universal Horizon Continuity unlinked. That decision was withdrawn immediately afterward and is preserved here only as historical state.
 
 ### Current site sequence after Research
 
@@ -209,6 +203,25 @@ Review and validate the live `/research` page as a real website surface before l
 The next standalone route after Research remains **OPEN** until explicitly selected.
 
 The Archive reconception remains agreed and deferred while the website skeleton is being established.
+
+---
+
+## 8. Observer public repository link withdrawn
+
+**AGREED AND APPLIED**
+
+After the first Research pass went live, Nocturne identified that Observer should not be exposed through a direct public repository link and stated that the Observer repository is being changed to private.
+
+The website was corrected immediately:
+
+- the direct Observer GitHub URL was removed from `src/site/ResearchLanding.tsx`;
+- the Observer research current remains described on the public Research page;
+- no research current currently exposes a working-repository URL from that section;
+- public description of a project does not imply public access to its implementation repository.
+
+This correction supersedes the first-pass permission in section 7 to link directly to Observer.
+
+Future public repository links for research systems require an explicit decision at the time they are added. Do not infer that repository visibility alone makes a repository an approved website destination.
 
 ---
 
