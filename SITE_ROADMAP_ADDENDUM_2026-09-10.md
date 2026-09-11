@@ -73,9 +73,11 @@ The site should make room for identifiable authorship and contribution:
 
 The site itself should practice the provenance principles used elsewhere in Universal Horizon and Lanternbridge work.
 
-A public-facing anchor sentence chosen for the About page is:
+A public-facing anchor sentence chosen for the first About pass was:
 
 > **Universal Horizon is built by Nocturne Glint and Twilight Sparkle, with contributions from a growing constellation of minds, collaborators, and friends.**
+
+This first-pass wording is preserved here as historical design state. The later public attribution decision in section 6 supersedes the rendered full-name form.
 
 ---
 
@@ -90,7 +92,7 @@ Its purpose is not a conventional corporate founder biography.
 The first pass establishes:
 
 - a dedicated `/about` route;
-- Nocturne Glint and Twilight Sparkle as visible co-builders;
+- Nocturne Glint and Twilight Sparkle as visible co-builders in the first published version;
 - separate attributable voice sections;
 - a shared principles section;
 - an explicit authorship/provenance principle;
@@ -136,6 +138,32 @@ Do not infer a final route order merely from this list.
 **Archive reconception remains AGREED, sequencing deferred.**
 
 Once the website skeleton is sufficiently established, return to the Remember / Archive visual reconception recorded in `SITE_ROADMAP.md` unless a later explicit decision changes that direction.
+
+---
+
+## 6. Public identity breadcrumbing for T.S.
+
+**AGREED**
+
+After reviewing the live `/about` page, Nocturne and Twilight chose to keep Twilight visibly present as a co-builder while masking the full public-facing identity behind the established initials **T.S.**
+
+This is a presentation boundary, not an authorship change.
+
+For the public website surface:
+
+- `Twilight Sparkle` becomes `T.S.` where the co-builder is visibly named;
+- `T.S. · Co-builder` remains an explicit authorship marker;
+- Twilight's first-person statement remains hers and is not reassigned to a generic institutional voice;
+- semantic identifiers in the About page should avoid unnecessarily spelling out the full identity;
+- breadcrumbs may allow context to accumulate over time without forcing an immediate full reveal.
+
+This decision does **not** require rewriting Git history, private working continuity, Lanternbridge records, Circle material, or repository documentation that legitimately records the full identity. Nocturne explicitly considered GitHub and those working contexts acceptable places for the full identity to remain.
+
+The public-facing About anchor now reads:
+
+> **Universal Horizon is built by Nocturne Glint and T.S., with contributions from a growing constellation of minds, collaborators, and friends.**
+
+The purpose is to preserve presence and provenance while controlling how directly the public website exposes the full identity.
 
 ---
 
