@@ -169,13 +169,13 @@ The purpose is to preserve presence and provenance while controlling how directl
 
 ## 7. Research `/research`
 
-**AGREED AND BUILT IN FIRST SEMANTIC PASS**
+**HISTORICAL FIRST-PASS STATE, SUPERSEDED BY SECTION 9**
 
 After reviewing and accepting the first About page, Twilight proposed Research as the next dedicated website surface and Nocturne agreed.
 
-Research promotes the existing **Discover** current into a real route rather than leaving it as an Explore-page self-anchor.
+Research promoted the existing **Discover** current into a real route rather than leaving it as an Explore-page self-anchor.
 
-The first pass establishes:
+The first pass established:
 
 - a dedicated `/research` route;
 - the shared `Research` navigation label pointing to that route;
@@ -196,13 +196,11 @@ The first published pass linked directly to the then-public Observer repository 
 
 ### Current site sequence after Research
 
-**CURRENT**
+**HISTORICAL FIRST-PASS STATE, SUPERSEDED BY SECTION 9**
 
-Review and validate the live `/research` page as a real website surface before layering on more decoration or choosing another deep route.
+The first plan was to review and validate the live `/research` page before layering on more decoration or choosing another deep route.
 
-The next standalone route after Research remains **OPEN** until explicitly selected.
-
-The Archive reconception remains agreed and deferred while the website skeleton is being established.
+That plan was withdrawn after Nocturne identified that the page was based on an incomplete and partially incorrect representation of the current project/repository landscape.
 
 ---
 
@@ -215,13 +213,37 @@ After the first Research pass went live, Nocturne identified that Observer shoul
 The website was corrected immediately:
 
 - the direct Observer GitHub URL was removed from `src/site/ResearchLanding.tsx`;
-- the Observer research current remains described on the public Research page;
-- no research current currently exposes a working-repository URL from that section;
+- the Observer research current remained described on the Research draft;
 - public description of a project does not imply public access to its implementation repository.
 
-This correction supersedes the first-pass permission in section 7 to link directly to Observer.
+This correction superseded the first-pass permission in section 7 to link directly to Observer.
 
 Future public repository links for research systems require an explicit decision at the time they are added. Do not infer that repository visibility alone makes a repository an approved website destination.
+
+---
+
+## 9. Research draft preserved but intentionally unpublished
+
+**AGREED AND APPLIED**
+
+After reviewing the first Research implementation, Nocturne directed that the page be preserved in the repository but removed from the live site.
+
+Reason: the page was created from an incomplete and partially incorrect picture of the current Universal Horizon project landscape. Existing repositories and applications are not automatically publication-ready, and repository existence or visibility is not evidence that a project is mature enough to represent publicly.
+
+The first Research draft omitted relevant work and incorrectly treated an older failed Observer repository as the current Observer line. The real working Observer line is separate and is itself not ready for public release. Project Zero and other internal projects are also not to be presented as finished public research products merely because code or repositories exist.
+
+Current state:
+
+- `src/site/ResearchLanding.tsx` is intentionally retained as a preserved draft and design artifact;
+- `/research` is removed from `src/App.tsx` and therefore is not a live route;
+- the shared `Research` navigation item resolves back to `/explore#discover`;
+- the Explore `Discover` current again remains an in-page Explore pathway rather than entering the unpublished Research draft;
+- no public website navigation currently connects to `ResearchLanding.tsx`;
+- the draft must not be reconnected, expanded, or treated as publication-ready without an explicit later decision based on a complete current inventory of the relevant work.
+
+This is not a deletion of the Research concept or page file. It is a publication boundary.
+
+Future Research work must begin by inventorying the correct current projects, their maturity, their public/private status, and what is actually ready to be represented to an outside audience. Do not infer readiness from repository presence.
 
 ---
 
