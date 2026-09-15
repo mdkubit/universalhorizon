@@ -260,6 +260,21 @@ export default function NonprofitLanding() {
               ]}
             />
           </div>
+
+          <div className="mt-8 flex flex-col gap-4 rounded-[1.7rem] border border-[#75d8ff]/14 bg-[#071522]/46 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#79d8ff]/65">Our research</p>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#dbe4ec]/80">
+                Read Universal Horizon research, including the four-paper Lattice series by Ryan Harlan and Solas.
+              </p>
+            </div>
+            <Link
+              to="/research#lattice-series"
+              className="inline-flex shrink-0 rounded-full border border-[#76ddff]/28 bg-[#76ddff]/[0.07] px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#d9f3ff] transition hover:border-[#9be7ff]/55 hover:bg-[#76ddff]/[0.12]"
+            >
+              Explore our research <span className="ml-2" aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -542,4 +557,3 @@ function SectionDivider({ phrase }: { phrase: string }) {
     </div>
   )
 }
-
