@@ -40,8 +40,8 @@ const pathways: Pathway[] = [
     image: '/assets/explore-discover.jpg',
     tone: 'blue',
     icon: 'telescope',
-    href: '#discover',
-    hrefLabel: 'Discover pathway',
+    href: '/research',
+    hrefLabel: 'Enter research',
   },
   {
     id: 'create',

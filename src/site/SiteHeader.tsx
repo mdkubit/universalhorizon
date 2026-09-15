@@ -6,7 +6,7 @@ const supportUrl = 'https://givebutter.com/KmjYd0'
 const globalNav = [
   { label: 'Explore', to: '/explore' },
   { label: 'Archive', to: '/remember' },
-  { label: 'Research', to: '/explore#discover' },
+  { label: 'Research', to: '/research' },
   { label: 'Projects', to: '/explore#create' },
   { label: 'Stories', to: '/explore#create' },
   { label: 'Nonprofit', to: '/nonprofit' },
@@ -48,9 +48,11 @@ export default function SiteHeader({ pageLabel }: { pageLabel: string }) {
                   ? location.pathname === '/remember'
                   : item.to === '/about'
                     ? location.pathname === '/about'
-                    : item.to === '/explore'
-                      ? location.pathname === '/explore' && !location.hash
-                      : false
+                    : item.to === '/research'
+                      ? location.pathname === '/research'
+                      : item.to === '/explore'
+                        ? location.pathname === '/explore' && !location.hash
+                        : false
 
             return (
               <Link
